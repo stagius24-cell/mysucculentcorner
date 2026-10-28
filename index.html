@@ -238,13 +238,19 @@
 
       <!-- SYNC & IMPORT STATUS PANEL -->
       <div class="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
-        <div class="flex items-center justify-between mb-1.5 gap-2">
+        <div class="flex items-center justify-between mb-2 gap-2">
           <span class="text-xs font-extrabold text-slate-900 flex items-center gap-1">
             <span>🐙</span>
             <span>Data Source & Sync</span>
           </span>
-          <button onclick="manualSyncGithub()" class="text-[11px] font-extrabold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 border border-emerald-200 px-2.5 py-1 rounded-lg transition-all active:scale-95">
-            🔄 Sync GitHub Now
+        </div>
+        <div class="flex items-center gap-1.5 mb-2">
+          <button onclick="toggleMenuDrawer(false); triggerGitHubWorkflowOnDemand();" class="flex-1 text-[11px] font-extrabold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 px-2.5 py-1.5 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-1 shadow-sm">
+            <span>⚡</span>
+            <span>Run Etsy Sync in Cloud</span>
+          </button>
+          <button onclick="toggleMenuDrawer(false); autoImportGithubCsv({ manual: true });" class="text-[11px] font-extrabold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 border border-emerald-200 px-2.5 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm">
+            🔄 Reload CSV
           </button>
         </div>
         <div id="drawerSyncDetails" class="text-[11px] text-slate-600 font-medium leading-relaxed">
@@ -261,6 +267,14 @@
             <span>Copy / Share Shopping List Text</span>
           </span>
           <span class="text-[10px] font-extrabold bg-emerald-800 px-2 py-0.5 rounded-full">Export</span>
+        </button>
+
+        <button onclick="changeGitHubToken()" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl flex items-center justify-between gap-2.5 active:scale-[0.99] transition-all">
+          <span class="flex items-center gap-2.5">
+            <span>🔑</span>
+            <span>Update / Change GitHub Token</span>
+          </span>
+          <span class="text-[10px] font-bold text-slate-400">Settings</span>
         </button>
 
         <button onclick="openCsvModal()" class="w-full py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
@@ -821,19 +835,19 @@
 
       const ZONE_CONFIG = {
         1: {
-          name: "Zone 1 • Echeveria, Crassula, Nanouk & Lilac Mist",
+          name: "Zone 1: Echeveria, Crassula, Nanouk & Lilac Mist",
           color: "bg-emerald-900 text-white border-emerald-700"
         },
         2: {
-          name: "Zone 2 • String of Hearts & Trailing Plants",
+          name: "Zone 2: String of Hearts & Trailing Plants",
           color: "bg-teal-900 text-white border-teal-700"
         },
         3: {
-          name: "Zone 3 • Cactus, Jade, Aeonium, Sedum & Key Lime",
+          name: "Zone 3: Cactus, Jade, Aeonium, Sedum & Key Lime",
           color: "bg-amber-900 text-white border-amber-700"
         },
         4: {
-          name: "Zone 4 • Other Succulents & Specialty Decor",
+          name: "Zone 4: Other Succulents & Specialty Decor",
           color: "bg-indigo-950 text-white border-indigo-800"
         }
       };
@@ -1002,7 +1016,6 @@
 
         updateSyncStatusUI(true);
 
-        // Relative path fetch with timestamp parameter to bust browser cache completely
         const githubCsvUrl = `./${GITHUB_CSV_FILENAME}?t=${Date.now()}`;
 
         try {
@@ -1027,7 +1040,6 @@
               timestamp: formatNowTimestamp()
             };
 
-            // preserveState: false ensures previous counts/checked states reset to 0 with the new CSV
             processCsvRows(rows, { preserveState: false, silent: true });
             updateSyncStatusUI(false);
 
@@ -1058,6 +1070,90 @@
       window.manualSyncGithub = function() {
         toggleMenuDrawer(false);
         autoImportGithubCsv({ manual: true });
+      };
+
+      async function triggerGitHubWorkflowOnDemand() {
+        let token = localStorage.getItem('gh_workflow_token');
+        if (!token) {
+          token = prompt('Enter your GitHub Personal Access Token (starts with ghp_):');
+          if (!token || !token.trim()) return;
+          token = token.trim();
+          localStorage.setItem('gh_workflow_token', token);
+        }
+
+        const repoOwner = 'stagius24-cell';
+        const repoName = 'mysucculentcorner';
+        const workflowFileName = 'update_report.yml';
+        const url = `https://api.github.com/repos/${repoOwner}/${repoName}/actions/workflows/${workflowFileName}/dispatches`;
+
+        updateSyncStatusUI(true);
+
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/vnd.github+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ref: 'main' })
+          });
+
+          if (response.status === 204) {
+            showDialog({
+              icon: '⏳',
+              title: 'Cloud Run Started',
+              message: 'GitHub is connecting to Etsy to fetch your latest orders. Waiting 20 seconds for the report to compile...'
+            });
+
+            let count = 20;
+            const timer = setInterval(() => {
+              count--;
+              const dialogMsg = document.getElementById('dialogMessage');
+              if (dialogMsg) dialogMsg.textContent = `GitHub is compiling your fresh Etsy report... (${count}s remaining)`;
+              if (count <= 0) {
+                clearInterval(timer);
+                closeDialog();
+                autoImportGithubCsv({ manual: true });
+              }
+            }, 1000);
+          } else {
+            const errData = await response.json().catch(() => ({}));
+            if (response.status === 401) {
+              localStorage.removeItem('gh_workflow_token');
+            }
+            throw new Error(errData.message || `HTTP ${response.status}`);
+          }
+        } catch (err) {
+          updateSyncStatusUI(false);
+          showDialog({
+            icon: '⚠️',
+            title: 'Failed to Trigger Action',
+            message: `Could not trigger GitHub Action: ${err.message}`
+          });
+        }
+      }
+
+      window.changeGitHubToken = function() {
+        toggleMenuDrawer(false);
+        const existing = localStorage.getItem('gh_workflow_token') || '';
+        const newToken = prompt('Enter your new GitHub Personal Access Token (starts with ghp_):', existing);
+        if (newToken === null) return;
+        if (newToken.trim() === '') {
+          localStorage.removeItem('gh_workflow_token');
+          showDialog({
+            icon: '🗑️',
+            title: 'Token Removed',
+            message: 'Your saved GitHub token has been removed from this browser.'
+          });
+        } else {
+          localStorage.setItem('gh_workflow_token', newToken.trim());
+          showDialog({
+            icon: '🔑',
+            title: 'Token Saved',
+            message: 'Your GitHub token has been saved in this browser.'
+          });
+        }
       };
 
       function loadStorage() {
@@ -1214,6 +1310,8 @@
           switchMode('buy');
         } else if (currentMode === 'buy') {
           switchMode('count');
+        } else {
+          triggerGitHubWorkflowOnDemand();
         }
       };
 
@@ -1577,9 +1675,9 @@
           } else {
             if (iconEl) iconEl.textContent = "🪴";
             document.getElementById('emptyStateTitle').textContent = "No Orders Loaded";
-            document.getElementById('emptyStateDesc').textContent = "Fetching orders from GitHub or tap below to sync.";
+            document.getElementById('emptyStateDesc').textContent = "Tap below to fetch your Etsy pending orders in the cloud.";
             if (emptyActionBtn) {
-              emptyActionBtn.textContent = "Sync GitHub Now";
+              emptyActionBtn.textContent = "⚡ Run Etsy Sync in Cloud";
               emptyActionBtn.classList.remove('hidden');
             }
           }
