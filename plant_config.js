@@ -142,9 +142,9 @@ var PLANT_DICTIONARY = [
     match: ["moonstone"]
   },
   {
-    preferredName: "Echeveria 'Lola' & String of Pearl combo",
+    preferredName: "Echeveria 'Lola'",
     zone: 1,
-    match: ["lola and string of pearl", "echeveria lola and string", "lola , 1 pearl", "echeveria lola", "lola"]
+    match: ["echeveria 'lola'", "echeveria lola", "lola"]
   },
   {
     preferredName: "Echeveria",
