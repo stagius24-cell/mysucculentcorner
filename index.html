@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MySucculentCorner - Plant Restock & Shopping List</title>
+    <!-- FULLSCREEN & PWA CAPABILITIES (HIDES BROWSER ADDRESS BAR) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MySucculentCorner">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,40 +80,50 @@
   </head>
   <body class="bg-slate-100 text-slate-900 antialiased min-h-screen pb-28 select-none">
     <!-- ULTRA-COMPACT STICKY HEADER -->
-    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm no-print pt-[env(safe-area-inset-top,0px)]">
-      <!-- ROW 1: BRAND + LIVE SYNC STATUS + QUICK ACTIONS -->
-      <div class="max-w-xl mx-auto px-2.5 py-1.5 flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2 min-w-0">
-          <!-- MASCOT LOGO -->
-          <div class="shrink-0">
-            <img id="shopLogoImg" src="logo.png" alt="MySucculentCorner logo" class="w-8 h-8 rounded-lg object-cover shadow-sm border border-emerald-200/80 bg-[#edd5d2]" />
-          </div>
-          <div class="min-w-0 flex flex-col justify-center leading-tight">
-            <div class="flex items-center gap-1.5">
-              <span class="text-xs sm:text-sm font-extrabold text-slate-900 truncate tracking-tight">MySucculentCorner</span>
+    <header id="appStickyHeader" class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm no-print pt-[env(safe-area-inset-top,0px)]">
+      <!-- ROW 1: BRAND + LIVE SYNC STATUS + QUICK ACTIONS (COLLAPSIBLE ON SCROLL) -->
+      <div id="headerRowBrand" class="overflow-hidden transition-all duration-300 ease-in-out max-h-24 opacity-100">
+        <div class="max-w-xl mx-auto px-2.5 py-1.5 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <!-- MASCOT LOGO -->
+            <div class="shrink-0">
+              <img id="shopLogoImg" src="logo.png" alt="MySucculentCorner logo" class="w-8 h-8 rounded-lg object-cover shadow-sm border border-emerald-200/80 bg-[#edd5d2]" />
             </div>
-            <button onclick="toggleMenuDrawer(true)" class="text-left flex items-center gap-1 group focus:outline-none" title="Tap to view data source and sync options">
-              <span id="headerSyncIcon" class="text-[9px] leading-none hidden">🔄</span>
-              <span id="headerSyncTime" class="text-[10px] font-bold text-slate-500 group-hover:text-emerald-700 truncate transition-colors">Oct 28, 9:16 PM</span>
+            <div class="min-w-0 flex flex-col justify-center leading-tight">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs sm:text-sm font-extrabold text-slate-900 truncate tracking-tight">MySucculentCorner</span>
+              </div>
+              <button onclick="toggleMenuDrawer(true)" class="text-left flex items-center gap-1 group focus:outline-none" title="Tap to view data source and sync options">
+                <span id="headerSyncIcon" class="text-[9px] leading-none hidden">🔄</span>
+                <span id="headerSyncTime" class="text-[10px] font-bold text-slate-500 group-hover:text-emerald-700 truncate transition-colors">Oct 28, 9:16 PM</span>
+              </button>
+            </div>
+          </div>
+          <!-- QUICK ACTIONS -->
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="toggleFullScreen()" title="Toggle full screen" aria-label="Toggle full screen" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 flex items-center justify-center active:scale-95 transition-all">
+              <svg id="fullscreenIconExpand" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+              </svg>
+              <svg id="fullscreenIconCompress" class="hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 14h6m0 0v6m0-6L3 21m17-7h-6m0 0v6m0-6l7 7M3 3l7 7m0-7v6m0 0H4m17-7l-7 7m0-7v6m0 0h6" />
+              </svg>
+            </button>
+            <button onclick="openManualAdd()" title="Add a plant manually" class="h-8 px-2.5 rounded-lg bg-violet-100 hover:bg-violet-200 text-violet-900 border border-violet-200/90 text-xs font-extrabold whitespace-nowrap active:scale-95 transition-all flex items-center gap-1 shadow-sm">
+              <span>＋</span>
+              <span>Add plant</span>
+            </button>
+            <button onclick="toggleMenuDrawer(true)" title="Utilities menu" aria-label="Utilities menu" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 flex items-center justify-center active:scale-95 transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </button>
           </div>
         </div>
-        <!-- QUICK ADD & MENU -->
-        <div class="flex items-center gap-1.5 shrink-0">
-          <button onclick="openManualAdd()" title="Add a plant manually" class="h-8 px-2.5 rounded-lg bg-violet-100 hover:bg-violet-200 text-violet-900 border border-violet-200/90 text-xs font-extrabold whitespace-nowrap active:scale-95 transition-all flex items-center gap-1 shadow-sm">
-            <span>＋</span>
-            <span>Add plant</span>
-          </button>
-          <button onclick="toggleMenuDrawer(true)" title="Utilities menu" aria-label="Utilities menu" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 flex items-center justify-center active:scale-95 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
       </div>
 
-      <!-- ROW 2: 3-MODE SEGMENTED TABS -->
-      <div class="max-w-xl mx-auto px-2.5 pb-1.5">
+      <!-- ROW 2: 3-MODE SEGMENTED TABS (PERMANENTLY PINNED AT TOP) -->
+      <div id="headerRowTabs" class="max-w-xl mx-auto px-2.5 py-1.5">
         <div class="bg-slate-200/90 p-0.5 rounded-xl grid grid-cols-3 gap-1 text-xs font-bold">
           <button id="tabStock" onclick="switchMode('count')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 bg-white text-slate-900 shadow-sm font-extrabold active:scale-[0.98] whitespace-nowrap">
             <span>📦 Count</span>
@@ -122,46 +140,49 @@
         </div>
       </div>
 
-      <!-- ROW 3: SEARCH BAR + SORT SELECTOR -->
-      <div class="max-w-xl mx-auto px-2.5 pb-1.5 flex items-center gap-1.5">
-        <div class="relative flex-1 min-w-0">
-          <span class="absolute left-2.5 top-2 text-xs pointer-events-none text-slate-400">🔍</span>
-          <input id="searchInput" type="text" placeholder="Search plant or variation..." oninput="handleSearchDebounced(this.value)" class="w-full bg-slate-100 pl-7 pr-7 py-1 text-xs rounded-lg border border-slate-300 focus:border-emerald-600 focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 h-8" />
-          <button id="clearSearchBtn" onclick="clearSearch()" aria-label="Clear search" class="hidden absolute right-1 top-0.5 w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 text-xs font-bold">✕</button>
+      <!-- COLLAPSIBLE FILTERS (ROW 3 & ROW 4 - COLLAPSIBLE ON SCROLL) -->
+      <div id="headerRowFilters" class="overflow-hidden transition-all duration-300 ease-in-out max-h-40 opacity-100">
+        <!-- ROW 3: SEARCH BAR + SORT SELECTOR -->
+        <div class="max-w-xl mx-auto px-2.5 pb-1.5 flex items-center gap-1.5">
+          <div class="relative flex-1 min-w-0">
+            <span class="absolute left-2.5 top-2 text-xs pointer-events-none text-slate-400">🔍</span>
+            <input id="searchInput" type="text" placeholder="Search plant or variation..." oninput="handleSearchDebounced(this.value)" class="w-full bg-slate-100 pl-7 pr-7 py-1 text-xs rounded-lg border border-slate-300 focus:border-emerald-600 focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 h-8" />
+            <button id="clearSearchBtn" onclick="clearSearch()" aria-label="Clear search" class="hidden absolute right-1 top-0.5 w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 text-xs font-bold">✕</button>
+          </div>
+          <!-- COMPACT SORT SELECTOR -->
+          <div class="relative shrink-0 w-[106px]">
+            <select id="sortSelect" aria-label="Sort plants by" onchange="handleSortChange(this.value)" class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-[11px] font-bold py-1 pl-2 pr-5 rounded-lg focus:outline-none focus:border-emerald-600 appearance-none cursor-pointer h-8 truncate">
+              <option value="zone">Sort: Zone</option>
+              <option value="sold-desc" selected>Sort: Sold</option>
+              <option value="name-asc">Sort: A to Z</option>
+              <option value="need-first">Sort: Need</option>
+            </select>
+            <span class="text-[9px] text-slate-500 absolute right-1.5 top-2.5 pointer-events-none">▼</span>
+          </div>
         </div>
-        <!-- COMPACT SORT SELECTOR -->
-        <div class="relative shrink-0 w-[106px]">
-          <select id="sortSelect" aria-label="Sort plants by" onchange="handleSortChange(this.value)" class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-[11px] font-bold py-1 pl-2 pr-5 rounded-lg focus:outline-none focus:border-emerald-600 appearance-none cursor-pointer h-8 truncate">
-            <option value="zone">Sort: Zone</option>
-            <option value="sold-desc" selected>Sort: Sold</option>
-            <option value="name-asc">Sort: A to Z</option>
-            <option value="need-first">Sort: Need</option>
-          </select>
-          <span class="text-[9px] text-slate-500 absolute right-1.5 top-2.5 pointer-events-none">▼</span>
-        </div>
-      </div>
 
-      <!-- ROW 4: SIZE FILTER CHIPS + HIDE COUNTED TOGGLE -->
-      <div class="max-w-xl mx-auto px-2.5 pb-1.5 flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
-        <button onclick="setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-slate-900 text-white shadow-sm active:scale-95 whitespace-nowrap">
-          All <span id="chipCountAll" class="opacity-80 font-normal ml-0.5">0</span>
-        </button>
-        <button onclick="setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
-          2" <span id="chipCount2" class="opacity-75 font-normal ml-0.5">0</span>
-        </button>
-        <button onclick="setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
-          4" <span id="chipCount4" class="opacity-75 font-normal ml-0.5">0</span>
-        </button>
-        <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
-          6"/2G <span id="chipCount6" class="opacity-75 font-normal ml-0.5">0</span>
-        </button>
-        <button onclick="setPotFilter('special')" data-size-filter="special" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
-          Sets/Spec <span id="chipCountSpecial" class="opacity-75 font-normal ml-0.5">0</span>
-        </button>
-        <button id="hideCountedChip" onclick="toggleHideCounted()" class="h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap ml-auto flex items-center gap-1" title="Hide variations already verified in Count mode">
-          <span id="hideCountedChipIcon">👁</span>
-          <span id="hideCountedChipText">Hide Done</span>
-        </button>
+        <!-- ROW 4: SIZE FILTER CHIPS + HIDE COUNTED TOGGLE -->
+        <div class="max-w-xl mx-auto px-2.5 pb-1.5 flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
+          <button onclick="setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-slate-900 text-white shadow-sm active:scale-95 whitespace-nowrap">
+            All <span id="chipCountAll" class="opacity-80 font-normal ml-0.5">0</span>
+          </button>
+          <button onclick="setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
+            2" <span id="chipCount2" class="opacity-75 font-normal ml-0.5">0</span>
+          </button>
+          <button onclick="setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
+            4" <span id="chipCount4" class="opacity-75 font-normal ml-0.5">0</span>
+          </button>
+          <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
+            6"/2G <span id="chipCount6" class="opacity-75 font-normal ml-0.5">0</span>
+          </button>
+          <button onclick="setPotFilter('special')" data-size-filter="special" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
+            Sets/Spec <span id="chipCountSpecial" class="opacity-75 font-normal ml-0.5">0</span>
+          </button>
+          <button id="hideCountedChip" onclick="toggleHideCounted()" class="h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap ml-auto flex items-center gap-1" title="Hide variations already verified in Count mode">
+            <span id="hideCountedChipIcon">👁</span>
+            <span id="hideCountedChipText">Hide Done</span>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -246,6 +267,14 @@
 
       <!-- ACTION BUTTONS -->
       <div class="space-y-1.5 text-xs font-bold text-slate-800">
+        <button onclick="toggleMenuDrawer(false); toggleFullScreen();" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl flex items-center justify-between gap-2.5 active:scale-[0.99] transition-all">
+          <span class="flex items-center gap-2.5">
+            <span>⛶</span>
+            <span id="drawerFullscreenLabel">Full Screen Mode (Hide Browser URL Bar)</span>
+          </span>
+          <span class="text-[10px] font-bold text-slate-400">View</span>
+        </button>
+
         <button onclick="shareShoppingList()" class="w-full py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl flex items-center justify-between gap-2.5 active:scale-[0.99] transition-all shadow-sm">
           <span class="flex items-center gap-2.5">
             <span>📋</span>
@@ -2422,6 +2451,98 @@
           }
         });
       };
+
+      
+      // FULL SCREEN API (Hides browser URL bar)
+      window.toggleFullScreen = function() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          const docEl = document.documentElement;
+          if (docEl.requestFullscreen) {
+            docEl.requestFullscreen().catch(() => {});
+          } else if (docEl.webkitRequestFullscreen) {
+            docEl.webkitRequestFullscreen();
+          } else if (docEl.msRequestFullscreen) {
+            docEl.msRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+        }
+      };
+
+      document.addEventListener('fullscreenchange', updateFullscreenIcons);
+      document.addEventListener('webkitfullscreenchange', updateFullscreenIcons);
+
+      function updateFullscreenIcons() {
+        const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        const iconExpand = document.getElementById('fullscreenIconExpand');
+        const iconCompress = document.getElementById('fullscreenIconCompress');
+        const drawerLabel = document.getElementById('drawerFullscreenLabel');
+        if (iconExpand && iconCompress) {
+          iconExpand.classList.toggle('hidden', isFull);
+          iconCompress.classList.toggle('hidden', !isFull);
+        }
+        if (drawerLabel) {
+          drawerLabel.textContent = isFull ? 'Exit Full Screen' : 'Full Screen Mode (Hide Browser URL Bar)';
+        }
+      }
+
+      // SCROLL COLLAPSE / REVEAL HEADER BEHAVIOR
+      let lastScrollY = window.scrollY;
+      let isHeaderCollapsed = false;
+
+      function setHeaderCollapsed(collapse) {
+        if (isHeaderCollapsed === collapse) return;
+        isHeaderCollapsed = collapse;
+        const brandRow = document.getElementById('headerRowBrand');
+        const filtersRow = document.getElementById('headerRowFilters');
+        if (collapse) {
+          if (brandRow) {
+            brandRow.style.maxHeight = '0px';
+            brandRow.style.opacity = '0';
+            brandRow.style.pointerEvents = 'none';
+          }
+          if (filtersRow) {
+            filtersRow.style.maxHeight = '0px';
+            filtersRow.style.opacity = '0';
+            filtersRow.style.pointerEvents = 'none';
+          }
+        } else {
+          if (brandRow) {
+            brandRow.style.maxHeight = '100px';
+            brandRow.style.opacity = '1';
+            brandRow.style.pointerEvents = 'auto';
+          }
+          if (filtersRow) {
+            filtersRow.style.maxHeight = '160px';
+            filtersRow.style.opacity = '1';
+            filtersRow.style.pointerEvents = 'auto';
+          }
+        }
+      }
+
+      window.addEventListener('scroll', () => {
+        const currentY = window.scrollY;
+        const delta = currentY - lastScrollY;
+
+        // When near the top, always show full header
+        if (currentY <= 25) {
+          setHeaderCollapsed(false);
+        } else if (delta > 8 && currentY > 50) {
+          // Scrolling up / swiping up into the page: collapse header to maximize space, keep Count, Buy, Cart
+          setHeaderCollapsed(true);
+        } else if (delta < -8) {
+          // Scrolling down / swiping down towards top: reveal header
+          setHeaderCollapsed(false);
+        }
+
+        lastScrollY = currentY;
+      }, { passive: true });
 
       window.addEventListener('DOMContentLoaded', initApp);
     </script>
