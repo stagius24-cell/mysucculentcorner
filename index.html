@@ -2313,9 +2313,9 @@
           const combined = `${varOpt} ${title}`.toLowerCase();
           let potSize = 'Special';
           if (combined.includes('2 gallon') || combined.includes('2gallon')) potSize = '2 Gallon';
-          else if (combined.includes('6"') || combined.includes('6 inch')) potSize = '6"';
-          else if (combined.includes('4"') || combined.includes('4 inch')) potSize = '4"';
-          else if (combined.includes('2"') || combined.includes('2 inch')) potSize = '2"';
+          else if (combined.includes('6"') || combined.includes('6”') || combined.includes('6 inch') || combined.includes('6 inches')) potSize = '6"';
+          else if (combined.includes('4"') || combined.includes('4”') || combined.includes('4 inch') || combined.includes('4 inches')) potSize = '4"';
+          else if (combined.includes('2"') || combined.includes('2”') || combined.includes('2 inch') || combined.includes('2 inches')) potSize = '2"';
 
           let effectiveVarOpt = varOpt;
           if (typeof normalizePlantVariation === 'function') {

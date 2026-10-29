@@ -474,6 +474,14 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
   const v = (varOpt || '').toLowerCase();
   const t = (rawTitle || '').toLowerCase();
 
+  // Rule: Sedum Adolphi Firestorm -> 2" pot
+  if (p.includes('firestorm') || t.includes('firestorm')) {
+    return {
+      varOpt: '2"',
+      potSize: '2"'
+    };
+  }
+
   // Rule: Peperomia 'Ruby Cascade' -> combine 4" variations into a single clean 4"
   if (p.includes('ruby cascade') || t.includes('ruby cascade') || p.includes('peperomia')) {
     if (v.includes('4"') || defaultPotSize.includes('4"')) {
