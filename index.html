@@ -154,23 +154,27 @@
           </div>
         </div>
 
-        <!-- ROW 4: SIZE FILTER CHIPS + HIDE COUNTED TOGGLE -->
+        <!-- ROW 4: SIZE FILTER CHIPS (ALL VISIBLE; REST EXPAND ON CLICK) + HIDE COUNTED TOGGLE -->
         <div class="max-w-xl mx-auto px-2.5 pb-1.5 flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
-          <button onclick="setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-slate-900 text-white shadow-sm active:scale-95 whitespace-nowrap">
-            All <span id="chipCountAll" class="opacity-80 font-normal ml-0.5">0</span>
+          <button onclick="handleAllChipClick()" id="chipAllBtn" data-size-filter="all" class="size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-slate-900 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1" title="Tap to toggle pot size filters">
+            <span>All</span>
+            <span id="chipCountAll" class="opacity-80 font-normal ml-0.5">0</span>
+            <span id="allChipCaret" class="text-[9px] opacity-70 transition-transform duration-200">▾</span>
           </button>
-          <button onclick="setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
-            2" <span id="chipCount2" class="opacity-75 font-normal ml-0.5">0</span>
-          </button>
-          <button onclick="setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
-            4" <span id="chipCount4" class="opacity-75 font-normal ml-0.5">0</span>
-          </button>
-          <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
-            6"/2G <span id="chipCount6" class="opacity-75 font-normal ml-0.5">0</span>
-          </button>
-          <button onclick="setPotFilter('special')" data-size-filter="special" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
-            Sets/Spec <span id="chipCountSpecial" class="opacity-75 font-normal ml-0.5">0</span>
-          </button>
+          <div id="extraSizeFilters" class="hidden flex items-center gap-1">
+            <button onclick="setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
+              2" <span id="chipCount2" class="opacity-75 font-normal ml-0.5">0</span>
+            </button>
+            <button onclick="setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
+              4" <span id="chipCount4" class="opacity-75 font-normal ml-0.5">0</span>
+            </button>
+            <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
+              6"/2G <span id="chipCount6" class="opacity-75 font-normal ml-0.5">0</span>
+            </button>
+            <button onclick="setPotFilter('special')" data-size-filter="special" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap">
+              Sets/Spec <span id="chipCountSpecial" class="opacity-75 font-normal ml-0.5">0</span>
+            </button>
+          </div>
           <button id="hideCountedChip" onclick="toggleHideCounted()" class="h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap ml-auto flex items-center gap-1" title="Hide variations already verified in Count mode">
             <span id="hideCountedChipIcon">👁</span>
             <span id="hideCountedChipText">Hide Done</span>
@@ -1259,13 +1263,47 @@
         renderAll();
       };
 
+      let isSizeFiltersExpanded = false;
+
+      window.handleAllChipClick = function() {
+        if (!isSizeFiltersExpanded) {
+          toggleSizeFilters(true);
+        } else {
+          if (potFilter === 'all') {
+            toggleSizeFilters(false);
+          }
+        }
+        setPotFilter('all');
+      };
+
+      window.toggleSizeFilters = function(expand) {
+        if (expand === undefined) {
+          isSizeFiltersExpanded = !isSizeFiltersExpanded;
+        } else {
+          isSizeFiltersExpanded = !!expand;
+        }
+        const container = document.getElementById('extraSizeFilters');
+        const caret = document.getElementById('allChipCaret');
+        if (container) {
+          if (isSizeFiltersExpanded) {
+            container.classList.remove('hidden');
+          } else {
+            container.classList.add('hidden');
+          }
+        }
+        if (caret) {
+          caret.style.transform = isSizeFiltersExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+      };
+
       window.setPotFilter = function(size) {
         potFilter = size;
         document.querySelectorAll('.size-chip').forEach(el => {
           const f = el.getAttribute('data-size-filter');
-          el.className = (f === size)
-            ? "size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-slate-900 text-white shadow-sm active:scale-95 whitespace-nowrap"
-            : "size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap";
+          const isMatch = (f === size);
+          el.className = isMatch
+            ? "size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-slate-900 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1"
+            : "size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1";
         });
         renderAll();
       };
