@@ -2533,10 +2533,15 @@
       // SCROLL COLLAPSE / REVEAL HEADER BEHAVIOR
       let lastScrollY = window.scrollY;
       let isHeaderCollapsed = false;
+      let scrollTransitionTimer = 0;
+      let accumulatedDelta = 0;
 
       function setHeaderCollapsed(collapse) {
         if (isHeaderCollapsed === collapse) return;
         isHeaderCollapsed = collapse;
+        scrollTransitionTimer = Date.now() + 350; // Lock during 300ms CSS transition to prevent oscillation
+        accumulatedDelta = 0;
+
         const brandRow = document.getElementById('headerRowBrand');
         const filtersRow = document.getElementById('headerRowFilters');
         if (collapse) {
@@ -2565,21 +2570,35 @@
       }
 
       window.addEventListener('scroll', () => {
-        const currentY = window.scrollY;
+        const currentY = Math.max(0, window.scrollY);
         const delta = currentY - lastScrollY;
+        lastScrollY = currentY;
 
-        // When near the top, always show full header
-        if (currentY <= 25) {
+        // Near top of page: always fully expanded
+        if (currentY <= 30) {
           setHeaderCollapsed(false);
-        } else if (delta > 8 && currentY > 50) {
-          // Scrolling up / swiping up into the page: collapse header to maximize space, keep Count, Buy, Cart
-          setHeaderCollapsed(true);
-        } else if (delta < -8) {
-          // Scrolling down / swiping down towards top: reveal header
-          setHeaderCollapsed(false);
+          return;
         }
 
-        lastScrollY = currentY;
+        // If currently animating transition, ignore layout shift deltas
+        if (Date.now() < scrollTransitionTimer) {
+          return;
+        }
+
+        // Reset accumulator if direction changes
+        if ((delta > 0 && accumulatedDelta < 0) || (delta < 0 && accumulatedDelta > 0)) {
+          accumulatedDelta = 0;
+        }
+        accumulatedDelta += delta;
+
+        // Scrolling up into content: collapse header (requires sustained scroll)
+        if (accumulatedDelta > 25 && currentY > 60) {
+          setHeaderCollapsed(true);
+        }
+        // Scrolling down towards top: reveal header (requires sustained scroll)
+        else if (accumulatedDelta < -25) {
+          setHeaderCollapsed(false);
+        }
       }, { passive: true });
 
       if (document.readyState === 'loading') {
