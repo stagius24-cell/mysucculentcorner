@@ -105,9 +105,6 @@
           </div>
           <!-- QUICK ACTIONS -->
           <div class="flex items-center gap-1.5 shrink-0">
-            <button onclick="openManualAdd()" title="Add a plant manually" class="h-8 px-2.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-200/90 text-xs font-extrabold whitespace-nowrap active:scale-95 transition-all flex items-center gap-0.5 shadow-sm">
-              <span>+Add</span>
-            </button>
             <button onclick="toggleMenuDrawer(true)" title="Utilities menu" aria-label="Utilities menu" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 flex items-center justify-center active:scale-95 transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M4 6h16M4 12h16M4 18h16" />
@@ -197,29 +194,40 @@
       </div>
     </main>
 
-    <!-- FLOATING BOTTOM BAR WITH 4S UNDO -->
-    <aside id="floatingBarAside" style="display: none;" class="fixed bottom-0 inset-x-0 z-20 flex justify-center px-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] pointer-events-none no-print">
-      <div id="floatingBarContainer" style="background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);" class="pointer-events-auto text-white px-3.5 py-2 rounded-full shadow-xl border border-slate-700/50 flex items-center justify-between gap-3 text-xs w-auto min-w-[210px] max-w-md whitespace-nowrap">
-        <!-- DEFAULT SUMMARY VIEW (CART MODE) -->
-        <div id="floatDefaultView" style="display: flex;" class="items-center justify-between w-full gap-2">
+    <!-- FLOATING BOTTOM BAR: FULL-LENGTH +ADD PLANT BUTTON / 9S UNDO -->
+    <aside id="floatingBarAside" class="fixed bottom-0 inset-x-0 z-20 flex justify-center px-3 pb-[max(0.6rem,env(safe-area-inset-bottom))] pointer-events-none no-print">
+      <div id="floatingBarContainer" class="pointer-events-auto max-w-md w-full shadow-xl rounded-full overflow-hidden transition-all duration-300">
+        
+        <!-- DEFAULT: FULL-LENGTH +ADD PLANT BUTTON (COUNT & BUY MODES) -->
+        <div id="floatAddPlantView" style="display: flex;" class="w-full">
+          <button onclick="openManualAdd()" class="w-full h-10 px-4 rounded-full bg-emerald-700 hover:bg-emerald-800 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-md border border-emerald-600/80 transition-all cursor-pointer">
+            <span class="text-base font-bold leading-none">＋</span>
+            <span>Add Plant</span>
+          </button>
+        </div>
+
+        <!-- CART SUMMARY VIEW (CART MODE) -->
+        <div id="floatCartView" style="display: none;" class="w-full h-10 px-3.5 rounded-full bg-emerald-800 text-white border border-emerald-700 flex items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-1.5 min-w-0">
-            <span class="text-xs font-semibold text-slate-300">Total:</span>
-            <span class="font-extrabold text-emerald-400 text-sm" id="floatCartTotal">$0.00</span>
+            <span class="text-xs font-semibold text-emerald-200">Total:</span>
+            <span class="font-extrabold text-white text-sm" id="floatCartTotal">$0.00</span>
           </div>
           <button onclick="clearCart()" class="text-xs font-extrabold px-3 py-1 rounded-full bg-rose-600 hover:bg-rose-500 text-white active:scale-95 transition-all shrink-0 cursor-pointer shadow-sm">
             <span>Clear Cart</span>
           </button>
         </div>
+
         <!-- INLINE 9-SECOND UNDO VIEW -->
-        <div id="floatUndoView" style="display: none;" class="items-center justify-between w-full gap-3 text-xs">
+        <div id="floatUndoView" style="display: none;" class="w-full h-10 px-3.5 rounded-full bg-emerald-800 text-white border border-emerald-700 flex items-center justify-between gap-3 text-xs shadow-md">
           <div class="flex items-center gap-1.5 min-w-0">
             <span class="shrink-0 text-sm">✅</span>
-            <span id="floatUndoItemCost" class="font-extrabold text-emerald-400 text-sm leading-none">+$0.00</span>
+            <span id="floatUndoItemCost" class="font-extrabold text-emerald-100 text-sm leading-none">+$0.00</span>
           </div>
           <button onclick="triggerUndoAction()" class="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center gap-1.5 transition-all active:scale-95 shrink-0 cursor-pointer shadow-sm">
             <span>↩ Undo (<span id="floatUndoCountdown">9s</span>)</span>
           </button>
         </div>
+
       </div>
     </aside>
 
@@ -1407,26 +1415,33 @@
         const aside = document.getElementById('floatingBarAside');
         if (!aside) return;
         const undoView = document.getElementById('floatUndoView');
-        const defaultView = document.getElementById('floatDefaultView');
+        const addView = document.getElementById('floatAddPlantView');
+        const cartView = document.getElementById('floatCartView');
+
+        aside.style.display = 'flex';
+
         const isUndoActive = undoView && undoView.style.display !== 'none' && lastPurchasedVarId !== null;
         if (isUndoActive) {
-          aside.style.display = 'flex';
+          if (undoView) undoView.style.display = 'flex';
+          if (addView) addView.style.display = 'none';
+          if (cartView) cartView.style.display = 'none';
         } else if (currentMode === 'cart') {
-          aside.style.display = 'flex';
-          if (defaultView) defaultView.style.display = 'flex';
           if (undoView) undoView.style.display = 'none';
+          if (addView) addView.style.display = 'none';
+          if (cartView) cartView.style.display = 'flex';
         } else {
-          aside.style.display = 'none';
+          if (undoView) undoView.style.display = 'none';
+          if (cartView) cartView.style.display = 'none';
+          if (addView) addView.style.display = 'flex';
         }
       }
 
       function showBottomUndo(varId, itemCost) {
         lastPurchasedVarId = varId;
-        const defaultView = document.getElementById('floatDefaultView');
         const undoView = document.getElementById('floatUndoView');
         const undoItemCostEl = document.getElementById('floatUndoItemCost');
         const countdownEl = document.getElementById('floatUndoCountdown');
-        if (!defaultView || !undoView || !countdownEl) return;
+        if (!undoView || !countdownEl) return;
 
         if (typeof itemCost !== 'number') {
           itemCost = 0.0;
@@ -1454,7 +1469,6 @@
         if (undoItemCostEl) {
           undoItemCostEl.textContent = `+$${itemCost.toFixed(2)}`;
         }
-        defaultView.style.display = 'none';
         undoView.style.display = 'flex';
         if (undoTimeout) {
           clearTimeout(undoTimeout);
@@ -1490,10 +1504,8 @@
           clearInterval(undoInterval);
           undoInterval = null;
         }
-        const defaultView = document.getElementById('floatDefaultView');
         const undoView = document.getElementById('floatUndoView');
         if (undoView) undoView.style.display = 'none';
-        if (defaultView) defaultView.style.display = 'flex';
         lastPurchasedVarId = null;
         updateFloatingBarVisibility();
       }
