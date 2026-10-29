@@ -474,6 +474,22 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
   const v = (varOpt || '').toLowerCase();
   const t = (rawTitle || '').toLowerCase();
 
+  // Rule: Crassula Shark Tooth Red Pagoda -> clean variation 4" and 2"
+  if (p.includes('shark tooth') || t.includes('shark tooth') || t.includes('red pagoda')) {
+    if (v.includes('4"') || defaultPotSize.includes('4"')) {
+      return {
+        varOpt: '4"',
+        potSize: '4"'
+      };
+    }
+    if (v.includes('2"') || defaultPotSize.includes('2"')) {
+      return {
+        varOpt: '2"',
+        potSize: '2"'
+      };
+    }
+  }
+
   // Rule: Sedum Adolphi Firestorm -> 2" pot
   if (p.includes('firestorm') || t.includes('firestorm')) {
     return {
