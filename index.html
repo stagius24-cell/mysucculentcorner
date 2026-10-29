@@ -553,12 +553,12 @@
         }]
       }, {
         id: "item_18",
-        name: "3D Printed 'Little Guy' Pot with Variegated String of Pearls",
+        name: "Variegated String of pearl",
         zone: 2,
         variations: [{
           id: "v_18_1",
-          name: "Light blue - White",
-          size: "Special",
+          name: "Pot + plant",
+          size: '2"',
           sold: 1
         }]
       }, {
@@ -2198,6 +2198,15 @@
           else if (combined.includes('6"') || combined.includes('6 inch')) potSize = '6"';
           else if (combined.includes('4"') || combined.includes('4 inch')) potSize = '4"';
           else if (combined.includes('2"') || combined.includes('2 inch')) potSize = '2"';
+
+          let effectiveVarOpt = varOpt;
+          if (typeof normalizePlantVariation === 'function') {
+            const norm = normalizePlantVariation(cleanName, varOpt, potSize, title);
+            if (!norm) return; // Skip excluded variations (e.g. "POT only")
+            effectiveVarOpt = norm.varOpt || varOpt;
+            potSize = norm.potSize || potSize;
+          }
+
           if (!grouped[cleanName]) {
             grouped[cleanName] = {
               id: `item_csv_${stableSlug(cleanName)}`,
@@ -2206,13 +2215,13 @@
               variations: []
             };
           }
-          const variationKey = `${cleanName.toLowerCase()}|${String(varOpt).trim().toLowerCase()}|${potSize}`;
+          const variationKey = `${cleanName.toLowerCase()}|${String(effectiveVarOpt).trim().toLowerCase()}|${potSize}`;
           if (variationCounts[variationKey]) {
             variationCounts[variationKey].sold += qty;
           } else {
             const newVar = {
-              id: `v_csv_${stableSlug(cleanName)}_${stableSlug(varOpt)}_${stableSlug(potSize)}`,
-              name: varOpt,
+              id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}`,
+              name: effectiveVarOpt,
               size: potSize,
               sold: qty
             };
@@ -2221,7 +2230,7 @@
           }
         });
 
-        const newCatalog = Object.values(grouped);
+        const newCatalog = Object.values(grouped).filter(item => Array.isArray(item.variations) && item.variations.length > 0);
         if (newCatalog.length > 0) {
           catalog = newCatalog;
           if (!options.preserveState) {

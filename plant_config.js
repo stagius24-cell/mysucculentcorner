@@ -171,9 +171,9 @@ var PLANT_DICTIONARY = [
     match: ["cliff hanger", "cotyledon pendens", "pendens"]
   },
   {
-    preferredName: "3D Printed 'Little Guy' Pot with Variegated String of Pearls",
+    preferredName: "Variegated String of pearl",
     zone: 2,
-    match: ["little guy", "string of pearl"]
+    match: ["little guy", "variegated string of pearl", "string of pearl"]
   },
   {
     preferredName: "String of Watermelon",
@@ -426,6 +426,40 @@ function getUnitPrice(plantName, varName, size) {
   return 5.00;
 }
 
+// =======================================================================
+// 5. CUSTOM VARIATION NORMALIZATION & FILTERING RULES
+// =======================================================================
+/**
+ * Custom rule handler for variation filtering and pot sizing.
+ * Return null to skip/exclude the variation.
+ * Return { varOpt, potSize } to customize.
+ */
+function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
+  const p = (cleanName || '').toLowerCase();
+  const v = (varOpt || '').toLowerCase();
+  const t = (rawTitle || '').toLowerCase();
+
+  // Rule: Variegated String of pearl (little guy pot)
+  // If variation is POT only, don't include that variation.
+  // Only include the one with POT and plant. Treat that variation as 2" pot.
+  if (p.includes('string of pearl') || t.includes('little guy')) {
+    if (v.includes('pot only') && !v.includes('plant')) {
+      return null; // Exclude variation
+    }
+    if (v.includes('pot + plant') || v.includes('pot and plant') || v.includes('plant')) {
+      return {
+        varOpt: varOpt,
+        potSize: '2"'
+      };
+    }
+  }
+
+  return {
+    varOpt: varOpt,
+    potSize: defaultPotSize
+  };
+}
+
 // Attach to window for global access
 if (typeof window !== "undefined") {
   window.ZONE_CONFIG = ZONE_CONFIG;
@@ -433,4 +467,5 @@ if (typeof window !== "undefined") {
   window.resolvePlantInfo = resolvePlantInfo;
   window.classifyZone = classifyZone;
   window.getUnitPrice = getUnitPrice;
+  window.normalizePlantVariation = normalizePlantVariation;
 }
