@@ -334,6 +334,11 @@ var PLANT_DICTIONARY = [
   // ZONE 4: Other Succulents & Specialty Decor
   // ---------------------------------------------------------------------
   {
+    preferredName: "Ice plant",
+    zone: 4,
+    match: ["corpuscularia lehmannii", "corpuscularia", "ice plant", "lehmannii"]
+  },
+  {
     preferredName: "Variegated Scilla socialis",
     zone: 4,
     match: ["rare ledebouria", "ledebouria", "scilla violacea", "scilla socialis", "scilla", "socialis"]
@@ -468,6 +473,22 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
   const p = (cleanName || '').toLowerCase();
   const v = (varOpt || '').toLowerCase();
   const t = (rawTitle || '').toLowerCase();
+
+  // Rule: Peperomia 'Ruby Cascade' -> combine 4" variations into a single clean 4"
+  if (p.includes('ruby cascade') || t.includes('ruby cascade') || p.includes('peperomia')) {
+    if (v.includes('4"') || defaultPotSize.includes('4"')) {
+      return {
+        varOpt: '4"',
+        potSize: '4"'
+      };
+    }
+    if (v.includes('2"') || defaultPotSize.includes('2"')) {
+      return {
+        varOpt: '2"',
+        potSize: '2"'
+      };
+    }
+  }
 
   // Rule 1: Variegated String of pearl (little guy pot)
   // Exclude pot only. Treat all color variations as single 2" pot, combining into a single 2" variation.
