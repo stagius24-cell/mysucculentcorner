@@ -220,6 +220,11 @@ var PLANT_DICTIONARY = [
     match: ["old man of the andes", "oreocereus trollii", "cephalocereus"]
   },
   {
+    preferredName: "Joseph Coat cactus",
+    zone: 3,
+    match: ["opuntia monacantha", "joseph's coat", "joseph coat", "monacantha"]
+  },
+  {
     preferredName: "Pink Gymnocalycium Cactus",
     zone: 3,
     match: ["rotundulum", "pink cactus"]
@@ -280,7 +285,7 @@ var PLANT_DICTIONARY = [
     match: ["jelly bean", "rubrotinctum aurora"]
   },
   {
-    preferredName: "Sedum Spathulifolium 'Cape Blanco'",
+    preferredName: "Sedum 'Cape Blanco'",
     zone: 3,
     match: ["cape blanco", "spathulifolium"]
   },
@@ -308,6 +313,11 @@ var PLANT_DICTIONARY = [
   // ---------------------------------------------------------------------
   // ZONE 4: Other Succulents & Specialty Decor
   // ---------------------------------------------------------------------
+  {
+    preferredName: "Variegated Scilla socialis",
+    zone: 4,
+    match: ["rare ledebouria", "ledebouria", "scilla violacea", "scilla socialis", "scilla", "socialis"]
+  },
   {
     preferredName: "Variegated Pink Mother of Millions",
     zone: 4,
