@@ -142,6 +142,11 @@ var PLANT_DICTIONARY = [
     match: ["moonstone"]
   },
   {
+    preferredName: "Echeveria 'lola'",
+    zone: 1,
+    match: ["echeveria 'lola'", "echeveria lola", "lola"]
+  },
+  {
     preferredName: "Echeveria",
     zone: 1,
     match: ["echeveria"]
@@ -173,17 +178,17 @@ var PLANT_DICTIONARY = [
   {
     preferredName: "Variegated String of pearl",
     zone: 2,
-    match: ["little guy", "variegated string of pearl", "string of pearl"]
+    match: ["little guy", "variegated string of pearl", "variegated string of pearls"]
+  },
+  {
+    preferredName: "String of pearl",
+    zone: 2,
+    match: ["string of pearl", "string of pearls", "senecio rowleyanus"]
   },
   {
     preferredName: "String of Watermelon",
     zone: 2,
     match: ["string of watermelon", "herreianus"]
-  },
-  {
-    preferredName: "String of Pearls",
-    zone: 2,
-    match: ["string of pearls"]
   },
   {
     preferredName: "Trailing Succulent",
@@ -501,6 +506,40 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
       varOpt: defaultPotSize,
       potSize: defaultPotSize
     };
+  }
+
+  // Rule 6: Joseph Coat cactus
+  // Just include the pot size (e.g. 2", 4"). Remove "Your choice of:".
+  if (p.includes('joseph coat') || p.includes('monacantha') || t.includes('joseph coat') || t.includes('monacantha')) {
+    const size = (v.includes('4"') || v.includes('4 inch') || defaultPotSize.includes('4"')) ? '4"' : '2"';
+    return {
+      varOpt: size,
+      potSize: size
+    };
+  }
+
+  // Rule 7: Tradescantia nanouk pink
+  // Just include the pot size (e.g. 2", 4"). Remove "Your choice of:".
+  if (p.includes('tradescantia nanouk') || p.includes('nanouk') || t.includes('tradescantia') || t.includes('nanouk')) {
+    let size = defaultPotSize || '4"';
+    if (v.includes('6"') || v.includes('6 inch')) size = '6"';
+    else if (v.includes('4"') || v.includes('4 inch')) size = '4"';
+    else if (v.includes('2"') || v.includes('2 inch')) size = '2"';
+    return {
+      varOpt: size,
+      potSize: size
+    };
+  }
+
+  // Rule 8: Generic "Your choice of:" cleanup if present on any item
+  if (v.includes('your choice of')) {
+    let cleaned = varOpt.replace(/^your choice of:?\s*/i, '').trim();
+    if (cleaned) {
+      return {
+        varOpt: cleaned,
+        potSize: defaultPotSize
+      };
+    }
   }
 
   return {
