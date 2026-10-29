@@ -186,8 +186,6 @@
         <!-- DEFAULT SUMMARY VIEW -->
         <div id="floatDefaultView" style="display: flex;" class="items-center justify-between w-full gap-2">
           <div class="flex items-center gap-2 min-w-0">
-            <span class="font-extrabold text-amber-300" id="floatShortfall">🛒 0 need</span>
-            <span class="text-slate-600">|</span>
             <span class="font-extrabold text-emerald-400" id="floatCartTotal">$0.00</span>
           </div>
           <button onclick="switchMode(currentMode === 'cart' ? 'buy' : 'cart')" class="text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white active:scale-95 transition-all shrink-0 cursor-pointer shadow-sm">
@@ -2068,7 +2066,7 @@
         document.getElementById('chipCount6').textContent = count6;
         document.getElementById('chipCountSpecial').textContent = countSpecial;
 
-        document.getElementById('floatShortfall').textContent = `🛒 ${totalShortfall} need`;
+        const floatShortfallEl = document.getElementById('floatShortfall'); if (floatShortfallEl) floatShortfallEl.textContent = `🛒 ${totalShortfall} need`;
         document.getElementById('floatCartTotal').textContent = `$${totalCartCost.toFixed(2)}`;
         document.getElementById('floatBtnLabel').textContent = currentMode === 'cart' ? '← Buy List' : `Cart (${totalCartUnits})`;
 
