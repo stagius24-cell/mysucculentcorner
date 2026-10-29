@@ -77,18 +77,16 @@
       <div class="max-w-xl mx-auto px-2.5 py-1.5 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2 min-w-0">
           <!-- MASCOT LOGO -->
-          <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleCustomLogoUpload(event)" />
-          <button type="button" onclick="document.getElementById('logoFileInput').click()" title="Tap to upload or change shop logo" class="relative group cursor-pointer focus:outline-none shrink-0 active:scale-95 transition-transform">
-            <img id="shopLogoImg" alt="MySucculentCorner logo" class="w-8 h-8 rounded-lg object-cover shadow-sm border border-emerald-200/80 group-hover:ring-2 group-hover:ring-emerald-500 transition-all bg-[#edd5d2]" />
-            <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-700 text-white text-[8px] font-extrabold rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
-          </button>
+          <div class="shrink-0">
+            <img id="shopLogoImg" alt="MySucculentCorner logo" class="w-8 h-8 rounded-lg object-cover shadow-sm border border-emerald-200/80 bg-[#edd5d2]" />
+          </div>
           <div class="min-w-0 flex flex-col justify-center leading-tight">
             <div class="flex items-center gap-1.5">
               <span class="text-xs sm:text-sm font-extrabold text-slate-900 truncate tracking-tight">MySucculentCorner</span>
             </div>
             <button onclick="toggleMenuDrawer(true)" class="text-left flex items-center gap-1 group focus:outline-none" title="Tap to view data source and sync options">
-              <span id="headerSyncIcon" class="text-[9px] leading-none">🌱</span>
-              <span id="headerSyncTime" class="text-[10px] font-bold text-slate-500 group-hover:text-emerald-700 truncate transition-colors">Oct 19-26 Baseline</span>
+              <span id="headerSyncIcon" class="text-[9px] leading-none hidden">🔄</span>
+              <span id="headerSyncTime" class="text-[10px] font-bold text-slate-500 group-hover:text-emerald-700 truncate transition-colors">Updated on Oct 28, 9:16 PM</span>
             </button>
           </div>
         </div>
@@ -222,7 +220,7 @@
       <div class="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
         <div class="flex items-center justify-between mb-2 gap-2">
           <span class="text-xs font-extrabold text-slate-900 flex items-center gap-1">
-            <span>🐙</span>
+            <span>☁️</span>
             <span>Data Source & Sync</span>
           </span>
           <button onclick="changeGitHubToken()" class="text-[10px] font-bold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Update / Change GitHub Token">
@@ -258,19 +256,6 @@
         <button onclick="openCsvModal()" class="w-full py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
           <span>📂</span>
           <span>Upload Etsy Variations CSV File</span>
-        </button>
-
-        <button onclick="toggleMenuDrawer(false); document.getElementById('logoFileInput').click();" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl flex items-center justify-between gap-2.5 active:scale-[0.99] transition-all">
-          <span class="flex items-center gap-2.5">
-            <span>🖼️</span>
-            <span>Upload Custom Shop Logo</span>
-          </span>
-          <span class="text-[10px] font-bold text-slate-400">PNG / JPG</span>
-        </button>
-
-        <button onclick="resetCustomLogo()" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-500 border border-slate-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
-          <span>🔄</span>
-          <span>Reset Logo to Mascot Default</span>
         </button>
 
         <button onclick="clearCart()" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
@@ -882,49 +867,10 @@
 
       function initLogo() {
         const logoImg = document.getElementById('shopLogoImg');
-        if (!logoImg) return;
-        try {
-          const savedCustom = localStorage.getItem('mysucculentcorner_custom_logo');
-          logoImg.src = savedCustom || DEFAULT_LOGO_DATA_URL;
-        } catch (e) {
+        if (logoImg) {
           logoImg.src = DEFAULT_LOGO_DATA_URL;
         }
       }
-
-      window.handleCustomLogoUpload = function(event) {
-        const file = event.target.files && event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const dataUrl = e.target.result;
-          try {
-            localStorage.setItem('mysucculentcorner_custom_logo', dataUrl);
-          } catch (err) {}
-          const logoImg = document.getElementById('shopLogoImg');
-          if (logoImg) logoImg.src = dataUrl;
-          showDialog({
-            icon: '🪴',
-            title: 'Shop Logo Updated',
-            message: 'Your custom mascot logo was saved and updated successfully!'
-          });
-        };
-        reader.readAsDataURL(file);
-        event.target.value = '';
-      };
-
-      window.resetCustomLogo = function() {
-        toggleMenuDrawer(false);
-        try {
-          localStorage.removeItem('mysucculentcorner_custom_logo');
-        } catch (e) {}
-        const logoImg = document.getElementById('shopLogoImg');
-        if (logoImg) logoImg.src = DEFAULT_LOGO_DATA_URL;
-        showDialog({
-          icon: '🌱',
-          title: 'Logo Reset',
-          message: 'The shop logo has been reset to the default mascot illustration.'
-        });
-      };
 
       function formatNowTimestamp() {
         const now = new Date();
@@ -944,31 +890,28 @@
 
         if (isSyncing) {
           if (headerIcon) {
+            headerIcon.classList.remove('hidden');
             headerIcon.textContent = '🔄';
             headerIcon.classList.add('animate-spin-fast');
           }
-          if (headerTime) headerTime.textContent = 'Syncing GitHub...';
+          if (headerTime) headerTime.textContent = 'Updating...';
           return;
         }
 
-        const isBaseline = syncMeta.sourceName.includes('Baseline');
-        const shortName = isBaseline
-          ? 'Oct 19-26 Baseline'
-          : syncMeta.sourceName.includes('GitHub')
-            ? `GitHub • ${syncMeta.timestamp}`
-            : syncMeta.sourceName.includes('CSV')
-              ? `CSV • ${syncMeta.timestamp}`
-              : `Sync • ${syncMeta.timestamp}`;
-
         if (headerIcon) {
           headerIcon.classList.remove('animate-spin-fast');
-          headerIcon.textContent = syncMeta.sourceName.includes('GitHub') ? '🐙' : syncMeta.sourceName.includes('CSV') ? '📄' : '🌱';
+          headerIcon.classList.add('hidden');
+          headerIcon.textContent = '';
         }
+
+        const displayTime = syncMeta.timestamp || formatNowTimestamp();
+        const shortName = `Updated on ${displayTime}`;
+
         if (headerTime) {
           headerTime.textContent = shortName;
         }
-        if (drawerSource) drawerSource.textContent = isBaseline ? 'Oct 19-26 Baseline' : syncMeta.sourceName;
-        if (drawerTime) drawerTime.textContent = isBaseline ? 'Baseline Dataset' : syncMeta.timestamp;
+        if (drawerSource) drawerSource.textContent = syncMeta.sourceName;
+        if (drawerTime) drawerTime.textContent = displayTime;
       }
 
       async function autoImportGithubCsv(options = {}) {
