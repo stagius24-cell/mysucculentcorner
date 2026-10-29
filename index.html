@@ -557,7 +557,7 @@
         zone: 2,
         variations: [{
           id: "v_18_1",
-          name: "Pot + plant",
+          name: '2"',
           size: '2"',
           sold: 1
         }]
@@ -608,12 +608,12 @@
         }]
       }, {
         id: "item_22",
-        name: "Set of 3 Colors Euphorbia milii",
+        name: "Euphorbia Milli",
         zone: 3,
         variations: [{
           id: "v_22_1",
           name: "Set of 3 colors",
-          size: "Set of 3",
+          size: "Set of 3 colors",
           sold: 1
         }]
       }, {
@@ -1973,7 +1973,7 @@
         } else if (badgeText.toLowerCase().includes('gallon')) {
           badgeText = '2 Gal';
         } else if (badgeText.toLowerCase().includes('set of 3')) {
-          badgeText = '3-Pack';
+          badgeText = 'Set of 3 colors';
         } else if (badgeText.toLowerCase().includes('special')) {
           badgeText = 'Spec';
         }
@@ -1984,6 +1984,9 @@
           s = s.replace(/\b2\s*gallons?(\s*pot)?\b/gi, '').trim();
           s = s.replace(/\b(one\s+)?([246]\s*["']?\s*(pot|inches|inch)?)\b/gi, '').trim();
           s = s.replace(/\bpot\b/gi, '').trim();
+          s = s.replace(/\bwith\s*\d*\s*tails?\b/gi, '').trim();
+          s = s.replace(/^variety\s*set:\s*/gi, '').trim();
+          s = s.replace(/\bpotted\s*bear\s*paw\b/gi, '').trim();
           s = s.replace(/^[() -/,]+|[() -/,]+$/g, '').trim();
           if (/^(standard|one|colors|set of 3 colors|special\/decor|special|set of 3|novariationrecordedbyetsy)$/i.test(s) || !s) {
             return '';
@@ -1991,7 +1994,7 @@
           return s;
         }
         let detailText = extractSubDetail(rawName);
-        if (badgeText === '3-Pack') detailText = '';
+        if (badgeText.includes('Set of 3')) detailText = '';
         if (rawName.toLowerCase().includes('tiger stripe')) {
           badgeText = '4-5"';
           detailText = 'Tiger Stripe';

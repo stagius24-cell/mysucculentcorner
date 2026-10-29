@@ -225,9 +225,9 @@ var PLANT_DICTIONARY = [
     match: ["rotundulum", "pink cactus"]
   },
   {
-    preferredName: "Set of 3 Colors Euphorbia milii",
+    preferredName: "Euphorbia Milli",
     zone: 3,
-    match: ["euphorbia milii", "crown of thorns", "christ plant", "christ thorn"]
+    match: ["euphorbia milii", "euphorbia", "crown of thorns", "christ plant", "christ thorn"]
   },
   {
     preferredName: "Key Lime Pie",
@@ -439,16 +439,46 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
   const v = (varOpt || '').toLowerCase();
   const t = (rawTitle || '').toLowerCase();
 
-  // Rule: Variegated String of pearl (little guy pot)
-  // If variation is POT only, don't include that variation.
-  // Only include the one with POT and plant. Treat that variation as 2" pot.
+  // Rule 1: Variegated String of pearl (little guy pot)
+  // Exclude pot only. Treat all color variations as single 2" pot, combining into a single 2" variation.
   if (p.includes('string of pearl') || t.includes('little guy')) {
     if (v.includes('pot only') && !v.includes('plant')) {
       return null; // Exclude variation
     }
     if (v.includes('pot + plant') || v.includes('pot and plant') || v.includes('plant')) {
       return {
-        varOpt: varOpt,
+        varOpt: '2"',
+        potSize: '2"'
+      };
+    }
+  }
+
+  // Rule 2: Euphorbia Milli
+  // Name is Euphorbia Milli. Remove SPEC badge, just set of 3 colors in short.
+  if (p.includes('euphorbia') || t.includes('euphorbia')) {
+    return {
+      varOpt: 'Set of 3 colors',
+      potSize: 'Set of 3 colors'
+    };
+  }
+
+  // Rule 3: Monkey Tail Cactus
+  // No need to include "with tails" for 4" pot variation.
+  if (p.includes('monkey tail') || t.includes('monkey tail') || t.includes('cleistocactus')) {
+    if (v.includes('4"') || defaultPotSize.includes('4"')) {
+      return {
+        varOpt: '4"',
+        potSize: '4"'
+      };
+    }
+  }
+
+  // Rule 4: Variegated Bear Paw
+  // Just 2" is enough. Remove the variety set: potted bear paw.
+  if (p.includes('bear paw') || t.includes('bear paw') || t.includes('cotyledon tomentosa')) {
+    if (v.includes('2"') || defaultPotSize.includes('2"')) {
+      return {
+        varOpt: '2"',
         potSize: '2"'
       };
     }
