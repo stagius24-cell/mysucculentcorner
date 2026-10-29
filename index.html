@@ -14,6 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="plant_config.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -783,26 +784,21 @@
         }]
       }];
 
-      const ZONE_CONFIG = {
-        1: {
-          name: "Zone 1: Echeveria, Crassula, Nanouk & Lilac Mist",
-          color: "bg-emerald-900 text-white border-emerald-700"
-        },
-        2: {
-          name: "Zone 2: String of Hearts & Trailing Plants",
-          color: "bg-teal-900 text-white border-teal-700"
-        },
-        3: {
-          name: "Zone 3: Cactus, Jade, Aeonium, Sedum & Key Lime",
-          color: "bg-amber-900 text-white border-amber-700"
-        },
-        4: {
-          name: "Zone 4: Other Succulents & Specialty Decor",
-          color: "bg-indigo-950 text-white border-indigo-800"
-        }
+      // Zone configuration, classification, and unit pricing (delegated to plant_config.js)
+      const ZONE_CONFIG = (typeof window !== 'undefined' && window.ZONE_CONFIG) || {
+        1: { name: "Zone 1: Echeveria, Crassula, Nanouk & Lilac Mist", color: "bg-emerald-900 text-white border-emerald-700" },
+        2: { name: "Zone 2: String of Hearts & Trailing Plants", color: "bg-teal-900 text-white border-teal-700" },
+        3: { name: "Zone 3: Cactus, Jade, Aeonium, Sedum & Key Lime", color: "bg-amber-900 text-white border-amber-700" },
+        4: { name: "Zone 4: Other Succulents & Specialty Decor", color: "bg-indigo-950 text-white border-indigo-800" }
       };
 
       function classifyZone(plantName) {
+        if (typeof window !== 'undefined' && typeof window.classifyZone === 'function' && window.classifyZone !== classifyZone) {
+          return window.classifyZone(plantName);
+        }
+        if (typeof resolvePlantInfo === 'function') {
+          return resolvePlantInfo(plantName).zone;
+        }
         const n = (plantName || "").toLowerCase();
         if (n.includes('echeveria') || n.includes('crassula') || n.includes('nanouk') || n.includes('lilac mist') || n.includes('moonstone') || n.includes('pondo')) return 1;
         if (n.includes('hearts') || n.includes('ruby cascade') || n.includes('pendens') || n.includes('pearls') || n.includes('peperomia') || n.includes('trailing')) return 2;
@@ -811,6 +807,9 @@
       }
 
       function getUnitPrice(plantName, varName, size) {
+        if (typeof window !== 'undefined' && typeof window.getUnitPrice === 'function' && window.getUnitPrice !== getUnitPrice) {
+          return window.getUnitPrice(plantName, varName, size);
+        }
         const p = (plantName || "").toLowerCase();
         const v = (varName || "").toLowerCase();
         const s = (size || "").toLowerCase();
@@ -2116,12 +2115,16 @@
           const varOpt = r['variation_options'] || r['Variation option(s)'] || r['variation'] || 'Standard';
           const qty = parseInt(r['units_sold'] || r['Units sold'] || r['quantity'] || '1', 10) || 1;
           if (!title) return;
-          let cleanName = title.trim()
-            .replace(/\b[246]\s*["']?\s*(?:pot|inches|inch)\b/gi, '')
-            .replace(/\b[246]\s*["']\b/gi, '')
-            .replace(/\b2\s*gallons?\b/gi, '')
-            .replace(/^[-|/\s]+|[-|/\s]+$/g, '') || title.trim();
-          const zone = classifyZone(cleanName);
+          const plantInfo = typeof resolvePlantInfo === 'function' ? resolvePlantInfo(title) : {
+            name: title.trim()
+              .replace(/\b[246]\s*["']?\s*(?:pot|inches|inch)\b/gi, '')
+              .replace(/\b[246]\s*["']\b/gi, '')
+              .replace(/\b2\s*gallons?\b/gi, '')
+              .replace(/^[-|/\s]+|[-|/\s]+$/g, '') || title.trim(),
+            zone: classifyZone(title)
+          };
+          const cleanName = plantInfo.name;
+          const zone = plantInfo.zone;
           const combined = `${varOpt} ${title}`.toLowerCase();
           let potSize = 'Special';
           if (combined.includes('2 gallon') || combined.includes('2gallon')) potSize = '2 Gallon';
@@ -2217,10 +2220,11 @@
           return;
         }
         const goStraightToBuy = targetMode === 'buy';
+        const plantInfo = typeof resolvePlantInfo === 'function' ? resolvePlantInfo(name) : { name, zone: classifyZone(name) };
         manualExportItems.unshift({
           id: `manual_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-          name,
-          zone: classifyZone(name),
+          name: plantInfo.name,
+          zone: plantInfo.zone,
           size: sizeInput.value,
           qty,
           stock: 0,
