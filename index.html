@@ -102,7 +102,7 @@
           </div>
           <!-- QUICK ACTIONS -->
           <div class="flex items-center gap-1.5 shrink-0">
-            <button onclick="openManualAdd()" title="Add a plant manually" class="h-8 px-2.5 rounded-lg bg-violet-100 hover:bg-violet-200 text-violet-900 border border-violet-200/90 text-xs font-extrabold whitespace-nowrap active:scale-95 transition-all flex items-center gap-1 shadow-sm">
+            <button onclick="openManualAdd()" title="Add a plant manually" class="h-8 px-2.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-200/90 text-xs font-extrabold whitespace-nowrap active:scale-95 transition-all flex items-center gap-1 shadow-sm">
               <span>＋</span>
               <span>Add plant</span>
             </button>
@@ -270,7 +270,7 @@
           <span>Reset All Stock & Count Progress to 0</span>
         </button>
 
-        <button id="clearManualBtn" onclick="clearAllManualPlants()" class="hidden w-full py-2.5 px-3 bg-violet-50 hover:bg-rose-50 text-violet-900 hover:text-rose-700 border border-violet-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
+        <button id="clearManualBtn" onclick="clearAllManualPlants()" class="hidden w-full py-2.5 px-3 bg-slate-50 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border border-slate-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
           <span>🗑️</span>
           <span>Remove All Manually Added Plants</span>
         </button>
@@ -316,44 +316,41 @@
 
     <!-- QUICK MANUAL PLANT ENTRY MODAL -->
     <div id="manualAddModal" class="hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm p-3 flex items-center justify-center" onclick="if(event.target===this) closeManualAdd()">
-      <div class="w-full max-w-sm rounded-2xl bg-white p-4 shadow-2xl border border-slate-200">
-        <div class="flex items-center justify-between mb-3">
+      <div class="w-full max-w-sm rounded-2xl bg-white p-3.5 shadow-2xl border border-slate-200">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="text-sm font-extrabold text-slate-900">＋ Add Plant Manually</h2>
-          <button onclick="closeManualAdd()" aria-label="Close modal" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs">✕</button>
+          <button onclick="closeManualAdd()" aria-label="Close modal" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center">✕</button>
         </div>
 
         <label class="block text-xs font-bold text-slate-700 mb-1" for="quickManualName">Plant name / variation</label>
-        <input id="quickManualName" type="text" maxlength="100" placeholder="e.g. Echeveria 'Lola'" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm mb-3 focus:outline-none focus:border-violet-600 bg-slate-50 focus:bg-white transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();saveQuickManualPlant('buy')}" />
+        <input id="quickManualName" type="text" maxlength="100" placeholder="e.g. Echeveria 'Lola'" class="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-xs sm:text-sm mb-2 focus:outline-none focus:border-emerald-600 bg-slate-50 focus:bg-white transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();saveQuickManualPlant('buy')}" />
 
-        <label class="block text-xs font-bold text-slate-700 mb-1.5">Pot Size / Type</label>
-        <input type="hidden" id="quickManualSize" value='4" Pot' />
-        <div id="manualSizePills" class="grid grid-cols-3 gap-1.5 mb-3">
-          <button type="button" onclick="selectManualSizePill('2&quot; Pot')" data-size-val='2" Pot' class="manual-size-pill py-2 px-2 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 active:scale-95 transition-all">2" Pot</button>
-          <button type="button" onclick="selectManualSizePill('4&quot; Pot')" data-size-val='4" Pot' class="manual-size-pill py-2 px-2 rounded-lg text-xs font-extrabold border border-violet-700 bg-violet-700 text-white shadow-sm active:scale-95 transition-all">4" Pot</button>
-          <button type="button" onclick="selectManualSizePill('6&quot; Pot')" data-size-val='6" Pot' class="manual-size-pill py-2 px-2 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 active:scale-95 transition-all">6" Pot</button>
-          <button type="button" onclick="selectManualSizePill('2 Gallon')" data-size-val="2 Gallon" class="manual-size-pill py-2 px-2 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 active:scale-95 transition-all">2 Gallon</button>
-          <button type="button" onclick="selectManualSizePill('Set of 3')" data-size-val="Set of 3" class="manual-size-pill py-2 px-2 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 active:scale-95 transition-all">Set of 3</button>
-          <button type="button" onclick="selectManualSizePill('Special/Decor')" data-size-val="Special/Decor" class="manual-size-pill py-2 px-2 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 active:scale-95 transition-all">Special</button>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Pot Size / Type</label>
+        <input type="hidden" id="quickManualSize" value='4"' />
+        <div id="manualSizePills" class="grid grid-cols-4 gap-1.5 mb-2.5">
+          <button type="button" onclick="selectManualSizePill('2&quot;')" data-size-val='2"' class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center">2"</button>
+          <button type="button" onclick="selectManualSizePill('4&quot;')" data-size-val='4"' class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-extrabold border border-emerald-700 bg-emerald-700 text-white shadow-sm active:scale-95 transition-all text-center">4"</button>
+          <button type="button" onclick="selectManualSizePill('6&quot;')" data-size-val='6"' class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center">6"</button>
+          <button type="button" onclick="selectManualSizePill('2G')" data-size-val="2G" class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center">2G</button>
         </div>
 
-        <div class="flex items-center justify-between gap-3 mb-4 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+        <div class="flex items-center justify-between gap-3 mb-3 bg-slate-50 py-1.5 px-2.5 rounded-xl border border-slate-200">
           <div>
-            <label class="block text-xs font-extrabold text-slate-800" for="quickManualQty">Target Qty Needed</label>
-            <span class="text-[10px] text-slate-500 font-medium">Auto-sorted into nursery zone</span>
+            <label class="block text-xs font-extrabold text-slate-800" for="quickManualQty">🎯 Quantity</label>
           </div>
           <div class="flex items-center rounded-lg border border-slate-300 bg-white p-0.5 gap-1 shadow-sm">
-            <button type="button" aria-label="Decrease quantity" onclick="adjustQuickManualQty(-1)" class="w-8 h-8 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-sm active:scale-95">−</button>
+            <button type="button" aria-label="Decrease quantity" onclick="adjustQuickManualQty(-1)" class="w-7 h-7 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-sm active:scale-95">−</button>
             <input id="quickManualQty" type="number" min="1" step="1" value="1" inputmode="numeric" onfocus="this.select()" onclick="this.select()" class="w-10 text-center text-sm font-extrabold outline-none bg-transparent" onkeydown="if(event.key==='Enter'){event.preventDefault();saveQuickManualPlant('buy')}" />
-            <button type="button" aria-label="Increase quantity" onclick="adjustQuickManualQty(1)" class="w-8 h-8 rounded-md bg-violet-100 hover:bg-violet-200 text-violet-900 font-extrabold text-sm active:scale-95">＋</button>
+            <button type="button" aria-label="Increase quantity" onclick="adjustQuickManualQty(1)" class="w-7 h-7 rounded-md bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-extrabold text-sm active:scale-95">＋</button>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
-          <button type="button" onclick="saveQuickManualPlant('count')" class="w-full rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 py-2.5 text-xs font-extrabold active:scale-95 transition-all">
+          <button type="button" onclick="saveQuickManualPlant('count')" class="w-full rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 py-2 text-xs font-extrabold active:scale-95 transition-all">
             📦 Add to Count
           </button>
-          <button type="button" onclick="saveQuickManualPlant('buy')" class="w-full rounded-xl bg-violet-700 hover:bg-violet-800 text-white py-2.5 text-xs font-extrabold shadow-sm active:scale-95 transition-all">
-            🛒 Add Straight to Buy
+          <button type="button" onclick="saveQuickManualPlant('buy')" class="w-full rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white py-2 text-xs font-extrabold shadow-sm active:scale-95 transition-all">
+            🛒 Add to Buy
           </button>
         </div>
       </div>
@@ -1794,10 +1791,10 @@
         }
 
         return `
-          <article class="bg-white rounded-xl border ${currentMode === 'count' && isCounted ? 'border-emerald-300/90' : 'border-violet-300'} shadow-sm overflow-hidden">
-            <header class="px-2.5 py-1.5 ${currentMode === 'count' && isCounted ? 'bg-emerald-50/60' : 'bg-violet-50/80'} border-b border-slate-200/80 flex items-center justify-between gap-2">
+          <article class="bg-white rounded-xl border ${currentMode === 'count' && isCounted ? 'border-emerald-300/90' : 'border-slate-300/90'} shadow-sm overflow-hidden">
+            <header class="px-2.5 py-1.5 ${currentMode === 'count' && isCounted ? 'bg-emerald-50/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0">
-                <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-violet-200 text-violet-900 shrink-0">Manual</span>
+                <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">Manual</span>
                 <h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug">
                   ${escapeHtml(item.name)}
                 </h2>
@@ -2273,8 +2270,8 @@
         document.querySelectorAll('.manual-size-pill').forEach(btn => {
           const isMatch = btn.getAttribute('data-size-val') === val;
           btn.className = isMatch
-            ? "manual-size-pill py-2 px-2 rounded-lg text-xs font-extrabold border border-violet-700 bg-violet-700 text-white shadow-sm active:scale-95 transition-all"
-            : "manual-size-pill py-2 px-2 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 active:scale-95 transition-all";
+            ? "manual-size-pill py-1.5 px-1 rounded-lg text-xs font-extrabold border border-emerald-700 bg-emerald-700 text-white shadow-sm active:scale-95 transition-all text-center"
+            : "manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center";
         });
       };
 
@@ -2313,7 +2310,7 @@
         saveStorage();
         nameInput.value = '';
         qtyInput.value = '1';
-        selectManualSizePill('4" Pot');
+        selectManualSizePill('4"');
         closeManualAdd();
         switchMode(goStraightToBuy ? 'buy' : 'count');
       };
