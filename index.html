@@ -33,9 +33,12 @@
         scrollbar-width: none;
       }
 
-      /* Prevent iOS Safari and Android Chrome from auto-zooming on text inputs while keeping compact number steppers crisp */
-      input[type="text"] {
+      /* Prevent iOS Safari and Android Chrome from auto-zooming on modal text inputs while keeping search & sort normalized */
+      input[type="text"]:not(#searchInput) {
         font-size: 16px !important;
+      }
+      #searchInput, #sortSelect {
+        font-size: 12px !important;
       }
 
       /* Remove spinner arrows from number inputs */
@@ -138,18 +141,18 @@
         <div class="max-w-xl mx-auto px-2.5 pb-1.5 flex items-center gap-1.5">
           <div class="relative flex-1 min-w-0">
             <span class="absolute left-2.5 top-2 text-xs pointer-events-none text-slate-400">🔍</span>
-            <input id="searchInput" type="text" placeholder="Search plant or variation..." oninput="handleSearchDebounced(this.value)" class="w-full bg-slate-100 pl-7 pr-7 py-1 text-xs rounded-lg border border-slate-300 focus:border-emerald-600 focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 h-8" />
+            <input id="searchInput" type="text" placeholder="Search plant" oninput="handleSearchDebounced(this.value)" class="w-full bg-slate-100 pl-7 pr-7 py-1 text-xs font-bold text-slate-800 rounded-lg border border-slate-300 focus:border-emerald-600 focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal h-8" />
             <button id="clearSearchBtn" onclick="clearSearch()" aria-label="Clear search" class="hidden absolute right-1 top-0.5 w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 text-xs font-bold">✕</button>
           </div>
-          <!-- COMPACT SORT SELECTOR -->
-          <div class="relative shrink-0 w-[106px]">
-            <select id="sortSelect" aria-label="Sort plants by" onchange="handleSortChange(this.value)" class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-[11px] font-bold py-1 pl-2 pr-5 rounded-lg focus:outline-none focus:border-emerald-600 appearance-none cursor-pointer h-8 truncate">
+          <!-- COMPACT SORT SELECTOR (EQUAL PADDING) -->
+          <div class="relative shrink-0 w-[82px]">
+            <select id="sortSelect" aria-label="Sort plants by" onchange="handleSortChange(this.value)" class="w-full bg-slate-100 border border-slate-300 text-slate-800 text-xs font-bold py-1 pl-2 pr-3.5 rounded-lg focus:outline-none focus:border-emerald-600 appearance-none cursor-pointer h-8 text-center truncate">
               <option value="zone">Sort: Zone</option>
               <option value="sold-desc" selected>Sort: Sold</option>
-              <option value="name-asc">Sort: A to Z</option>
+              <option value="name-asc">Sort: A-Z</option>
               <option value="need-first">Sort: Need</option>
             </select>
-            <span class="text-[9px] text-slate-500 absolute right-1.5 top-2.5 pointer-events-none">▼</span>
+            <span class="text-[7px] text-slate-500 absolute right-1.5 top-2.5 pointer-events-none">▼</span>
           </div>
         </div>
 
@@ -1722,7 +1725,7 @@
         const lineSubtotal = (buyQty * unitPrice).toFixed(2);
         const { badgeText, detailText } = getCleanVariationParts({ name: item.size || '4" Pot', size: item.size || '4"' });
         const detailSpan = detailText ? `
-          <span class="text-[11px] font-bold ${ (currentMode === 'count' && isCounted) || (currentMode === 'buy' && isPurchased) ? 'line-through text-slate-400' : 'text-slate-800' } truncate min-w-0 flex-1">${escapeHtml(detailText)}</span>` : '';
+          <span class="text-[11px] font-bold ${ (currentMode === 'count' && isCounted) || (currentMode === 'buy' && isPurchased) ? 'text-slate-500' : 'text-slate-800' } truncate min-w-0 flex-1">${escapeHtml(detailText)}</span>` : '';
 
         let rowHtml = '';
 
@@ -1733,7 +1736,7 @@
                 <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
                 ${detailSpan}
                 <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                  <span class="${isCounted ? 'line-through text-slate-400' : ''}" title="Target quantity">🎯 ${sold}</span>
+                  <span title="Target quantity">🎯 ${sold}</span>
                   <span class="text-slate-300" aria-hidden="true">/</span>
                   <span class="${shortfall > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-extrabold'}" title="Needed">🛒 ${shortfall}</span>
                 </div>
@@ -1805,7 +1808,7 @@
             <header class="px-2.5 py-1.5 ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">Manual</span>
-                <h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isManualDoneInBuy ? 'line-through text-slate-400' : ''}">
+                <h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'line-through text-slate-400' : ''}">
                   ${escapeHtml(item.name)}
                 </h2>
               </div>
@@ -1842,7 +1845,7 @@
 
           const isRowCheckedInCurrentMode = (currentMode === 'count' && isCounted) || (currentMode === 'buy' && isPurchased);
           const detailSpan = detailText ? `
-            <span class="text-[11px] font-bold ${isRowCheckedInCurrentMode ? 'line-through text-slate-400' : 'text-slate-800'} truncate min-w-0 flex-1">${escapeHtml(detailText)}</span>` : '';
+            <span class="text-[11px] font-bold ${isRowCheckedInCurrentMode ? 'text-slate-500' : 'text-slate-800'} truncate min-w-0 flex-1">${escapeHtml(detailText)}</span>` : '';
 
           if (currentMode === 'count') {
             variationsHtml += `
@@ -1853,7 +1856,7 @@
                   </span>
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                    <span class="${isCounted ? 'line-through text-slate-400' : ''}" title="Target quantity">🎯 ${v.sold}</span>
+                    <span title="Target quantity">🎯 ${v.sold}</span>
                     <span class="text-slate-300" aria-hidden="true">/</span>
                     <span class="${shortfall > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-extrabold'}" title="Needed">🛒 ${shortfall}</span>
                   </div>
@@ -1882,11 +1885,11 @@
             variationsHtml += `
               <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : 'border-slate-100'}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 line-through opacity-75' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">
+                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
                   ${detailSpan}
-                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'line-through text-slate-400' : 'text-slate-600'} leading-none">
+                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'text-slate-500' : 'text-slate-600'} leading-none">
                     <span title="Original target quantity">🎯 ${v.sold}</span>
                     <span class="text-slate-300" aria-hidden="true">/</span>
                     <span title="In Stock">📦 ${stock}</span>
@@ -1964,7 +1967,7 @@
         return `
           <article class="bg-white rounded-xl border ${(currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90'} shadow-sm overflow-hidden transition-all">
             <header class="px-2.5 py-1.5 ${(currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
-              <h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDoneInBuy ? 'line-through text-slate-400' : ''}">
+              <h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">
                 ${escapeHtml(item.name)}
               </h2>
               ${headerBadgeHtml}
