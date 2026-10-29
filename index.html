@@ -220,22 +220,6 @@
         <button onclick="toggleMenuDrawer(false)" aria-label="Close menu" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-xs active:scale-95">✕</button>
       </div>
 
-      <!-- METRICS RECAP -->
-      <div class="grid grid-cols-3 gap-2 text-center mb-3">
-        <div class="bg-slate-50 p-2 rounded-xl border border-slate-200">
-          <div id="drawerSoldTotal" class="text-sm font-extrabold text-slate-900">0</div>
-          <div class="text-[10px] text-slate-500 font-bold">Total Target</div>
-        </div>
-        <div class="bg-slate-50 p-2 rounded-xl border border-slate-200">
-          <div id="drawerStockTotal" class="text-sm font-extrabold text-slate-900">0</div>
-          <div class="text-[10px] text-slate-500 font-bold">In Stock</div>
-        </div>
-        <div class="bg-amber-50 p-2 rounded-xl border border-amber-200">
-          <div id="drawerShortfallTotal" class="text-sm font-extrabold text-amber-800">0</div>
-          <div class="text-[10px] text-amber-700 font-bold">Need to Buy</div>
-        </div>
-      </div>
-
       <!-- SYNC & IMPORT STATUS PANEL -->
       <div class="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
         <div class="flex items-center justify-between mb-2 gap-2">
@@ -243,6 +227,10 @@
             <span>🐙</span>
             <span>Data Source & Sync</span>
           </span>
+          <button onclick="changeGitHubToken()" class="text-[10px] font-bold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Update / Change GitHub Token">
+            <span>🔑</span>
+            <span>GitHub Token</span>
+          </button>
         </div>
         <div class="flex items-center gap-1.5 mb-2">
           <button onclick="toggleMenuDrawer(false); triggerGitHubWorkflowOnDemand();" class="flex-1 text-[11px] font-extrabold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 px-2.5 py-1.5 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-1 shadow-sm">
@@ -269,14 +257,6 @@
           <span class="text-[10px] font-extrabold bg-emerald-800 px-2 py-0.5 rounded-full">Export</span>
         </button>
 
-        <button onclick="changeGitHubToken()" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl flex items-center justify-between gap-2.5 active:scale-[0.99] transition-all">
-          <span class="flex items-center gap-2.5">
-            <span>🔑</span>
-            <span>Update / Change GitHub Token</span>
-          </span>
-          <span class="text-[10px] font-bold text-slate-400">Settings</span>
-        </button>
-
         <button onclick="openCsvModal()" class="w-full py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
           <span>📂</span>
           <span>Upload Etsy Variations CSV File</span>
@@ -293,11 +273,6 @@
         <button onclick="resetCustomLogo()" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-500 border border-slate-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
           <span>🔄</span>
           <span>Reset Logo to Mascot Default</span>
-        </button>
-
-        <button onclick="matchStockToSold()" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
-          <span>✅</span>
-          <span>Match All Stock to Target Quantities</span>
         </button>
 
         <button onclick="clearCart()" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
@@ -2097,9 +2072,12 @@
         document.getElementById('floatCartTotal').textContent = `$${totalCartCost.toFixed(2)}`;
         document.getElementById('floatBtnLabel').textContent = currentMode === 'cart' ? '← Buy List' : `Cart (${totalCartUnits})`;
 
-        document.getElementById('drawerSoldTotal').textContent = totalSold;
-        document.getElementById('drawerStockTotal').textContent = totalStock;
-        document.getElementById('drawerShortfallTotal').textContent = totalShortfall;
+        const drawerSoldEl = document.getElementById('drawerSoldTotal');
+        if (drawerSoldEl) drawerSoldEl.textContent = totalSold;
+        const drawerStockEl = document.getElementById('drawerStockTotal');
+        if (drawerStockEl) drawerStockEl.textContent = totalStock;
+        const drawerShortfallEl = document.getElementById('drawerShortfallTotal');
+        if (drawerShortfallEl) drawerShortfallEl.textContent = totalShortfall;
       }
 
       window.toggleMenuDrawer = function(show) {
