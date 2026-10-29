@@ -484,6 +484,15 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
     }
   }
 
+  // Rule 5: No variation recorded by Etsy
+  // Leave standard pot size (e.g. 2") without extra wording
+  if (v.includes('no variation recorded by etsy')) {
+    return {
+      varOpt: defaultPotSize,
+      potSize: defaultPotSize
+    };
+  }
+
   return {
     varOpt: varOpt,
     potSize: defaultPotSize
