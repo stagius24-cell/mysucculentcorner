@@ -2298,6 +2298,8 @@
           ).trim();
           const qty = parseInt(r['units_sold'] || r['Units sold'] || r['quantity'] || '1', 10) || 1;
           if (!title) return;
+          // Skip non-plant add-on items (e.g. heat packs)
+          if (title.toLowerCase().includes('heat pack')) return;
           const plantInfo = typeof resolvePlantInfo === 'function' ? resolvePlantInfo(title) : {
             name: title.trim()
               .replace(/\b[246]\s*["']?\s*(?:pot|inches|inch)\b/gi, '')
