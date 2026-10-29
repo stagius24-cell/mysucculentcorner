@@ -200,7 +200,7 @@
 
     <!-- FLOATING BOTTOM BAR WITH 4S UNDO -->
     <aside id="floatingBarAside" style="display: none;" class="fixed bottom-0 inset-x-0 z-20 flex justify-center px-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] pointer-events-none no-print">
-      <div id="floatingBarContainer" style="background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);" class="pointer-events-auto text-white px-3.5 py-2 rounded-full shadow-xl border border-slate-700/50 flex items-center justify-between gap-2 text-xs max-w-md w-full whitespace-nowrap">
+      <div id="floatingBarContainer" style="background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);" class="pointer-events-auto text-white px-3.5 py-2 rounded-full shadow-xl border border-slate-700/50 flex items-center justify-between gap-3 text-xs w-auto min-w-[210px] max-w-md whitespace-nowrap">
         <!-- DEFAULT SUMMARY VIEW (CART MODE) -->
         <div id="floatDefaultView" style="display: flex;" class="items-center justify-between w-full gap-2">
           <div class="flex items-center gap-1.5 min-w-0">
@@ -211,15 +211,14 @@
             <span>Clear Cart</span>
           </button>
         </div>
-        <!-- INLINE 4-SECOND UNDO VIEW -->
-        <div id="floatUndoView" style="display: none;" class="items-center justify-between w-full gap-2 text-xs">
-          <div class="flex items-center gap-1.5 min-w-0 flex-1">
-            <span class="shrink-0">✅</span>
-            <span id="floatUndoText" class="truncate font-bold text-slate-100">Added plant</span>
-            <span id="floatUndoCartTotal" class="font-extrabold text-emerald-400 shrink-0 ml-1">$0.00</span>
+        <!-- INLINE 9-SECOND UNDO VIEW -->
+        <div id="floatUndoView" style="display: none;" class="items-center justify-between w-full gap-3 text-xs">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="shrink-0 text-sm">✅</span>
+            <span id="floatUndoItemCost" class="font-extrabold text-emerald-400 text-sm leading-none">+$0.00</span>
           </div>
-          <button onclick="triggerUndoAction()" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center gap-1 transition-all active:scale-95 shrink-0 cursor-pointer">
-            <span>↩ Undo (<span id="floatUndoCountdown">4s</span>)</span>
+          <button onclick="triggerUndoAction()" class="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center gap-1.5 transition-all active:scale-95 shrink-0 cursor-pointer shadow-sm">
+            <span>↩ Undo (<span id="floatUndoCountdown">9s</span>)</span>
           </button>
         </div>
       </div>
@@ -1417,18 +1416,39 @@
         }
       }
 
-      function showBottomUndo(varId, itemName, sizeLabel) {
+      function showBottomUndo(varId, itemCost) {
         lastPurchasedVarId = varId;
         const defaultView = document.getElementById('floatDefaultView');
         const undoView = document.getElementById('floatUndoView');
-        const textEl = document.getElementById('floatUndoText');
+        const undoItemCostEl = document.getElementById('floatUndoItemCost');
         const countdownEl = document.getElementById('floatUndoCountdown');
-        const undoCartTotalEl = document.getElementById('floatUndoCartTotal');
-        if (!defaultView || !undoView || !textEl || !countdownEl) return;
-        textEl.textContent = `${itemName} (${sizeLabel})`;
-        const cartTotalEl = document.getElementById('floatCartTotal');
-        if (cartTotalEl && undoCartTotalEl) {
-          undoCartTotalEl.textContent = cartTotalEl.textContent.trim();
+        if (!defaultView || !undoView || !countdownEl) return;
+
+        if (typeof itemCost !== 'number') {
+          itemCost = 0.0;
+          if (varId.startsWith('manual_')) {
+            const m = manualExportItems.find(x => x.id === varId);
+            if (m) {
+              const buyQty = getManualEffectiveBuyQty(m);
+              const unitPrice = getUnitPrice(m.name, m.size, m.size);
+              itemCost = buyQty * unitPrice;
+            }
+          } else {
+            for (const item of catalog) {
+              const v = item.variations.find(x => x.id === varId);
+              if (v) {
+                const stock = stockState[v.id] || 0;
+                const buyQty = getEffectiveBuyQty(v.id, v.sold, stock);
+                const unitPrice = getUnitPrice(item.name, v.name, v.size);
+                itemCost = buyQty * unitPrice;
+                break;
+              }
+            }
+          }
+        }
+
+        if (undoItemCostEl) {
+          undoItemCostEl.textContent = `+$${itemCost.toFixed(2)}`;
         }
         defaultView.style.display = 'none';
         undoView.style.display = 'flex';
@@ -1440,7 +1460,7 @@
           clearInterval(undoInterval);
           undoInterval = null;
         }
-        let secondsLeft = 4;
+        let secondsLeft = 9;
         countdownEl.textContent = `${secondsLeft}s`;
         undoInterval = setInterval(() => {
           secondsLeft -= 1;
@@ -1453,7 +1473,7 @@
         }, 1000);
         undoTimeout = setTimeout(() => {
           revertBottomBar();
-        }, 4000);
+        }, 9000);
         updateFloatingBarVisibility();
       }
 
@@ -1493,13 +1513,14 @@
         if (!currentlyPurchased && el) {
           if (navigator.vibrate) navigator.vibrate(12);
           el.classList.add('checking-active');
-          let foundItemName = "Plant";
-          let foundSize = "";
+          let itemCost = 0.0;
           for (const item of catalog) {
             const v = item.variations.find(x => x.id === varId);
             if (v) {
-              foundItemName = item.name;
-              foundSize = v.size || "Std";
+              const stock = stockState[v.id] || 0;
+              const buyQty = getEffectiveBuyQty(v.id, v.sold, stock);
+              const unitPrice = getUnitPrice(item.name, v.name, v.size);
+              itemCost = buyQty * unitPrice;
               break;
             }
           }
@@ -1507,7 +1528,7 @@
             purchasedState[varId] = true;
             saveStorage();
             renderAll();
-            showBottomUndo(varId, foundItemName, foundSize);
+            showBottomUndo(varId, itemCost);
           }, 170);
         } else {
           purchasedState[varId] = false;
@@ -1524,11 +1545,14 @@
         if (!currentlyPurchased && el) {
           if (navigator.vibrate) navigator.vibrate(12);
           el.classList.add('checking-active');
+          const buyQty = getManualEffectiveBuyQty(item);
+          const price = getUnitPrice(item.name, item.size, item.size);
+          const itemCost = buyQty * price;
           setTimeout(() => {
             item.purchased = true;
             saveStorage();
             renderAll();
-            showBottomUndo(id, item.name, item.size || 'Std');
+            showBottomUndo(id, itemCost);
           }, 170);
         } else {
           item.purchased = false;
