@@ -785,7 +785,7 @@
       }];
 
       // Zone configuration, classification, and unit pricing (delegated to plant_config.js)
-      const ZONE_CONFIG = (typeof window !== 'undefined' && window.ZONE_CONFIG) || {
+      var ZONE_CONFIG = (typeof window !== 'undefined' && window.ZONE_CONFIG) || {
         1: { name: "Zone 1: Echeveria, Crassula, Nanouk & Lilac Mist", color: "bg-emerald-900 text-white border-emerald-700" },
         2: { name: "Zone 2: String of Hearts & Trailing Plants", color: "bg-teal-900 text-white border-teal-700" },
         3: { name: "Zone 3: Cactus, Jade, Aeonium, Sedum & Key Lime", color: "bg-amber-900 text-white border-amber-700" },
@@ -848,12 +848,9 @@
       function initApp() {
         initLogo();
         loadStorage();
-        // Always load clean / empty state first so new CSV data populates freshly without stale counts
-        catalog = [];
-        stockState = {};
-        countedState = {};
-        buyState = {};
-        purchasedState = {};
+        if (!catalog || catalog.length === 0) {
+          catalog = JSON.parse(JSON.stringify(DEFAULT_CATALOG));
+        }
         updateSyncStatusUI();
         updateHideCountedChipUI();
         renderAll();
@@ -933,18 +930,34 @@
           if (!response.ok) {
             throw new Error(`HTTP ${response.status} ${response.statusText}`);
           }
-          const csvText = await response.text();
+          let csvText = await response.text();
           if (!csvText || csvText.trim().startsWith('<!DOCTYPE html') || csvText.trim().startsWith('<html')) {
             throw new Error('Invalid CSV file or empty response from GitHub.');
+          }
+          // Strip UTF-8 BOM if present
+          if (csvText.charCodeAt(0) === 0xFEFF) {
+            csvText = csvText.slice(1);
           }
 
           const parsed = Papa.parse(csvText, {
             header: true,
-            skipEmptyLines: true
+            skipEmptyLines: true,
+            transformHeader: function(h) {
+              return h.trim().replace(/^\ufeff/, '');
+            }
           });
           const rows = parsed && Array.isArray(parsed.data) ? parsed.data : [];
 
-          if (rows.length > 0 && (rows[0]['listing_title'] || rows[0]['Listing title'] || rows[0]['title'])) {
+          const firstRow = rows.length > 0 ? rows[0] : null;
+          const hasTitleCol = firstRow && (
+            firstRow['listing_title'] ||
+            firstRow['Listing title'] ||
+            firstRow['title'] ||
+            firstRow['\ufefflisting_title'] ||
+            firstRow['Listing Title']
+          );
+
+          if (rows.length > 0 && hasTitleCol) {
             syncMeta = {
               sourceName: `GitHub: ${GITHUB_CSV_FILENAME}`,
               timestamp: formatNowTimestamp()
@@ -2086,6 +2099,9 @@
         Papa.parse(file, {
           header: true,
           skipEmptyLines: true,
+          transformHeader: function(h) {
+            return h.trim().replace(/^\ufeff/, '');
+          },
           complete: function(results) {
             syncMeta = {
               sourceName: file.name ? `CSV: ${file.name.slice(0, 22)}` : 'Uploaded CSV',
@@ -2111,8 +2127,21 @@
         const stableSlug = value => String(value || 'item').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'item';
 
         rows.forEach(r => {
-          const title = r['listing_title'] || r['Listing title'] || r['title'] || '';
-          const varOpt = r['variation_options'] || r['Variation option(s)'] || r['variation'] || 'Standard';
+          const title = (
+            r['listing_title'] ||
+            r['Listing title'] ||
+            r['title'] ||
+            r['\ufefflisting_title'] ||
+            r['Listing Title'] ||
+            ''
+          ).trim();
+          const varOpt = (
+            r['variation_options'] ||
+            r['Variation option(s)'] ||
+            r['variation'] ||
+            r['Variation'] ||
+            'Standard'
+          ).trim();
           const qty = parseInt(r['units_sold'] || r['Units sold'] || r['quantity'] || '1', 10) || 1;
           if (!title) return;
           const plantInfo = typeof resolvePlantInfo === 'function' ? resolvePlantInfo(title) : {
@@ -2515,7 +2544,11 @@
         lastScrollY = currentY;
       }, { passive: true });
 
-      window.addEventListener('DOMContentLoaded', initApp);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+      } else {
+        initApp();
+      }
     </script>
   </body>
 </html>

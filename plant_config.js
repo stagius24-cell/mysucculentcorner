@@ -20,7 +20,7 @@
 // =======================================================================
 // 1. ZONE CONFIGURATION & COLORS
 // =======================================================================
-const ZONE_CONFIG = {
+var ZONE_CONFIG = {
   1: {
     name: "Zone 1: Echeveria, Crassula, Nanouk & Lilac Mist",
     color: "bg-emerald-900 text-white border-emerald-700"
@@ -42,7 +42,7 @@ const ZONE_CONFIG = {
 // =======================================================================
 // 2. PLANT DICTIONARY (PREFERRED NAMES & ZONE ASSIGNMENTS)
 // =======================================================================
-const PLANT_DICTIONARY = [
+var PLANT_DICTIONARY = [
   // ---------------------------------------------------------------------
   // ZONE 1: Echeveria, Crassula, Nanouk, Lilac Mist
   // ---------------------------------------------------------------------
