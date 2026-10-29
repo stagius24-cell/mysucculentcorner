@@ -142,9 +142,9 @@ var PLANT_DICTIONARY = [
     match: ["moonstone"]
   },
   {
-    preferredName: "Echeveria 'lola'",
+    preferredName: "Echeveria 'Lola' & String of Pearl combo",
     zone: 1,
-    match: ["echeveria 'lola'", "echeveria lola", "lola"]
+    match: ["lola and string of pearl", "echeveria lola and string", "lola , 1 pearl", "echeveria lola", "lola"]
   },
   {
     preferredName: "Echeveria",
@@ -215,9 +215,14 @@ var PLANT_DICTIONARY = [
     match: ["christmas cactus", "schlumbergera"]
   },
   {
+    preferredName: "Golden Tail Cactus",
+    zone: 3,
+    match: ["golden tail", "cleistocactus winteri"]
+  },
+  {
     preferredName: "Monkey Tail Cactus",
     zone: 3,
-    match: ["monkey tail", "cleistocactus"]
+    match: ["monkey tail", "cleistocactus colademononis", "cleistocactus"]
   },
   {
     preferredName: "Old Man of the Andes Cactus",
@@ -305,9 +310,19 @@ var PLANT_DICTIONARY = [
     match: ["burro's tail", "burros tail", "donkey tail"]
   },
   {
+    preferredName: "Sedum Adolphi 'Firestorm'",
+    zone: 3,
+    match: ["firestorm", "sedum adolphi"]
+  },
+  {
     preferredName: "Sedum",
     zone: 3,
     match: ["sedum"]
+  },
+  {
+    preferredName: "Powder Puff Cactus",
+    zone: 3,
+    match: ["powder puff", "mammillaria bocasana"]
   },
   {
     preferredName: "Cactus",
