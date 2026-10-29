@@ -1405,7 +1405,7 @@
         if (!aside) return;
         const undoView = document.getElementById('floatUndoView');
         const defaultView = document.getElementById('floatDefaultView');
-        const isUndoActive = undoView && undoView.style.display !== 'none' && undoTimeout !== null;
+        const isUndoActive = undoView && undoView.style.display !== 'none' && lastPurchasedVarId !== null;
         if (isUndoActive) {
           aside.style.display = 'flex';
         } else if (currentMode === 'cart') {
@@ -1432,22 +1432,29 @@
         }
         defaultView.style.display = 'none';
         undoView.style.display = 'flex';
-        if (undoTimeout) clearTimeout(undoTimeout);
-        if (undoInterval) clearInterval(undoInterval);
+        if (undoTimeout) {
+          clearTimeout(undoTimeout);
+          undoTimeout = null;
+        }
+        if (undoInterval) {
+          clearInterval(undoInterval);
+          undoInterval = null;
+        }
         let secondsLeft = 4;
         countdownEl.textContent = `${secondsLeft}s`;
-        updateFloatingBarVisibility();
         undoInterval = setInterval(() => {
           secondsLeft -= 1;
           if (secondsLeft > 0) {
             countdownEl.textContent = `${secondsLeft}s`;
           } else {
             clearInterval(undoInterval);
+            undoInterval = null;
           }
         }, 1000);
         undoTimeout = setTimeout(() => {
           revertBottomBar();
         }, 4000);
+        updateFloatingBarVisibility();
       }
 
       function revertBottomBar() {
