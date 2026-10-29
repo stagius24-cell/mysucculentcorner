@@ -316,17 +316,15 @@
     </div>
 
     <!-- QUICK MANUAL PLANT ENTRY MODAL -->
-    <div id="manualAddModal" class="hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm p-3 flex items-center justify-center" onclick="if(event.target===this) closeManualAdd()">
-      <div class="w-full max-w-sm rounded-2xl bg-white p-3.5 shadow-2xl border border-slate-200">
-        <div class="flex items-center justify-between mb-2">
+    <div id="manualAddModal" class="hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm p-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-4 flex items-start justify-center" onclick="if(event.target===this) closeManualAdd()">
+      <div class="w-full max-w-sm rounded-2xl bg-white p-3.5 shadow-2xl border border-slate-200 mt-1 sm:mt-2">
+        <div class="flex items-center justify-between mb-2.5">
           <h2 class="text-sm font-extrabold text-slate-900">＋ Add Plant Manually</h2>
           <button onclick="closeManualAdd()" aria-label="Close modal" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center">✕</button>
         </div>
 
-        <label class="block text-xs font-bold text-slate-700 mb-1" for="quickManualName">Plant name / variation</label>
-        <input id="quickManualName" type="text" maxlength="100" placeholder="e.g. Echeveria 'Lola'" class="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-xs sm:text-sm mb-2 focus:outline-none focus:border-emerald-600 bg-slate-50 focus:bg-white transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();saveQuickManualPlant('buy')}" />
+        <input id="quickManualName" type="text" maxlength="100" placeholder="e.g. Echeveria 'Lola'" aria-label="Plant name / variation" class="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-xs sm:text-sm mb-2 focus:outline-none focus:border-emerald-600 bg-slate-50 focus:bg-white transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();saveQuickManualPlant('buy')}" />
 
-        <label class="block text-xs font-bold text-slate-700 mb-1">Pot Size / Type</label>
         <input type="hidden" id="quickManualSize" value='4"' />
         <div id="manualSizePills" class="grid grid-cols-4 gap-1.5 mb-2.5">
           <button type="button" onclick="selectManualSizePill('2&quot;')" data-size-val='2"' class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center">2"</button>
