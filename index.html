@@ -156,8 +156,12 @@
           </div>
         </div>
 
-        <!-- ROW 4: SIZE FILTER CHIPS (ALL VISIBLE; REST EXPAND ON CLICK) + HIDE COUNTED TOGGLE -->
+        <!-- ROW 4: HIDE DONE TOGGLE ON LEFT + EXPANDABLE ALL CHIP ON RIGHT -->
         <div class="max-w-xl mx-auto px-2.5 pb-1.5 flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
+          <button id="hideCountedChip" onclick="toggleHideCounted()" class="h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1" title="Hide variations already verified in Count / Buy mode">
+            <span id="hideCountedChipIcon">👁</span>
+            <span id="hideCountedChipText">Hide Done</span>
+          </button>
           <button onclick="handleAllChipClick()" id="chipAllBtn" data-size-filter="all" class="size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-slate-900 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1" title="Tap to toggle pot size filters">
             <span>All</span>
             <span id="chipCountAll" class="opacity-80 font-normal ml-0.5">0</span>
@@ -177,10 +181,6 @@
               Sets/Spec <span id="chipCountSpecial" class="opacity-75 font-normal ml-0.5">0</span>
             </button>
           </div>
-          <button id="hideCountedChip" onclick="toggleHideCounted()" class="h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap ml-auto flex items-center gap-1" title="Hide variations already verified in Count mode">
-            <span id="hideCountedChipIcon">👁</span>
-            <span id="hideCountedChipText">Hide Done</span>
-          </button>
         </div>
       </div>
     </header>
@@ -1218,11 +1218,11 @@
         chip.classList.remove('hidden');
         const isHiding = currentMode === 'buy' ? hidePurchased : hideCounted;
         if (isHiding) {
-          chip.className = "h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white border border-emerald-700 shadow-sm active:scale-95 whitespace-nowrap ml-auto flex items-center gap-1";
+          chip.className = "h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white border border-emerald-700 shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1";
           if (icon) icon.textContent = '✓';
           if (text) text.textContent = 'Hiding Done';
         } else {
-          chip.className = "h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap ml-auto flex items-center gap-1";
+          chip.className = "h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1";
           if (icon) icon.textContent = '👁';
           if (text) text.textContent = 'Hide Done';
         }
