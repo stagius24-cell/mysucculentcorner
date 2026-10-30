@@ -354,6 +354,11 @@ var PLANT_DICTIONARY = [
   // ZONE 4: Other Succulents & Specialty Decor
   // ---------------------------------------------------------------------
   {
+    preferredName: "Baby Toes",
+    zone: 4,
+    match: ["baby toes", "fenestraria"]
+  },
+  {
     preferredName: "Ice plant",
     zone: 4,
     match: ["corpuscularia lehmannii", "corpuscularia", "ice plant", "lehmannii"]
@@ -560,6 +565,15 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
         potSize: '2"'
       };
     }
+  }
+
+  // Rule: Baby Toes -> clean pot size (e.g. 2"), remove Bundle Set
+  if (p.includes('baby toes') || t.includes('baby toes') || t.includes('fenestraria')) {
+    const size = (v.includes('4"') || v.includes('4 inch') || defaultPotSize.includes('4"')) ? '4"' : '2"';
+    return {
+      varOpt: size,
+      potSize: size
+    };
   }
 
   // Rule 1: Variegated String of pearl (little guy pot)
