@@ -2082,17 +2082,20 @@
         function extractSubDetail(name) {
           if (!name) return '';
           let s = name.replace(/^(title|pot\s*size|size\s*pot|size|variety|option|your\s*choice\s*of):\s*/gi, '').trim();
+          s = s.replace(/\b(title:\s*)?default\s*title\b/gi, '').trim();
           s = s.replace(/\bdefault\s*title\b/gi, '').trim();
           s = s.replace(/\byour\s*choice\s*of:?\b/gi, '').trim();
           s = s.replace(/\b2\s*gallons?(\s*pot)?\b/gi, '').trim();
-          s = s.replace(/\b(one\s+)?([246]\s*["']?\s*(pot|inches|inch)?)\b/gi, '').trim();
+          s = s.replace(/\b(one\s+)?([246]\s*["'”’]?\s*(pot|inches|inch)?)\b/gi, '').trim();
+          s = s.replace(/^[246]\s*["'”’]\s*/gi, '').trim();
           s = s.replace(/\bpot\b/gi, '').trim();
           s = s.replace(/\bwith\s*\d*\s*tails?\b/gi, '').trim();
           s = s.replace(/^variety\s*set:\s*/gi, '').trim();
           s = s.replace(/\bpotted\s*bear\s*paw\b/gi, '').trim();
           s = s.replace(/\bno\s*variation\s*recorded\s*by\s*etsy\b/gi, '').trim();
+          s = s.replace(/\btitle\b/gi, '').trim();
           s = s.replace(/^[:() -/,]+|[:() -/,]+$/g, '').trim();
-          if (/^(standard|one|default\s*title|colors|set of 3 colors|set of 3 color|special\/decor|special|set of 3|no\s*variation\s*recorded\s*by\s*etsy|novariationrecordedbyetsy|your\s*choice\s*of:?)$/i.test(s) || !s) {
+          if (/^(standard|one|default\s*title|title|colors|set of 3 colors|set of 3 color|special\/decor|special|set of 3|no\s*variation\s*recorded\s*by\s*etsy|novariationrecordedbyetsy|your\s*choice\s*of:?)$/i.test(s) || !s) {
             return '';
           }
           return s;

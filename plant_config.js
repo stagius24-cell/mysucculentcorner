@@ -369,6 +369,11 @@ var PLANT_DICTIONARY = [
     match: ["mother of millions"]
   },
   {
+    preferredName: "Kalanchoe 'Beharensis Fang'",
+    zone: 4,
+    match: ["beharensis", "fang"]
+  },
+  {
     preferredName: "Tiger Kalanchoe humilis",
     zone: 4,
     match: ["tiger kalanchoe", "kalanchoe humilis"]
@@ -434,8 +439,9 @@ function resolvePlantInfo(rawTitle) {
 
   // Fallback: clean extraneous words if no dictionary keyword matched
   const cleaned = rawTitle.trim()
-    .replace(/\b[246]\s*["']?\s*(?:pot|inches|inch)\b/gi, '')
-    .replace(/\b[246]\s*["']\b/gi, '')
+    .replace(/\b[246]\s*["'”’]?\s*(?:pot|inches|inch)\b/gi, '')
+    .replace(/^[246]\s*["'”’]\s*/gi, '')
+    .replace(/\b[246]\s*["'”’]\b/gi, '')
     .replace(/\b2\s*gallons?\b/gi, '')
     .replace(/^[-|/\s]+|[-|/\s]+$/g, '') || rawTitle.trim();
 
@@ -604,9 +610,16 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
   // Rule 5: No variation recorded by Etsy / Shopify Default Title
   // Leave standard pot size (e.g. 2") without extra wording
   if (v.includes('no variation recorded by etsy') || v.includes('default title')) {
+    let size = defaultPotSize;
+    if (!size || size === 'Special') {
+      if (t.includes('6"') || t.includes('6”') || t.includes('6 inch')) size = '6"';
+      else if (t.includes('4"') || t.includes('4”') || t.includes('4 inch')) size = '4"';
+      else if (t.includes('2"') || t.includes('2”') || t.includes('2 inch')) size = '2"';
+      else size = '2"';
+    }
     return {
-      varOpt: defaultPotSize,
-      potSize: defaultPotSize
+      varOpt: size,
+      potSize: size
     };
   }
 
