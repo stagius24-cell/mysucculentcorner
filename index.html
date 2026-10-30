@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1300"></script>
+    <script src="plant_config.js?v=20261030_1315"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -2055,7 +2055,7 @@
 
         item.visibleVariations.forEach(v => {
           const isRecentRow = !!v.isRecent;
-          const recentRowBadge = isRecentRow ? '<span class="text-[8px] font-black uppercase tracking-tight bg-amber-500 text-white px-1.5 py-0.5 rounded shadow-2xs shrink-0 leading-none">Last Minute</span>' : '';
+          const recentRowBadge = '';
           const stock = stockState[v.id] || 0;
           const isCounted = !!countedState[v.id];
           const shortfall = Math.max(0, v.sold - stock);
@@ -2219,7 +2219,7 @@
               : 'bg-slate-50 border-b border-slate-200/80');
 
         const recentHeaderBadge = isCardRecent
-          ? '<span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded-full bg-amber-500 text-white shadow-xs inline-flex items-center gap-0.5 shrink-0 animate-pulse"><span>⚡</span><span>New Order (&lt;3h)</span></span>'
+          ? '<span class="text-sm leading-none shrink-0 select-none" title="Recently imported (< 3h)">⚡</span>'
           : '';
 
         return `
@@ -2668,7 +2668,7 @@
               // 2) Separated Last-Minute variation (new quantity to buy last minute)
               const recentVar = {
                 id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}_recent`,
-                name: `${effectiveVarOpt} (⚡ Last-Minute)`,
+                name: effectiveVarOpt,
                 size: potSize,
                 sold: extraSold,
                 hasShopify: isShopify,
