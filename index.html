@@ -1890,9 +1890,11 @@
             <header class="px-2.5 py-1.5 ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">Manual</span>
-                <h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'line-through text-slate-400' : ''}">
-                  ${escapeHtml(item.name)}
-                </h2>
+                ${
+                  item.name.toLowerCase().includes('firestorm')
+                    ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                    : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                }
               </div>
               <div class="flex items-center gap-1 shrink-0">
                 ${currentMode === 'count' && isCounted ? '<span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded shrink-0">Counted</span>' : ''}
@@ -2049,9 +2051,11 @@
         return `
           <article class="bg-white rounded-xl border ${(currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90'} shadow-sm overflow-hidden transition-all">
             <header class="px-2.5 py-1.5 ${(currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
-              <h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">
-                ${escapeHtml(item.name)}
-              </h2>
+              ${
+                item.name.toLowerCase().includes('firestorm')
+                  ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                  : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+              }
               ${headerBadgeHtml}
             </header>
             <div>
@@ -2451,6 +2455,14 @@
         // Check in-memory cache
         if (plantImageCache[plantName]) {
           img.src = plantImageCache[plantName];
+          return;
+        }
+
+        // Dedicated high-res image for Sedum Adolphi Firestorm
+        if (plantName.toLowerCase().includes('firestorm')) {
+          const firestormPhoto = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Crassulaceae%CB%90_Sedum_nussbaumerianum.JPG/800px-Crassulaceae%CB%90_Sedum_nussbaumerianum.JPG';
+          plantImageCache[plantName] = firestormPhoto;
+          img.src = firestormPhoto;
           return;
         }
 
