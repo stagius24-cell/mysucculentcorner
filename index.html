@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1650"></script>
+    <script src="plant_config.js?v=20261030_1658"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -236,9 +236,6 @@
               <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Sort:</span>
               <button onclick="handleSortSelect('sold-desc')" data-sort-val="sold-desc" class="sort-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
                 🔥 Sold
-              </button>
-              <button onclick="handleSortSelect('size')" data-sort-val="size" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
-                📏 Size
               </button>
               <button onclick="handleSortSelect('zone')" data-sort-val="zone" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
                 🌱 Zone
@@ -1611,7 +1608,6 @@
         if (!label) return;
         const sortNames = {
           'sold-desc': 'Sold',
-          'size': 'Size',
           'zone': 'Zone',
           'need-first': 'Need',
           'name-asc': 'A-Z'
