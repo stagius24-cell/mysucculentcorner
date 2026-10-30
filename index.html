@@ -52,6 +52,15 @@
         -moz-appearance: textfield;
       }
 
+      .title-strikethrough {
+        text-decoration: line-through !important;
+        text-decoration-thickness: 1px !important;
+        -webkit-text-decoration-thickness: 1px !important;
+        text-decoration-color: #94a3b8 !important;
+        -webkit-text-decoration-color: #94a3b8 !important;
+        color: #94a3b8 !important;
+      }
+
       .checking-active {
         background-color: #047857 !important;
         border-color: #047857 !important;
@@ -1989,8 +1998,8 @@
                 <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">Manual</span>
                 ${
                   item.name.toLowerCase().includes('firestorm')
-                    ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
-                    : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                    ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                    : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
                 }
               </div>
               <div class="flex items-center gap-1 shrink-0">
@@ -2162,8 +2171,8 @@
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
                 ${
                   item.name.toLowerCase().includes('firestorm')
-                    ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
-                    : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                    ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                    : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
                 }
               </div>
               ${headerBadgeHtml}
