@@ -275,6 +275,11 @@ var PLANT_DICTIONARY = [
     match: ["kiwi"]
   },
   {
+    preferredName: "Aeonium 'Ice Emerald'",
+    zone: 3,
+    match: ["emerald ice", "ice emerald", "aeonium emerald"]
+  },
+  {
     preferredName: "Aeonium",
     zone: 3,
     match: ["aeonium"]
