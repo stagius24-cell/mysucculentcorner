@@ -543,6 +543,14 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
     }
   }
 
+  // Rule: Crassula 'Morgan's Beauty' -> combine into a single clean 4" variation
+  if (p.includes("morgan's beauty") || p.includes("morgans beauty") || p.includes("morgan beauty") || (t.includes('morgan') && t.includes('beauty'))) {
+    return {
+      varOpt: '4"',
+      potSize: '4"'
+    };
+  }
+
   // Rule: Sedum Adolphi Firestorm -> 2" pot
   if (p.includes('firestorm') || t.includes('firestorm')) {
     return {
