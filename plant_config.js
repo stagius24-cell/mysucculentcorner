@@ -730,6 +730,11 @@ var CLICKABLE_IMAGE_PLANTS = [
     name: "Kalanchoe 'Beharensis Fang'",
     match: ["beharensis fang", "kalanchoe 'beharensis fang'", "beharensis", "fang"],
     image: "kalanchoe_fang_v2.jpg"
+  },
+  {
+    name: "Variegated Scilla socialis",
+    match: ["scilla socialis", "scilla", "socialis", "ledebouria", "variegated scilla socialis"],
+    image: "scilla_socialis.jpg"
   }
 ];
 

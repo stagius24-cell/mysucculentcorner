@@ -2779,7 +2779,7 @@
       function isPlantImageClickable(plantName) {
         if (!plantName) return false;
         const n = plantName.toLowerCase();
-        if (n.includes('fang') || n.includes('beharensis') || n.includes('retusa') || n.includes('ice emerald') || n.includes('emerald ice') || n.includes('firestorm')) {
+        if (n.includes('fang') || n.includes('beharensis') || n.includes('retusa') || n.includes('ice emerald') || n.includes('emerald ice') || n.includes('firestorm') || n.includes('scilla') || n.includes('socialis') || n.includes('ledebouria')) {
           return true;
         }
         const list = (typeof window !== 'undefined' && window.CLICKABLE_IMAGE_PLANTS) || (typeof CLICKABLE_IMAGE_PLANTS !== 'undefined' ? CLICKABLE_IMAGE_PLANTS : []);
@@ -2793,6 +2793,7 @@
       function getClickablePlantImage(plantName) {
         if (!plantName) return null;
         const n = plantName.toLowerCase();
+        if (n.includes('scilla') || n.includes('socialis') || n.includes('ledebouria')) return 'scilla_socialis.jpg';
         if (n.includes('fang') || n.includes('beharensis')) return 'kalanchoe_fang_v2.jpg';
         if (n.includes('retusa')) return 'haworthia_retusa.jpg';
         if (n.includes('ice emerald') || n.includes('emerald ice')) return 'aeonium_emerald_ice.jpg';
