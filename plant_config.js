@@ -255,9 +255,14 @@ var PLANT_DICTIONARY = [
     match: ["rotundulum", "pink cactus"]
   },
   {
+    preferredName: "Euphorbia ferox",
+    zone: 3,
+    match: ["euphorbia ferox", "ferox", "enopla"]
+  },
+  {
     preferredName: "Euphorbia Milli",
     zone: 3,
-    match: ["euphorbia milii", "euphorbia", "crown of thorns", "christ plant", "christ thorn"]
+    match: ["euphorbia milii", "milii", "crown of thorns", "christ plant", "christ thorn"]
   },
   {
     preferredName: "Key Lime Pie",
@@ -600,7 +605,7 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
 
   // Rule 2: Euphorbia Milli
   // Name is Euphorbia Milli. Remove SPEC badge, just set of 3 colors in short.
-  if (p.includes('euphorbia') || t.includes('euphorbia')) {
+  if ((p.includes('milii') || t.includes('milii') || t.includes('crown of thorns')) && (t.includes('set of 3') || v.includes('set of 3') || v.includes('colors'))) {
     return {
       varOpt: 'Set of 3 colors',
       potSize: 'Set of 3 colors'
