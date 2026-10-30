@@ -2063,6 +2063,17 @@
           badgeText = '4-5"';
           detailText = 'Tiger Stripe';
         }
+        const nameLow = rawName.toLowerCase();
+        if (nameLow.includes('baby jade')) {
+          badgeText = '2G Baby Jade';
+          detailText = '';
+        } else if (nameLow.includes('tricolor') || nameLow.includes('tri-color')) {
+          badgeText = '2G Tricolor Jade';
+          detailText = '';
+        } else if (nameLow.includes('2g jade')) {
+          badgeText = '2G Jade';
+          detailText = '';
+        }
         return {
           badgeText,
           detailText
