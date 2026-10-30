@@ -2018,6 +2018,12 @@
           const isRowCheckedInCurrentMode = (currentMode === 'count' && isCounted) || (currentMode === 'buy' && isPurchased);
           const detailSpan = detailText ? `
             <span class="text-[11px] font-bold ${isRowCheckedInCurrentMode ? 'text-slate-500' : 'text-slate-800'} truncate min-w-0 flex-1">${escapeHtml(detailText)}</span>` : '';
+          const shopifyVarIcon = v.hasShopify ? `
+            <span title="From Shopify store" class="inline-flex items-center justify-center w-3.5 h-3.5 rounded bg-[#95BF47] text-white p-0.5 shrink-0 shadow-2xs select-none" aria-label="From Shopify">
+              <svg class="w-full h-full fill-current" viewBox="0 0 24 24">
+                <path d="M15.337 3.328c-.116-.05-.333-.03-.497.05-1.574.757-6.22 3.037-6.22 3.037s-1.848-.994-2.29-1.22c-.443-.227-1.31-.155-1.646-.106-.05.008-.881.272-2.257.698C1.56 7.42 0 11.233 0 11.233s.308 1.455.457 2.146c.15.69 8.01 10.575 8.01 10.575l10.366-3.834S24 5.37 24 5.37s-3.56-1.528-8.663-2.042zm-5.69 4.316l-3.647 1.13c.001-.257.003-.51.003-.786 0-2.409-.335-4.348-.872-5.886 2.155.27 3.59 2.723 4.516 5.542zm-7.186-5.066c.599 1.5.989 3.655.989 6.562 0 .149-.001.285-.003.422-2.37.734-4.949 1.532-7.532 2.331 1.451-5.594 4.172-8.3 6.546-9.315zm-2.898-2.741c.42 0 .843.143 1.249.422-3.123 1.47-6.474 5.169-7.887 12.576l-5.952 1.844c1.196-7.854 5.111-17.02 12.59-14.842z"/>
+              </svg>
+            </span>` : '';
 
           if (currentMode === 'count') {
             variationsHtml += `
@@ -2026,6 +2032,7 @@
                   <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
+                  ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
                     <span title="Target quantity">🎯 ${v.sold}</span>
@@ -2060,6 +2067,7 @@
                   <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
+                  ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'text-slate-500' : 'text-slate-600'} leading-none">
                     <span title="Original target quantity">🎯 ${v.sold}</span>
@@ -2094,6 +2102,7 @@
                   <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
+                  ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
                     <span class="text-emerald-800 font-extrabold" title="Estimated line cost">$${lineSubtotal}</span>
@@ -2139,11 +2148,19 @@
         return `
           <article class="bg-white rounded-xl border ${(currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90'} shadow-sm overflow-hidden transition-all">
             <header class="px-2.5 py-1.5 ${(currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
-              ${
-                item.name.toLowerCase().includes('firestorm')
-                  ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
-                  : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
-              }
+              <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                ${
+                  item.name.toLowerCase().includes('firestorm')
+                    ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                    : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                }
+                ${(item.hasShopify || (item.visibleVariations && item.visibleVariations.some(v => v.hasShopify))) ? `
+                  <span title="Imported from Shopify store" class="inline-flex items-center justify-center w-4 h-4 rounded bg-[#95BF47] text-white p-0.5 shrink-0 shadow-2xs select-none cursor-help" aria-label="Shopify store item">
+                    <svg class="w-full h-full fill-current" viewBox="0 0 24 24">
+                      <path d="M15.337 3.328c-.116-.05-.333-.03-.497.05-1.574.757-6.22 3.037-6.22 3.037s-1.848-.994-2.29-1.22c-.443-.227-1.31-.155-1.646-.106-.05.008-.881.272-2.257.698C1.56 7.42 0 11.233 0 11.233s.308 1.455.457 2.146c.15.69 8.01 10.575 8.01 10.575l10.366-3.834S24 5.37 24 5.37s-3.56-1.528-8.663-2.042zm-5.69 4.316l-3.647 1.13c.001-.257.003-.51.003-.786 0-2.409-.335-4.348-.872-5.886 2.155.27 3.59 2.723 4.516 5.542zm-7.186-5.066c.599 1.5.989 3.655.989 6.562 0 .149-.001.285-.003.422-2.37.734-4.949 1.532-7.532 2.331 1.451-5.594 4.172-8.3 6.546-9.315zm-2.898-2.741c.42 0 .843.143 1.249.422-3.123 1.47-6.474 5.169-7.887 12.576l-5.952 1.844c1.196-7.854 5.111-17.02 12.59-14.842z"/>
+                    </svg>
+                  </span>` : ''}
+              </div>
               ${headerBadgeHtml}
             </header>
             <div>
@@ -2479,23 +2496,31 @@
             potSize = norm.potSize || potSize;
           }
 
+          const rawSrc = String(r['source'] || r['Source'] || '').toLowerCase();
+          const lid = String(r['listing_id'] || r['Listing id'] || r['id'] || '');
+          const isShopify = rawSrc.includes('shopify') || lid.length > 11;
+
           if (!grouped[cleanName]) {
             grouped[cleanName] = {
               id: `item_csv_${stableSlug(cleanName)}`,
               name: cleanName,
               zone: zone,
+              hasShopify: false,
               variations: []
             };
           }
+          if (isShopify) grouped[cleanName].hasShopify = true;
           const variationKey = `${cleanName.toLowerCase()}|${String(effectiveVarOpt).trim().toLowerCase()}|${potSize}`;
           if (variationCounts[variationKey]) {
             variationCounts[variationKey].sold += qty;
+            if (isShopify) variationCounts[variationKey].hasShopify = true;
           } else {
             const newVar = {
               id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}`,
               name: effectiveVarOpt,
               size: potSize,
-              sold: qty
+              sold: qty,
+              hasShopify: isShopify
             };
             variationCounts[variationKey] = newVar;
             grouped[cleanName].variations.push(newVar);
