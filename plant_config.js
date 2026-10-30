@@ -729,7 +729,7 @@ var CLICKABLE_IMAGE_PLANTS = [
   {
     name: "Kalanchoe 'Beharensis Fang'",
     match: ["beharensis fang", "kalanchoe 'beharensis fang'", "beharensis", "fang"],
-    image: "kalanchoe_fang.jpg"
+    image: "kalanchoe_fang_v2.jpg"
   }
 ];
 
