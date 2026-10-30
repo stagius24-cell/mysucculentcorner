@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1345"></script>
+    <script src="plant_config.js?v=20261030_1356"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -2087,7 +2087,6 @@
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
-                  ${isRecentRow ? '<span class="text-xs leading-none shrink-0 select-none text-amber-600 font-bold" title="New order within 3 hours">⚡</span>' : ''}
                   ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
@@ -2123,7 +2122,6 @@
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
-                  ${isRecentRow ? '<span class="text-xs leading-none shrink-0 select-none text-amber-600 font-bold" title="New order within 3 hours">⚡</span>' : ''}
                   ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'text-slate-500' : 'text-slate-600'} leading-none">
@@ -2159,7 +2157,6 @@
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60'} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
-                  ${isRecentRow ? '<span class="text-xs leading-none shrink-0 select-none text-amber-600 font-bold" title="New order within 3 hours">⚡</span>' : ''}
                   ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
