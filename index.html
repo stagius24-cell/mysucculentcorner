@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1356"></script>
+    <script src="plant_config.js?v=20261030_1410"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -2569,12 +2569,18 @@
           };
           const cleanName = plantInfo.name;
           const zone = plantInfo.zone;
-          const combined = `${varOpt} ${title}`.toLowerCase();
-          let potSize = 'Special';
-          if (combined.includes('2 gallon') || combined.includes('2gallon')) potSize = '2 Gallon';
-          else if (combined.includes('6"') || combined.includes('6”') || combined.includes('6 inch') || combined.includes('6 inches')) potSize = '6"';
-          else if (combined.includes('4"') || combined.includes('4”') || combined.includes('4 inch') || combined.includes('4 inches')) potSize = '4"';
-          else if (combined.includes('2"') || combined.includes('2”') || combined.includes('2 inch') || combined.includes('2 inches')) potSize = '2"';
+          function detectPotSizeFromText(str) {
+            if (!str) return null;
+            const s = String(str).toLowerCase();
+            if (s.includes('2 gallon') || s.includes('2gallon') || s.includes('2 gal') || s.includes('2g')) return '2 Gallon';
+            if (s.includes('6"') || s.includes('6”') || s.includes('6 inch') || s.includes('6 inches') || s.includes('6 pot') || s.includes('6" pot')) return '6"';
+            if (s.includes('4"') || s.includes('4”') || s.includes('4 inch') || s.includes('4 inches') || s.includes('4 pot') || s.includes('4" pot')) return '4"';
+            if (s.includes('2"') || s.includes('2”') || s.includes('2 inch') || s.includes('2 inches') || s.includes('2 pot') || s.includes('2" pot')) return '2"';
+            return null;
+          }
+
+          // Prioritize the customer-selected variation option over the listing title
+          let potSize = detectPotSizeFromText(varOpt) || detectPotSizeFromText(title) || 'Special';
 
           let effectiveVarOpt = varOpt;
           if (typeof normalizePlantVariation === 'function') {
