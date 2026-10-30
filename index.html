@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1320"></script>
+    <script src="plant_config.js?v=20261030_1340"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -2082,7 +2082,7 @@
 
           if (currentMode === 'count') {
             variationsHtml += `
-              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-50/90 border-l-4 border-l-amber-500' : '')}">
+              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-50/90' : '')}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
                   ${isRecentRow ? '<span class="text-xs leading-none shrink-0 select-none text-amber-600 font-bold" title="New order within 3 hours">⚡</span>' : ''}
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
@@ -2118,7 +2118,7 @@
             `;
           } else if (currentMode === 'buy') {
             variationsHtml += `
-              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-50/90 border-l-4 border-l-amber-500' : 'border-slate-100')}">
+              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-50/90' : '')}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
                   ${isRecentRow ? '<span class="text-xs leading-none shrink-0 select-none text-amber-600 font-bold" title="New order within 3 hours">⚡</span>' : ''}
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
@@ -2154,7 +2154,7 @@
             `;
           } else {
             variationsHtml += `
-              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-emerald-100 first:border-0 ${isRecentRow ? 'bg-amber-50/90 border-l-4 border-l-amber-500' : 'bg-emerald-50/60'}">
+              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-emerald-100 first:border-0 ${isRecentRow ? 'bg-amber-50/90' : 'bg-emerald-50/60'}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60'} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
