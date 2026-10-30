@@ -2045,13 +2045,29 @@
         `;
       }
 
+      function getVariationSortWeight(v) {
+        if (!v) return 99;
+        const s = `${v.size || ''} ${v.name || ''}`.toLowerCase();
+        // 2 Gallon / 2G variations placed below 2" and 4"
+        if (s.includes('gallon') || s.includes('gal') || s.includes('2g')) return 50;
+        if (s.includes('6"') || s.includes('6 inch') || s.includes('6-inch') || s.includes('6 pot')) return 30;
+        if (s.includes('4"') || s.includes('4 inch') || s.includes('4-inch') || s.includes('4 pot')) return 20;
+        if (s.includes('2"') || s.includes('2 inch') || s.includes('2-inch') || s.includes('2 pot')) return 10;
+        return 40; // Special, sets, cuttings, etc.
+      }
+
       function renderItemCard(item) {
         let variationsHtml = '';
         const allItemVarsCounted = item.visibleVariations.every(v => !!countedState[v.id]);
         const someItemVarsPurchased = item.visibleVariations.some(v => !!purchasedState[v.id]);
 
-        // Prioritize recently imported variations (< 3h) to the top of the card
-        item.visibleVariations.sort((v1, v2) => (v2.isRecent ? 1 : 0) - (v1.isRecent ? 1 : 0));
+        // Prioritize recently imported variations (< 3h) to the top, then sort by pot size (2" -> 4" -> 6" -> Special -> 2G)
+        item.visibleVariations.sort((v1, v2) => {
+          const r1 = v1.isRecent ? 1 : 0;
+          const r2 = v2.isRecent ? 1 : 0;
+          if (r1 !== r2) return r2 - r1;
+          return getVariationSortWeight(v1) - getVariationSortWeight(v2);
+        });
 
         item.visibleVariations.forEach(v => {
           const isRecentRow = !!v.isRecent;
@@ -2709,6 +2725,14 @@
         });
 
         const newCatalog = Object.values(grouped).filter(item => Array.isArray(item.variations) && item.variations.length > 0);
+        newCatalog.forEach(item => {
+          item.variations.sort((v1, v2) => {
+            const r1 = v1.isRecent ? 1 : 0;
+            const r2 = v2.isRecent ? 1 : 0;
+            if (r1 !== r2) return r2 - r1;
+            return getVariationSortWeight(v1) - getVariationSortWeight(v2);
+          });
+        });
         if (newCatalog.length > 0) {
           saveImportSnapshot(newSnapshot);
           catalog = newCatalog;
