@@ -1214,13 +1214,13 @@
         return item.buyQty !== undefined ? Math.max(0, Number(item.buyQty) || 0) : shortfall;
       }
 
-      function matchesSizeFilter(sizeStr) {
+      function matchesSizeFilter(sizeStr, nameStr = '') {
         if (potFilter === 'all') return true;
-        const s = (sizeStr || '').toLowerCase();
+        const s = `${sizeStr || ''} ${nameStr || ''}`.toLowerCase();
         if (potFilter === '2') return s.includes('2"') || s.includes('2 inch');
         if (potFilter === '4') return s.includes('4"') || s.includes('4 inch');
-        if (potFilter === '6') return s.includes('6"') || s.includes('6 inch') || s.includes('gallon') || s.includes('2g');
-        if (potFilter === 'special') return !s.includes('2"') && !s.includes('4"') && !s.includes('6"') && !s.includes('gallon');
+        if (potFilter === '6') return s.includes('6"') || s.includes('6 inch') || s.includes('gallon') || s.includes('2g') || s.includes('2 gal');
+        if (potFilter === 'special') return !s.includes('2"') && !s.includes('4"') && !s.includes('6"') && !s.includes('gallon') && !s.includes('2g') && !s.includes('2 gal');
         return true;
       }
 
@@ -1727,7 +1727,7 @@
           const isCounted = !!item.countConfirmed;
           const isPurchased = !!item.purchased;
 
-          if (!matchesSizeFilter(item.size)) return;
+          if (!matchesSizeFilter(item.size, item.name)) return;
           if (searchQuery) {
             const haystack = `${item.name} ${item.size || ''}`.toLowerCase();
             if (!haystack.includes(searchQuery)) return;
@@ -1768,7 +1768,7 @@
               if (shortfall <= 0 && effectiveBuy <= 0) return false;
               if (hidePurchased && isPurchased) return false;
             }
-            if (!matchesSizeFilter(v.size)) return false;
+            if (!matchesSizeFilter(v.size, v.name)) return false;
             if (searchQuery && !`${item.name} ${v.name} ${v.size || ''}`.toLowerCase().includes(searchQuery)) return false;
             return true;
           });
@@ -2268,10 +2268,10 @@
               totalCartUnits += buyQty;
               totalCartCost += buyQty * price;
             }
-            const s = (v.size || '').toLowerCase();
-            if (s.includes('2"')) count2++;
-            else if (s.includes('4"')) count4++;
-            else if (s.includes('6"') || s.includes('gallon')) count6++;
+            const s = `${v.size || ''} ${v.name || ''}`.toLowerCase();
+            if (s.includes('2"') || s.includes('2 inch')) count2++;
+            else if (s.includes('4"') || s.includes('4 inch')) count4++;
+            else if (s.includes('6"') || s.includes('6 inch') || s.includes('gallon') || s.includes('2g') || s.includes('2 gal')) count6++;
             else countSpecial++;
           });
         });
@@ -2292,10 +2292,10 @@
             totalCartCost += buyQty * price;
           }
 
-          const s = (item.size || '').toLowerCase();
-          if (s.includes('2"')) count2++;
-          else if (s.includes('4"')) count4++;
-          else if (s.includes('6"') || s.includes('gallon')) count6++;
+          const s = `${item.size || ''} ${item.name || ''}`.toLowerCase();
+          if (s.includes('2"') || s.includes('2 inch')) count2++;
+          else if (s.includes('4"') || s.includes('4 inch')) count4++;
+          else if (s.includes('6"') || s.includes('6 inch') || s.includes('gallon') || s.includes('2g') || s.includes('2 gal')) count6++;
           else countSpecial++;
         });
 

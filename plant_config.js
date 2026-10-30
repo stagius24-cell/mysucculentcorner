@@ -515,24 +515,24 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
   const v = (varOpt || '').toLowerCase();
   const t = (rawTitle || '').toLowerCase();
 
-  // Rule: Jade Plant 2G variations (Baby Jade, Tricolor Jade) -> keep potSize as Special (for spec filter) and varOpt as specific Jade name
+  // Rule: Jade Plant 2G variations (Baby Jade, Tricolor Jade) -> 2 Gallon potSize (belongs in 6"/2G category)
   if (p.includes('jade') || t.includes('jade')) {
     if (v.includes('baby jade')) {
       return {
         varOpt: '2G Baby Jade',
-        potSize: 'Special'
+        potSize: '2 Gallon'
       };
     }
     if (v.includes('tricolor') || v.includes('tri-color')) {
       return {
         varOpt: '2G Tricolor Jade',
-        potSize: 'Special'
+        potSize: '2 Gallon'
       };
     }
     if (v.includes('2g') || v.includes('2 gallon') || v.includes('2gallon')) {
       return {
         varOpt: '2G Jade',
-        potSize: 'Special'
+        potSize: '2 Gallon'
       };
     }
   }
