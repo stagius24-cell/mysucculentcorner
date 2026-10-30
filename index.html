@@ -2049,7 +2049,7 @@
             variationsHtml += `
               <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : ''}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0 leading-tight">
+                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
                   ${shopifyVarIcon}
@@ -2084,7 +2084,7 @@
             variationsHtml += `
               <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : 'border-slate-100'}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">
+                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
                   ${shopifyVarIcon}
@@ -2119,7 +2119,7 @@
             variationsHtml += `
               <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-emerald-100 first:border-0 bg-emerald-50/60">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0 leading-tight">
+                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
                   ${shopifyVarIcon}
@@ -2524,17 +2524,20 @@
             };
           }
           if (isShopify) grouped[cleanName].hasShopify = true;
-          const variationKey = `${cleanName.toLowerCase()}|${String(effectiveVarOpt).trim().toLowerCase()}|${potSize}`;
+          const sourceKey = isShopify ? 'shopify' : 'etsy';
+          // Separate variations by source (Etsy vs Shopify) so the user knows exact counts per store
+          const variationKey = `${cleanName.toLowerCase()}|${String(effectiveVarOpt).trim().toLowerCase()}|${potSize}|${sourceKey}`;
           if (variationCounts[variationKey]) {
             variationCounts[variationKey].sold += qty;
             if (isShopify) variationCounts[variationKey].hasShopify = true;
           } else {
             const newVar = {
-              id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}`,
+              id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}`,
               name: effectiveVarOpt,
               size: potSize,
               sold: qty,
-              hasShopify: isShopify
+              hasShopify: isShopify,
+              source: isShopify ? 'Shopify' : 'Etsy'
             };
             variationCounts[variationKey] = newVar;
             grouped[cleanName].variations.push(newVar);

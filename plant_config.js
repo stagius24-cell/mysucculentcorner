@@ -76,10 +76,10 @@ var PLANT_DICTIONARY = [
     zone: 1,
     match: ["baby necklace"]
   },
-  {
+    {
     preferredName: "Crassula 'Morgan's Beauty'",
     zone: 1,
-    match: ["morgan's beauty", "morgan’s beauty", "morgans beauty", "morgan beauty"]
+    match: ["morgan's beauty", "morgan’s beauty", "morgans beauty", "morgan beauty", "silver springtime in 2", "silver springtime"]
   },
   {
     preferredName: "Crassula 'Springtime'",
@@ -548,12 +548,20 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
     }
   }
 
-  // Rule: Crassula 'Morgan's Beauty' -> combine into a single clean 4" variation
+  // Rule: Crassula 'Morgan's Beauty' -> clean pot size (4" or 2") without combining
   if (p.includes("morgan's beauty") || p.includes("morgans beauty") || p.includes("morgan beauty") || (t.includes('morgan') && t.includes('beauty'))) {
-    return {
-      varOpt: '4"',
-      potSize: '4"'
-    };
+    if (v.includes('4"') || defaultPotSize.includes('4"')) {
+      return {
+        varOpt: '4"',
+        potSize: '4"'
+      };
+    }
+    if (v.includes('2"') || defaultPotSize.includes('2"')) {
+      return {
+        varOpt: '2"',
+        potSize: '2"'
+      };
+    }
   }
 
   // Rule: Sedum Adolphi Firestorm -> 2" pot
