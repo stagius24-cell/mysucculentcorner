@@ -1,23 +1,28 @@
-"""Read-only report of currently unshipped Etsy orders.
+"""Read-only combined report of pending Etsy and Shopify orders.
 
 Output:
-  1) Generates etsy_pending_order_variations.csv locally.
-  2) Automatically uploads/updates the CSV directly in your GitHub repo:
+  1) Generates a combined Etsy + Shopify CSV locally.
+  2) Automatically uploads/updates the CSV in your GitHub repo:
      stagius24-cell/mysucculentcorner (beside index.html).
 
 Required environment variables:
-  ETSY_KEYSTRING
-  ETSY_SHARED_SECRET
-  GITHUB_TOKEN
+  ETSY_KEYSTRING, ETSY_SHARED_SECRET
+  SHOPIFY_STORE_DOMAIN, SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET
+  GITHUB_TOKEN (unless --skip-github is used)
 
 Optional environment variables:
-  ETSY_SHOP_ID      (default: 24066289)
-  ETSY_TOKEN_FILE   (default: etsy_tokens.json)
-  GITHUB_REPO       (default: stagius24-cell/mysucculentcorner)
-  GITHUB_BRANCH     (default: main)
+  ETSY_SHOP_ID             (default: 24066289)
+  ETSY_TOKEN_FILE          (default: etsy_tokens.json)
+  SHOPIFY_API_VERSION      (default: 2026-10)
+  GITHUB_REPO              (default: stagius24-cell/mysucculentcorner)
+  GITHUB_BRANCH            (default: main)
+
+The CSV keeps the original Etsy columns and adds a final `source` column.
+The legacy GitHub filename is intentionally retained to avoid breaking any
+existing workflow that reads it.
 
 Run:
-  python pending_orders_report.py
+  python weekly_report.py
 """
 
 from __future__ import annotations
@@ -45,7 +50,47 @@ LOCAL_TZ = ZoneInfo("America/Los_Angeles")
 # GitHub configuration
 GITHUB_REPO = os.getenv("GITHUB_REPO", "stagius24-cell/mysucculentcorner")
 GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "main")
-GITHUB_FILE_NAME = "etsy_pending_order_variations.csv"
+GITHUB_FILE_NAME = "etsy_pending_order_variations.csv"  # Keep legacy path for compatibility.
+SHOPIFY_API_VERSION = os.getenv("SHOPIFY_API_VERSION", "2026-10")
+_SHOPIFY_ACCESS_TOKEN: str | None = None
+
+SHOPIFY_QUERY = """
+query PendingOrders($first: Int!, $after: String) {
+  orders(first: $first, after: $after, sortKey: CREATED_AT, reverse: false,
+         query: "financial_status:paid") {
+    edges {
+      cursor
+      node {
+        id
+        name
+        cancelledAt
+        displayFinancialStatus
+        displayFulfillmentStatus
+        lineItems(first: 50) {
+          edges {
+            node {
+              title
+              sku
+              quantity
+              unfulfilledQuantity
+              product { id }
+              variant {
+                id
+                title
+                selectedOptions { name value }
+              }
+              unfulfilledDiscountedTotalSet { shopMoney { amount currencyCode } }
+              discountedUnitPriceSet { shopMoney { amount currencyCode } }
+              originalUnitPriceSet { shopMoney { amount currencyCode } }
+            }
+          }
+        }
+      }
+    }
+    pageInfo { hasNextPage endCursor }
+  }
+}
+"""
 
 
 def required_env(name: str) -> str:
@@ -141,6 +186,185 @@ def fetch_receipts(access_token: str) -> list[dict]:
         offset += len(batch)
 
     return receipts
+
+
+
+def shopify_store_domain() -> str:
+    """Return a normalized myshopify.com domain."""
+    domain = required_env("SHOPIFY_STORE_DOMAIN").strip()
+    domain = domain.removeprefix("https://").removeprefix("http://").strip("/")
+    if "/" in domain:
+        domain = domain.split("/", 1)[0]
+    return domain
+
+
+def get_shopify_access_token() -> str:
+    """Get a fresh 24-hour token using Shopify's client-credentials grant.
+
+    SHOPIFY_ACCESS_TOKEN is also accepted as a fallback for an existing
+    long-lived admin-created custom-app token.
+    """
+    global _SHOPIFY_ACCESS_TOKEN
+    if _SHOPIFY_ACCESS_TOKEN:
+        return _SHOPIFY_ACCESS_TOKEN
+
+    # Preferred for new apps created in Shopify's Dev Dashboard.
+    client_id = os.getenv("SHOPIFY_CLIENT_ID", "").strip()
+    client_secret = os.getenv("SHOPIFY_CLIENT_SECRET", "").strip()
+    if client_id and client_secret:
+        response = requests.post(
+            f"https://{shopify_store_domain()}/admin/oauth/access_token",
+            data={
+                "grant_type": "client_credentials",
+                "client_id": client_id,
+                "client_secret": client_secret,
+            },
+            timeout=30,
+        )
+        if response.status_code != 200:
+            raise RuntimeError(
+                f"Shopify token request failed ({response.status_code}): {response.text[:700]}"
+            )
+        token_data = response.json()
+        token = token_data.get("access_token")
+        if not token:
+            raise RuntimeError("Shopify token response did not contain an access_token.")
+        _SHOPIFY_ACCESS_TOKEN = token
+        return token
+
+    # Compatibility option for stores that already have a valid static token.
+    _SHOPIFY_ACCESS_TOKEN = required_env("SHOPIFY_ACCESS_TOKEN")
+    return _SHOPIFY_ACCESS_TOKEN
+
+
+def shopify_graphql(query: str, variables: dict) -> dict:
+    """Make one authenticated Shopify Admin GraphQL request."""
+    url = (
+        f"https://{shopify_store_domain()}/admin/api/"
+        f"{SHOPIFY_API_VERSION}/graphql.json"
+    )
+    response = requests.post(
+        url,
+        headers={
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": get_shopify_access_token(),
+        },
+        json={"query": query, "variables": variables},
+        timeout=60,
+    )
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"Shopify API request failed ({response.status_code}): {response.text[:700]}"
+        )
+    payload = response.json()
+    if payload.get("errors"):
+        details = "; ".join(
+            str(error.get("message", error)) for error in payload["errors"]
+        )
+        raise RuntimeError(f"Shopify GraphQL error: {details}")
+    if not payload.get("data"):
+        raise RuntimeError("Shopify API returned no data.")
+    return payload["data"]
+
+
+def fetch_shopify_pending_orders() -> list[dict]:
+    """Fetch paid Shopify orders that still have at least one unfulfilled unit."""
+    orders: list[dict] = []
+    cursor = None
+    while True:
+        data = shopify_graphql(
+            SHOPIFY_QUERY,
+            {"first": 10, "after": cursor},
+        )
+        connection = data["orders"]
+        for edge in connection.get("edges", []):
+            order = edge["node"]
+            # Exclude canceled orders and anything not actually paid.
+            if order.get("cancelledAt"):
+                continue
+            if (order.get("displayFinancialStatus") or "").upper() != "PAID":
+                continue
+            # Partially fulfilled orders are included because they still have
+            # outstanding units. Fully fulfilled orders have no unfulfilled units.
+            pending_lines = []
+            for line_edge in (order.get("lineItems") or {}).get("edges", []):
+                line = line_edge["node"]
+                outstanding = int(line.get("unfulfilledQuantity") or 0)
+                if outstanding > 0:
+                    pending_lines.append({**line, "pending_quantity": outstanding})
+            if pending_lines:
+                orders.append({**order, "pending_lines": pending_lines})
+
+        page_info = connection.get("pageInfo") or {}
+        if not page_info.get("hasNextPage"):
+            break
+        cursor = page_info.get("endCursor")
+        if not cursor:
+            raise RuntimeError("Shopify pagination indicated another page but returned no cursor.")
+    return orders
+
+
+def shopify_variation_label(line: dict) -> str:
+    """Format Shopify variant options in the same readable style as Etsy."""
+    options = line.get("variant", {}).get("selectedOptions") or []
+    parts = [
+        f"{clean_text(option.get('name'))}: {clean_text(option.get('value'))}"
+        for option in options
+        if clean_text(option.get("name")) or clean_text(option.get("value"))
+    ]
+    if parts:
+        return " | ".join(parts)
+    variant_title = clean_text(line.get("variant", {}).get("title"))
+    if variant_title and variant_title.lower() != "default title":
+        return variant_title
+    return "No variation recorded by Shopify"
+
+
+def summarize_shopify(orders: list[dict]) -> tuple[list[dict], int, int, float]:
+    """Convert pending Shopify line items to the shared CSV row structure."""
+    totals: dict[tuple, dict] = {}
+    total_sales = 0.0
+    total_units = 0
+    for order in orders:
+        for line in order.get("pending_lines", []):
+            title = clean_text(line.get("title")) or "(Untitled product)"
+            product_gid = (line.get("product") or {}).get("id") or ""
+            product_id = product_gid.rsplit("/", 1)[-1] if product_gid else ""
+            sku = clean_text(line.get("sku"))
+            variation = shopify_variation_label(line)
+            quantity = int(line.get("pending_quantity") or 0)
+            # Prefer Shopify's total for the still-unfulfilled quantity. This
+            # avoids counting already-shipped units and is more accurate than
+            # multiplying the original order quantity by a unit price.
+            pending_total_set = line.get("unfulfilledDiscountedTotalSet") or {}
+            pending_shop_money = pending_total_set.get("shopMoney") or {}
+            if pending_shop_money.get("amount") is not None:
+                line_total = float(pending_shop_money["amount"])
+            else:
+                price_set = line.get("discountedUnitPriceSet") or line.get("originalUnitPriceSet") or {}
+                shop_money = price_set.get("shopMoney") or {}
+                line_total = float(shop_money.get("amount") or 0) * quantity
+            key = (str(product_id), title, variation, sku)
+            if key not in totals:
+                totals[key] = {
+                    "listing_id": product_id,
+                    "listing_title": title,
+                    "variation_options": variation,
+                    "sku": sku,
+                    "units_sold": 0,
+                    "item_sales": 0.0,
+                    "source": "Shopify",
+                }
+            totals[key]["units_sold"] += quantity
+            totals[key]["item_sales"] += line_total
+            total_units += quantity
+            total_sales += line_total
+
+    rows = list(totals.values())
+    for row in rows:
+        row["item_sales"] = round(row["item_sales"], 2)
+    rows.sort(key=lambda row: (-row["units_sold"], row["listing_title"], row["variation_options"]))
+    return rows, len(orders), total_units, round(total_sales, 2)
 
 
 def clean_text(value: object) -> str:
@@ -269,7 +493,7 @@ def upload_to_github(local_csv_path: Path) -> None:
 
     now_str = datetime.now(LOCAL_TZ).strftime("%Y-%m-%d %I:%M %p %Z")
     payload = {
-        "message": f"Auto-update Etsy pending orders [{now_str}]",
+        "message": f"Auto-update Etsy + Shopify pending orders [{now_str}]",
         "content": content_b64,
         "branch": GITHUB_BRANCH,
     }
@@ -288,7 +512,7 @@ def upload_to_github(local_csv_path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Summarize currently paid, non-canceled, unshipped Etsy orders."
+        description="Combine paid, non-canceled, unshipped Etsy and unfulfilled Shopify orders."
     )
     parser.add_argument("--output-dir", default="weekly_reports", help="Folder for local CSV output.")
     parser.add_argument(
@@ -299,48 +523,61 @@ def main() -> int:
     args = parser.parse_args()
     end = datetime.now(LOCAL_TZ)
 
-    print(f"Shop ID: {SHOP_ID}")
-    print("Filter: paid, not canceled, and not shipped (all creation dates)")
+    print(f"Etsy Shop ID: {SHOP_ID}")
+    print("Etsy filter: paid, not canceled, and not shipped")
+    print("Shopify filter: paid, not canceled, with at least one unfulfilled unit")
     print(f"Checked at: {end:%Y-%m-%d %I:%M %p %Z}")
-    print("Connecting to Etsy (read-only order retrieval)...")
 
-    token = get_access_token()
-    receipts = fetch_receipts(token)
-    listing_summary, variation_summary, order_count, total_sales = summarize(receipts)
+    print("\nConnecting to Etsy (read-only order retrieval)...")
+    etsy_token = get_access_token()
+    etsy_receipts = fetch_receipts(etsy_token)
+    _, etsy_variations, etsy_order_count, etsy_sales = summarize(etsy_receipts)
+    etsy_units = sum(row["units_sold"] for row in etsy_variations.values())
+    combined_rows = []
+    for row in etsy_variations.values():
+        combined_rows.append({**row, "source": "Etsy"})
 
-    total_units = sum(row["units_sold"] for row in listing_summary.values())
-    print(f"\nPaid, non-canceled, unshipped orders found: {order_count}")
-    print(f"Units sold: {total_units}")
-    print(f"Item sales total (before fees/shipping/tax/refunds): ${total_sales:,.2f}")
+    print("Connecting to Shopify (read-only order retrieval)...")
+    shopify_orders = fetch_shopify_pending_orders()
+    shopify_rows, shopify_order_count, shopify_units, shopify_sales = summarize_shopify(shopify_orders)
+    combined_rows.extend(shopify_rows)
+
+    combined_units = etsy_units + shopify_units
+    combined_sales = round(etsy_sales + shopify_sales, 2)
+    print("\nPending order summary")
+    print(f"  Etsy:    {etsy_order_count} orders | {etsy_units} units | ${etsy_sales:,.2f}")
+    print(f"  Shopify: {shopify_order_count} orders | {shopify_units} unfulfilled units | ${shopify_sales:,.2f}")
+    print(f"  TOTAL:   {etsy_order_count + shopify_order_count} orders | {combined_units} units | ${combined_sales:,.2f}")
+    print("  Sales are item-level estimates before shipping, tax, fees, and refunds.")
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-
     variation_csv = output_dir / GITHUB_FILE_NAME
     with variation_csv.open("w", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f)
+        # The original six columns stay in the same order. `source` is appended
+        # so existing readers that use the original columns remain compatible.
         writer.writerow([
-            "listing_title", "listing_id", "variation_options", "sku", "units_sold", "item_sales"
+            "listing_title", "listing_id", "variation_options", "sku",
+            "units_sold", "item_sales", "source",
         ])
         for row in sorted(
-            variation_summary.values(),
-            key=lambda r: (-r["units_sold"], r["listing_title"], r["variation_options"]),
+            combined_rows,
+            key=lambda r: (-r["units_sold"], r["listing_title"], r["variation_options"], r["source"]),
         ):
             writer.writerow([
                 row["listing_title"], row["listing_id"], row["variation_options"], row["sku"],
-                row["units_sold"], f"{row['item_sales']:.2f}"
+                row["units_sold"], f"{row['item_sales']:.2f}", row["source"],
             ])
 
-    print(f"\nComplete order variation CSV saved locally to: {variation_csv.resolve()}")
+    print(f"\nCombined Etsy + Shopify CSV saved locally to: {variation_csv.resolve()}")
 
     if not args.skip_github:
         print("\nStarting GitHub push...")
         upload_to_github(variation_csv)
     else:
         print("\nSkipping GitHub upload (--skip-github set).")
-
     return 0
-
 
 if __name__ == "__main__":
     try:
