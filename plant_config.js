@@ -147,6 +147,16 @@ var PLANT_DICTIONARY = [
     match: ["moonstone"]
   },
   {
+    preferredName: "Echeveria 'Red Sky'",
+    zone: 1,
+    match: ["red sky"]
+  },
+  {
+    preferredName: "Echeveria 'Chroma'",
+    zone: 1,
+    match: ["chroma"]
+  },
+  {
     preferredName: "Echeveria 'Lola'",
     zone: 1,
     match: ["echeveria 'lola'", "echeveria lola", "lola"]
@@ -591,9 +601,9 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
     }
   }
 
-  // Rule 5: No variation recorded by Etsy
+  // Rule 5: No variation recorded by Etsy / Shopify Default Title
   // Leave standard pot size (e.g. 2") without extra wording
-  if (v.includes('no variation recorded by etsy')) {
+  if (v.includes('no variation recorded by etsy') || v.includes('default title')) {
     return {
       varOpt: defaultPotSize,
       potSize: defaultPotSize
