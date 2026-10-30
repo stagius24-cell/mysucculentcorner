@@ -345,7 +345,7 @@
       <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xs w-full p-4 text-center">
         <div id="dialogIcon" class="text-2xl mb-1.5">💡</div>
         <h3 id="dialogTitle" class="text-sm font-extrabold text-slate-900 mb-1">Confirm Action</h3>
-        <p id="dialogMessage" class="text-xs text-slate-600 mb-4 leading-relaxed"></p>
+        <div id="dialogMessage" class="text-xs text-slate-600 mb-4 leading-relaxed"></div>
         <div class="flex items-center gap-2">
           <button id="dialogCancelBtn" onclick="closeDialog()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold active:scale-95 transition-transform">
             Cancel
@@ -1006,14 +1006,14 @@
               timestamp: formatNowTimestamp()
             };
 
-            processCsvRows(rows, { preserveState: false, silent: true });
+            const importStats = processCsvRows(rows, { preserveState: false, silent: true });
             updateSyncStatusUI(false);
 
             if (manual) {
               showDialog({
                 icon: '✅',
-                title: 'GitHub Sync Complete',
-                message: `Loaded ${catalog.length} pending plant varieties from your GitHub repository.`
+                title: 'Sync complete',
+                messageHtml: renderSyncSummaryHtml(importStats)
               });
             }
             return;
@@ -1187,17 +1187,55 @@
 
       let dialogCallback = null;
 
+      function renderSyncSummaryHtml(stats) {
+        const etsyCount = stats ? (stats.etsyCount || 0) : 0;
+        const shopifyCount = stats ? (stats.shopifyCount || 0) : 0;
+        return `
+          <div class="mt-2 space-y-2 text-left">
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/90 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-md bg-[#F1641E] flex items-center justify-center p-1 text-white shadow-xs flex-shrink-0">
+                    <svg class="w-full h-full fill-current" viewBox="0 0 24 24">
+                      <path d="M8.559 2.445c0-.325.033-.52.59-.52h7.465c1.3 0 2.02 1.11 2.54 3.193l.42 1.666h1.27c.23-4.728.43-6.784.43-6.784s-3.196.36-5.09.36H6.635L1.521.196v1.37l1.725.326c1.21.24 1.5.496 1.6 1.606c0 0 .11 3.27.11 8.64c0 5.385-.09 8.61-.09 8.61c0 .973-.39 1.333-1.59 1.573l-1.722.33V24l5.13-.165h8.55c1.935 0 6.39.165 6.39.165c.105-1.17.75-6.48.855-7.064h-1.2l-1.284 2.91c-1.005 2.28-2.476 2.445-4.11 2.445h-4.906c-1.63 0-2.415-.64-2.415-2.05V12.8s3.62 0 4.79.096c.912.064 1.463.325 1.76 1.598l.39 1.695h1.41l-.09-4.278l.192-4.305h-1.391l-.45 1.89c-.283 1.244-.48 1.47-1.754 1.6c-1.666.17-4.815.14-4.815.14V2.45h-.05z"/>
+                    </svg>
+                  </span>
+                  <span class="text-xs font-bold text-slate-800">Etsy</span>
+                </div>
+                <span class="text-xs font-extrabold text-slate-900 bg-white px-2 py-0.5 rounded-md border border-slate-200/80 shadow-2xs">${etsyCount} items</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-md bg-[#95BF47] flex items-center justify-center p-1 text-white shadow-xs flex-shrink-0">
+                    <svg class="w-full h-full fill-current" viewBox="0 0 24 24">
+                      <path d="M15.337 3.328c-.116-.05-.333-.03-.497.05-1.574.757-6.22 3.037-6.22 3.037s-1.848-.994-2.29-1.22c-.443-.227-1.31-.155-1.646-.106-.05.008-.881.272-2.257.698C1.56 7.42 0 11.233 0 11.233s.308 1.455.457 2.146c.15.69 8.01 10.575 8.01 10.575l10.366-3.834S24 5.37 24 5.37s-3.56-1.528-8.663-2.042zm-5.69 4.316l-3.647 1.13c.001-.257.003-.51.003-.786 0-2.409-.335-4.348-.872-5.886 2.155.27 3.59 2.723 4.516 5.542zm-7.186-5.066c.599 1.5.989 3.655.989 6.562 0 .149-.001.285-.003.422-2.37.734-4.949 1.532-7.532 2.331 1.451-5.594 4.172-8.3 6.546-9.315zm-2.898-2.741c.42 0 .843.143 1.249.422-3.123 1.47-6.474 5.169-7.887 12.576l-5.952 1.844c1.196-7.854 5.111-17.02 12.59-14.842z"/>
+                    </svg>
+                  </span>
+                  <span class="text-xs font-bold text-slate-800">Shopify</span>
+                </div>
+                <span class="text-xs font-extrabold text-slate-900 bg-white px-2 py-0.5 rounded-md border border-slate-200/80 shadow-2xs">${shopifyCount} items</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
       function showDialog({
         icon = '💡',
         title = 'Notice',
         message = '',
+        messageHtml = null,
         confirmText = 'OK',
         showCancel = false,
         onConfirm = null
       }) {
         document.getElementById('dialogIcon').textContent = icon || '💡';
         document.getElementById('dialogTitle').textContent = title;
-        document.getElementById('dialogMessage').textContent = message;
+        if (messageHtml) {
+          document.getElementById('dialogMessage').innerHTML = messageHtml;
+        } else {
+          document.getElementById('dialogMessage').textContent = message;
+        }
         const confirmBtn = document.getElementById('dialogConfirmBtn');
         const cancelBtn = document.getElementById('dialogCancelBtn');
         confirmBtn.textContent = confirmText;
@@ -2284,6 +2322,17 @@
       function processCsvRows(rows, options = {}) {
         const grouped = {};
         const variationCounts = {};
+        let etsyCount = 0;
+        let shopifyCount = 0;
+        rows.forEach(r => {
+          const src = String(r['source'] || r['Source'] || '').toLowerCase();
+          const lid = String(r['listing_id'] || r['Listing id'] || r['id'] || '');
+          if (src.includes('shopify') || lid.length > 11) {
+            shopifyCount++;
+          } else {
+            etsyCount++;
+          }
+        });
         const stableSlug = value => String(value || 'item').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'item';
 
         // Pre-process rows: Split combo items (e.g. 1 Lola, 1 Pearl) into separated items
@@ -2416,9 +2465,15 @@
           renderAll();
           if (!options.silent) showDialog({
             icon: '✅',
-            title: 'CSV Imported',
-            message: `Loaded ${newCatalog.length} plant varieties into your restock list.`
+            title: 'Sync complete',
+            messageHtml: renderSyncSummaryHtml({ etsyCount, shopifyCount, totalCatalog: newCatalog.length })
           });
+          return {
+            totalCatalog: newCatalog.length,
+            etsyCount,
+            shopifyCount,
+            totalRows: rows.length
+          };
         } else if (!options.silent) {
           showDialog({
             icon: '⚠️',
@@ -2426,6 +2481,12 @@
             message: 'No valid plant rows were found in that CSV file.'
           });
         }
+        return {
+          totalCatalog: 0,
+          etsyCount,
+          shopifyCount,
+          totalRows: rows.length
+        };
       }
 
       window.openManualAdd = function() {
