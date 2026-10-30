@@ -725,6 +725,11 @@ var CLICKABLE_IMAGE_PLANTS = [
     name: "Haworthia retusa",
     match: ["haworthia retusa", "retusa"],
     image: "haworthia_retusa.jpg"
+  },
+  {
+    name: "Kalanchoe 'Beharensis Fang'",
+    match: ["beharensis fang", "kalanchoe 'beharensis fang'", "beharensis", "fang"],
+    image: "kalanchoe_fang.jpg"
   }
 ];
 
