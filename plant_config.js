@@ -79,7 +79,12 @@ var PLANT_DICTIONARY = [
   {
     preferredName: "Crassula 'Morgan's Beauty'",
     zone: 1,
-    match: ["morgan's beauty", "morgans beauty"]
+    match: ["morgan's beauty", "morgan’s beauty", "morgans beauty", "morgan beauty"]
+  },
+  {
+    preferredName: "Crassula 'Springtime'",
+    zone: 1,
+    match: ["rupestris springtime", "crassula springtime", "rupestris", "springtime"]
   },
   {
     preferredName: "Crassula 'Dorothy'",
