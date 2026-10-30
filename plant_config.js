@@ -260,6 +260,11 @@ var PLANT_DICTIONARY = [
     match: ["euphorbia ferox", "ferox", "enopla"]
   },
   {
+    preferredName: "Variegated Euphorbia Milii",
+    zone: 3,
+    match: ["variegated euphorbia milii", "rare variegated euphorbia", "variegated euphorbia", "variegated milii"]
+  },
+  {
     preferredName: "Euphorbia Milli",
     zone: 3,
     match: ["euphorbia milii", "milii", "crown of thorns", "christ plant", "christ thorn"]
