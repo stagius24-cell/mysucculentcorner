@@ -1075,43 +1075,30 @@
             }
 
             showDialog({
-              icon: '⏳',
-              title: 'Cloud Run Started',
+              iconHtml: `
+                <div class="flex items-center justify-center gap-2 mb-1">
+                  <span class="w-5 h-5 rounded bg-[#F1641E] flex items-center justify-center p-0.5 text-white shadow-2xs">
+                    <svg class="w-full h-full fill-current" viewBox="0 0 24 24"><path d="M8.559 2.445c0-.325.033-.52.59-.52h7.465c1.3 0 2.02 1.11 2.54 3.193l.42 1.666h1.27c.23-4.728.43-6.784.43-6.784s-3.196.36-5.09.36H6.635L1.521.196v1.37l1.725.326c1.21.24 1.5.496 1.6 1.606c0 0 .11 3.27.11 8.64c0 5.385-.09 8.61-.09 8.61c0 .973-.39 1.333-1.59 1.573l-1.722.33V24l5.13-.165h8.55c1.935 0 6.39.165 6.39.165c.105-1.17.75-6.48.855-7.064h-1.2l-1.284 2.91c-1.005 2.28-2.476 2.445-4.11 2.445h-4.906c-1.63 0-2.415-.64-2.415-2.05V12.8s3.62 0 4.79.096c.912.064 1.463.325 1.76 1.598l.39 1.695h1.41l-.09-4.278l.192-4.305h-1.391l-.45 1.89c-.283 1.244-.48 1.47-1.754 1.6c-1.666.17-4.815.14-4.815.14V2.45h-.05z"/></svg>
+                  </span>
+                  <svg class="w-5 h-5 shrink-0 drop-shadow-2xs" viewBox="0 0 256 292">
+                    <path fill="#95BF47" d="M223.774 57.34c-.201-1.46-1.48-2.268-2.537-2.357-1.055-.088-23.383-1.743-23.383-1.743s-15.507-15.395-17.209-17.099c-1.703-1.703-5.029-1.185-6.32-.805-.19.056-3.388 1.043-8.678 2.68-5.18-14.906-14.322-28.604-30.405-28.604-.444 0-.901.018-1.358.044C129.31 3.407 123.644.779 118.75.779c-37.465 0-55.364 46.835-60.976 70.635-14.558 4.511-24.9 7.718-26.221 8.133-8.126 2.549-8.383 2.805-9.45 10.462C21.3 95.806.038 260.235.038 260.235l165.678 31.042 89.77-19.42S223.973 58.8 223.775 57.34zM156.49 40.848l-14.019 4.339c.005-.988.01-1.96.01-3.023 0-9.264-1.286-16.723-3.349-22.636 8.287 1.04 13.806 10.469 17.358 21.32zm-27.638-19.483c2.304 5.773 3.802 14.058 3.802 25.238 0 .572-.005 1.095-.01 1.624-9.117 2.824-19.024 5.89-28.953 8.966 5.575-21.516 16.025-31.908 25.161-35.828zm-11.131-10.537c1.617 0 3.246.549 4.805 1.622-12.007 5.65-24.877 19.88-30.312 48.297l-22.886 7.088C75.694 46.16 90.81 10.828 117.72 10.828z"/>
+                    <path fill="#5E8E3E" d="M221.237 54.983c-1.055-.088-23.383-1.743-23.383-1.743s-15.507-15.395-17.209-17.099c-.637-.634-1.496-.959-2.394-1.099l-12.527 256.233 89.762-19.418S223.972 58.8 223.774 57.34c-.201-1.46-1.48-2.268-2.537-2.357"/>
+                    <path fill="#FFFFFF" d="M135.242 104.585l-11.069 32.926s-9.698-5.176-21.586-5.176c-17.428 0-18.305 10.937-18.305 13.693 0 15.038 39.2 20.8 39.2 56.024 0 27.713-17.577 45.558-41.277 45.558-28.44 0-42.984-17.7-42.984-17.7l7.615-25.16s12.53 14.168 31.789 14.168c10.341 0 16.545-5.918 16.545-13.822 0-14.808-39.2-20.354-39.2-56.024 0-25.961 18.019-43.511 41.573-43.511 23.555 0 33.709 12.002 33.709 12.002z"/>
+                  </svg>
+                </div>
+              `,
+              title: 'Importing orders from Etsy and Shopify',
               messageHtml: `
-                <div class="mt-1 space-y-3">
-                  <div class="flex items-center justify-center gap-2">
-                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-200/80 shadow-2xs">
-                      <span class="w-4 h-4 rounded bg-[#F1641E] flex items-center justify-center p-0.5 text-white flex-shrink-0">
-                        <svg class="w-full h-full fill-current" viewBox="0 0 24 24">
-                          <path d="M8.559 2.445c0-.325.033-.52.59-.52h7.465c1.3 0 2.02 1.11 2.54 3.193l.42 1.666h1.27c.23-4.728.43-6.784.43-6.784s-3.196.36-5.09.36H6.635L1.521.196v1.37l1.725.326c1.21.24 1.5.496 1.6 1.606c0 0 .11 3.27.11 8.64c0 5.385-.09 8.61-.09 8.61c0 .973-.39 1.333-1.59 1.573l-1.722.33V24l5.13-.165h8.55c1.935 0 6.39.165 6.39.165c.105-1.17.75-6.48.855-7.064h-1.2l-1.284 2.91c-1.005 2.28-2.476 2.445-4.11 2.445h-4.906c-1.63 0-2.415-.64-2.415-2.05V12.8s3.62 0 4.79.096c.912.064 1.463.325 1.76 1.598l.39 1.695h1.41l-.09-4.278l.192-4.305h-1.391l-.45 1.89c-.283 1.244-.48 1.47-1.754 1.6c-1.666.17-4.815.14-4.815.14V2.45h-.05z"/>
-                        </svg>
-                      </span>
-                      <span class="text-xs font-extrabold text-orange-950">Etsy</span>
-                    </div>
-                    <span class="text-slate-400 font-bold text-xs">+</span>
-                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200/80 shadow-2xs">
-                      <svg class="w-4 h-4 shrink-0 drop-shadow-2xs" viewBox="0 0 256 292">
-                        <path fill="#95BF47" d="M223.774 57.34c-.201-1.46-1.48-2.268-2.537-2.357-1.055-.088-23.383-1.743-23.383-1.743s-15.507-15.395-17.209-17.099c-1.703-1.703-5.029-1.185-6.32-.805-.19.056-3.388 1.043-8.678 2.68-5.18-14.906-14.322-28.604-30.405-28.604-.444 0-.901.018-1.358.044C129.31 3.407 123.644.779 118.75.779c-37.465 0-55.364 46.835-60.976 70.635-14.558 4.511-24.9 7.718-26.221 8.133-8.126 2.549-8.383 2.805-9.45 10.462C21.3 95.806.038 260.235.038 260.235l165.678 31.042 89.77-19.42S223.973 58.8 223.775 57.34zM156.49 40.848l-14.019 4.339c.005-.988.01-1.96.01-3.023 0-9.264-1.286-16.723-3.349-22.636 8.287 1.04 13.806 10.469 17.358 21.32zm-27.638-19.483c2.304 5.773 3.802 14.058 3.802 25.238 0 .572-.005 1.095-.01 1.624-9.117 2.824-19.024 5.89-28.953 8.966 5.575-21.516 16.025-31.908 25.161-35.828zm-11.131-10.537c1.617 0 3.246.549 4.805 1.622-12.007 5.65-24.877 19.88-30.312 48.297l-22.886 7.088C75.694 46.16 90.81 10.828 117.72 10.828z"/>
-                        <path fill="#5E8E3E" d="M221.237 54.983c-1.055-.088-23.383-1.743-23.383-1.743s-15.507-15.395-17.209-17.099c-.637-.634-1.496-.959-2.394-1.099l-12.527 256.233 89.762-19.418S223.972 58.8 223.774 57.34c-.201-1.46-1.48-2.268-2.537-2.357"/>
-                        <path fill="#FFFFFF" d="M135.242 104.585l-11.069 32.926s-9.698-5.176-21.586-5.176c-17.428 0-18.305 10.937-18.305 13.693 0 15.038 39.2 20.8 39.2 56.024 0 27.713-17.577 45.558-41.277 45.558-28.44 0-42.984-17.7-42.984-17.7l7.615-25.16s12.53 14.168 31.789 14.168c10.341 0 16.545-5.918 16.545-13.822 0-14.808-39.2-20.354-39.2-56.024 0-25.961 18.019-43.511 41.573-43.511 23.555 0 33.709 12.002 33.709 12.002z"/>
-                      </svg>
-                      <span class="text-xs font-extrabold text-emerald-950">Shopify</span>
-                    </div>
-                  </div>
-
-                  <p class="text-xs text-slate-600 leading-relaxed">
-                    Compiling fresh orders from Etsy and Shopify in the cloud...
-                  </p>
-
-                  <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
+                <div class="mt-2.5 space-y-2">
+                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
                     <div id="syncProgressBar" class="h-full bg-emerald-600 rounded-full transition-all duration-1000 ease-linear" style="width: 5%;"></div>
                   </div>
-
-                  <div class="text-[11px] font-bold text-slate-500">
+                  <div class="text-[11px] font-semibold text-slate-400 text-center">
                     <span id="syncCountdown">${totalDuration}s</span> remaining
                   </div>
                 </div>
-              `
+              `,
+              confirmText: 'Dismiss'
             });
 
             window.cloudSyncTimer = setInterval(() => {
@@ -1268,23 +1255,45 @@
 
       function showDialog({
         icon = '💡',
+        iconHtml = null,
         title = 'Notice',
+        titleHtml = null,
         message = '',
         messageHtml = null,
         confirmText = 'OK',
         showCancel = false,
+        hideConfirm = false,
         onConfirm = null
       }) {
-        document.getElementById('dialogIcon').textContent = icon || '💡';
-        document.getElementById('dialogTitle').textContent = title;
-        if (messageHtml) {
-          document.getElementById('dialogMessage').innerHTML = messageHtml;
+        const iconEl = document.getElementById('dialogIcon');
+        if (iconHtml) {
+          iconEl.innerHTML = iconHtml;
+          iconEl.classList.remove('hidden');
+        } else if (icon) {
+          iconEl.textContent = icon;
+          iconEl.classList.remove('hidden');
         } else {
-          document.getElementById('dialogMessage').textContent = message;
+          iconEl.classList.add('hidden');
         }
+
+        const titleEl = document.getElementById('dialogTitle');
+        if (titleHtml) {
+          titleEl.innerHTML = titleHtml;
+        } else {
+          titleEl.textContent = title;
+        }
+
+        const msgEl = document.getElementById('dialogMessage');
+        if (messageHtml) {
+          msgEl.innerHTML = messageHtml;
+        } else {
+          msgEl.textContent = message;
+        }
+
         const confirmBtn = document.getElementById('dialogConfirmBtn');
         const cancelBtn = document.getElementById('dialogCancelBtn');
         confirmBtn.textContent = confirmText;
+        confirmBtn.classList.toggle('hidden', !!hideConfirm);
         cancelBtn.classList.toggle('hidden', !showCancel);
         dialogCallback = onConfirm;
         confirmBtn.onclick = function() {
