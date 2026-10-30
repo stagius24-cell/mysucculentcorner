@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1220"></script>
+    <script src="plant_config.js?v=20261030_1245"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -102,11 +102,12 @@
             <div class="shrink-0">
               <img id="shopLogoImg" src="logo.png" alt="MySucculentCorner logo" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover shadow-sm border border-emerald-200/80 bg-[#edd5d2]" />
             </div>
-            <div class="min-w-0 flex items-center">
-              <span class="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 truncate tracking-tight">MySucculentCorner</span>
-              <!-- Hidden sync status hooks for background updates -->
-              <span id="headerSyncIcon" class="hidden"></span>
-              <span id="headerSyncTime" class="hidden"></span>
+            <div class="min-w-0 flex flex-col justify-center leading-tight">
+              <span class="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 truncate tracking-tight leading-snug">MySucculentCorner</span>
+              <button onclick="toggleMenuDrawer(true)" class="text-left flex items-center gap-1 group focus:outline-none" title="Tap to view data source and sync options">
+                <span id="headerSyncIcon" class="text-[9px] leading-none hidden">🔄</span>
+                <span id="headerSyncTime" class="text-[10px] sm:text-[11px] font-bold text-slate-500 group-hover:text-emerald-700 truncate tracking-tight transition-colors">Updated: Pending load</span>
+              </button>
             </div>
           </div>
           <!-- QUICK ACTIONS -->
@@ -917,14 +918,20 @@
         }
       }
 
-      function formatNowTimestamp() {
-        const now = new Date();
-        return now.toLocaleString('en-US', {
+      function formatShortDateTime(d) {
+        if (!d) return '';
+        const dateObj = d instanceof Date ? d : new Date(d);
+        if (isNaN(dateObj.getTime())) return String(d);
+        return dateObj.toLocaleString('en-US', {
           month: 'short',
           day: 'numeric',
           hour: 'numeric',
           minute: '2-digit'
         });
+      }
+
+      function formatNowTimestamp() {
+        return formatShortDateTime(new Date());
       }
 
       function updateSyncStatusUI(isSyncing = false) {
@@ -949,14 +956,16 @@
           headerIcon.textContent = '';
         }
 
-        const displayTime = syncMeta.timestamp || formatNowTimestamp();
-        const shortName = displayTime;
+        const rawTime = (syncMeta && syncMeta.timestamp && syncMeta.timestamp !== 'Pending load')
+          ? syncMeta.timestamp
+          : formatNowTimestamp();
+        const displayLabel = rawTime.toLowerCase().startsWith('updated') ? rawTime : `Updated: ${rawTime}`;
 
         if (headerTime) {
-          headerTime.textContent = shortName;
+          headerTime.textContent = displayLabel;
         }
         if (drawerSource) drawerSource.textContent = syncMeta.sourceName;
-        if (drawerTime) drawerTime.textContent = displayTime;
+        if (drawerTime) drawerTime.textContent = rawTime;
       }
 
       async function autoImportGithubCsv(options = {}) {
@@ -988,6 +997,16 @@
             csvText = csvText.slice(1);
           }
 
+          // Use exact timestamp of when the CSV was created / last modified on GitHub
+          let dataTimestamp = formatNowTimestamp();
+          const lastModified = response.headers.get('Last-Modified');
+          if (lastModified) {
+            const parsedDate = new Date(lastModified);
+            if (!isNaN(parsedDate.getTime())) {
+              dataTimestamp = formatShortDateTime(parsedDate);
+            }
+          }
+
           const parsed = Papa.parse(csvText, {
             header: true,
             skipEmptyLines: true,
@@ -1009,8 +1028,11 @@
           if (rows.length > 0 && hasTitleCol) {
             syncMeta = {
               sourceName: `GitHub: ${GITHUB_CSV_FILENAME}`,
-              timestamp: formatNowTimestamp()
+              timestamp: dataTimestamp
             };
+            try {
+              localStorage.setItem('plant_sync_meta_v1', JSON.stringify(syncMeta));
+            } catch (e) {}
 
             const importStats = processCsvRows(rows, { preserveState: false, silent: true });
             updateSyncStatusUI(false);
@@ -2380,10 +2402,14 @@
             return h.trim().replace(/^\ufeff/, '');
           },
           complete: function(results) {
+            const fileTime = file.lastModified ? formatShortDateTime(new Date(file.lastModified)) : formatNowTimestamp();
             syncMeta = {
               sourceName: file.name ? `CSV: ${file.name.slice(0, 22)}` : 'Uploaded CSV',
-              timestamp: formatNowTimestamp()
+              timestamp: fileTime
             };
+            try {
+              localStorage.setItem('plant_sync_meta_v1', JSON.stringify(syncMeta));
+            } catch (e) {}
             processCsvRows(results.data);
             updateSyncStatusUI(false);
             closeCsvModal();
