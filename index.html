@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <title>MySucculentCorner - Plant Restock & Shopping List</title>
     <!-- FULLSCREEN & PWA CAPABILITIES (HIDES BROWSER ADDRESS BAR) -->
     <link rel="manifest" href="manifest.json">
@@ -364,8 +364,8 @@
     </div>
 
     <!-- QUICK MANUAL PLANT ENTRY MODAL -->
-    <div id="manualAddModal" class="hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm p-4 flex items-center justify-center" onclick="if(event.target===this) closeManualAdd()">
-      <div class="w-full max-w-sm rounded-2xl bg-white p-3.5 sm:p-4 shadow-2xl border border-slate-200">
+    <div id="manualAddModal" class="hidden fixed left-0 right-0 z-50 bg-slate-950/50 backdrop-blur-sm p-4 flex items-center justify-center transition-[top,height] duration-150" style="top: 0; height: 100dvh;" onclick="if(event.target===this) closeManualAdd()">
+      <div class="w-full max-w-sm max-h-[calc(100%-1rem)] overflow-y-auto rounded-2xl bg-white p-3.5 sm:p-4 shadow-2xl border border-slate-200 my-auto">
         <div class="flex items-center justify-between mb-2.5">
           <h2 class="text-sm font-extrabold text-slate-900">＋ Add Plant Manually</h2>
           <button onclick="closeManualAdd()" aria-label="Close modal" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center">✕</button>
@@ -2579,10 +2579,33 @@
         };
       }
 
+      function adjustManualModalToViewport() {
+        const modal = document.getElementById('manualAddModal');
+        if (!modal || modal.classList.contains('hidden')) return;
+        if (window.visualViewport) {
+          const vv = window.visualViewport;
+          modal.style.top = `${vv.offsetTop}px`;
+          modal.style.height = `${vv.height}px`;
+        }
+      }
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', adjustManualModalToViewport);
+        window.visualViewport.addEventListener('scroll', adjustManualModalToViewport);
+      }
+      window.addEventListener('resize', adjustManualModalToViewport);
+
       window.openManualAdd = function() {
         const modal = document.getElementById('manualAddModal');
         modal.classList.remove('hidden');
-        setTimeout(() => document.getElementById('quickManualName').focus(), 40);
+        adjustManualModalToViewport();
+        setTimeout(() => {
+          adjustManualModalToViewport();
+          const input = document.getElementById('quickManualName');
+          if (input) input.focus();
+        }, 50);
+        setTimeout(adjustManualModalToViewport, 300);
+        setTimeout(adjustManualModalToViewport, 500);
       };
 
       // PLANT IMAGE PREVIEW POP-UP
@@ -2688,7 +2711,12 @@
       };
 
       window.closeManualAdd = function() {
-        document.getElementById('manualAddModal').classList.add('hidden');
+        const modal = document.getElementById('manualAddModal');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.style.top = '0';
+          modal.style.height = '100dvh';
+        }
       };
 
       window.selectManualSizePill = function(val) {
