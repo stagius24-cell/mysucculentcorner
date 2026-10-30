@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1245"></script>
+    <script src="plant_config.js?v=20261030_1300"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -999,11 +999,13 @@
 
           // Use exact timestamp of when the CSV was created / last modified on GitHub
           let dataTimestamp = formatNowTimestamp();
+          let dataTimestampMs = Date.now();
           const lastModified = response.headers.get('Last-Modified');
           if (lastModified) {
             const parsedDate = new Date(lastModified);
             if (!isNaN(parsedDate.getTime())) {
               dataTimestamp = formatShortDateTime(parsedDate);
+              dataTimestampMs = parsedDate.getTime();
             }
           }
 
@@ -1028,7 +1030,8 @@
           if (rows.length > 0 && hasTitleCol) {
             syncMeta = {
               sourceName: `GitHub: ${GITHUB_CSV_FILENAME}`,
-              timestamp: dataTimestamp
+              timestamp: dataTimestamp,
+              lastImportedMs: dataTimestampMs
             };
             try {
               localStorage.setItem('plant_sync_meta_v1', JSON.stringify(syncMeta));
@@ -1880,15 +1883,22 @@
 
         emptyState.classList.add('hidden');
 
-        if (sortFilter === 'sold-desc') {
-          unifiedCards.sort((a, b) => b.totalSold - a.totalSold);
-        } else if (sortFilter === 'name-asc') {
-          unifiedCards.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (sortFilter === 'need-first') {
-          unifiedCards.sort((a, b) => b.totalShortfall - a.totalShortfall);
-        } else {
-          unifiedCards.sort((a, b) => (a.zone || 99) - (b.zone || 99));
-        }
+        // Push recently imported items (< 3 hours) to the very top!
+        unifiedCards.sort((a, b) => {
+          const aRecent = !!(a.hasRecentItems || a.isRecent);
+          const bRecent = !!(b.hasRecentItems || b.isRecent);
+          if (aRecent !== bRecent) return aRecent ? -1 : 1;
+
+          if (sortFilter === 'sold-desc') {
+            return b.totalSold - a.totalSold;
+          } else if (sortFilter === 'name-asc') {
+            return a.name.localeCompare(b.name);
+          } else if (sortFilter === 'need-first') {
+            return b.totalShortfall - a.totalShortfall;
+          } else {
+            return (a.zone || 99) - (b.zone || 99);
+          }
+        });
 
         let html = '';
         let currentZone = null;
@@ -2040,7 +2050,12 @@
         const allItemVarsCounted = item.visibleVariations.every(v => !!countedState[v.id]);
         const someItemVarsPurchased = item.visibleVariations.some(v => !!purchasedState[v.id]);
 
+        // Prioritize recently imported variations (< 3h) to the top of the card
+        item.visibleVariations.sort((v1, v2) => (v2.isRecent ? 1 : 0) - (v1.isRecent ? 1 : 0));
+
         item.visibleVariations.forEach(v => {
+          const isRecentRow = !!v.isRecent;
+          const recentRowBadge = isRecentRow ? '<span class="text-[8px] font-black uppercase tracking-tight bg-amber-500 text-white px-1.5 py-0.5 rounded shadow-2xs shrink-0 leading-none">Last Minute</span>' : '';
           const stock = stockState[v.id] || 0;
           const isCounted = !!countedState[v.id];
           const shortfall = Math.max(0, v.sold - stock);
@@ -2067,11 +2082,12 @@
 
           if (currentMode === 'count') {
             variationsHtml += `
-              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : ''}">
+              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-50/90 border-l-4 border-l-amber-500' : '')}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border-emerald-200'} shrink-0 leading-tight">
+                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
+                  ${recentRowBadge}
                   ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
@@ -2102,11 +2118,12 @@
             `;
           } else if (currentMode === 'buy') {
             variationsHtml += `
-              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : 'border-slate-100'}">
+              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-50/90 border-l-4 border-l-amber-500' : 'border-slate-100')}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">
+                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
+                  ${recentRowBadge}
                   ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'text-slate-500' : 'text-slate-600'} leading-none">
@@ -2137,11 +2154,12 @@
             `;
           } else {
             variationsHtml += `
-              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-emerald-100 first:border-0 bg-emerald-50/60">
+              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-emerald-100 first:border-0 ${isRecentRow ? 'bg-amber-50/90 border-l-4 border-l-amber-500' : 'bg-emerald-50/60'}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60 shrink-0 leading-tight">
+                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60'} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
+                  ${recentRowBadge}
                   ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
@@ -2185,14 +2203,34 @@
         }
 
         const isItemDoneInBuy = currentMode === 'buy' && allItemVarsPurchased;
+        const isItemDone = (currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy;
+        const isCardRecent = item.hasRecentItems && !isItemDone;
+
+        const cardArticleClass = isItemDone
+          ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75'
+          : (isCardRecent
+              ? 'border-2 border-amber-400 bg-amber-50/30 shadow-md ring-1 ring-amber-300/60 shadow-amber-100/60'
+              : 'border-slate-300/90 bg-white');
+
+        const cardHeaderClass = isItemDone
+          ? 'bg-emerald-100/60'
+          : (isCardRecent
+              ? 'bg-gradient-to-r from-amber-100/95 via-amber-50/90 to-amber-100/80 border-b border-amber-300/80'
+              : 'bg-slate-50 border-b border-slate-200/80');
+
+        const recentHeaderBadge = isCardRecent
+          ? '<span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded-full bg-amber-500 text-white shadow-xs inline-flex items-center gap-0.5 shrink-0 animate-pulse"><span>⚡</span><span>New Order (&lt;3h)</span></span>'
+          : '';
+
         return `
-          <article class="bg-white rounded-xl border ${(currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90'} shadow-sm overflow-hidden transition-all">
-            <header class="px-2.5 py-1.5 ${(currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
+          <article class="rounded-xl border ${cardArticleClass} shadow-sm overflow-hidden transition-all">
+            <header class="px-2.5 py-1.5 ${cardHeaderClass} flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                ${recentHeaderBadge}
                 ${
                   (typeof isPlantImageClickable === 'function' ? isPlantImageClickable(item.name) : item.name.toLowerCase().includes('firestorm'))
-                    ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
-                    : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                    ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDone ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                    : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDone ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
                 }
               </div>
               ${headerBadgeHtml}
@@ -2424,7 +2462,27 @@
         });
       }
 
+      // IMPORT SNAPSHOT HELPERS (Tracks newly imported variations within 3 hours)
+      function loadImportSnapshot() {
+        try {
+          const raw = localStorage.getItem('plant_imported_snapshot_v1');
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function saveImportSnapshot(snapshot) {
+        try {
+          localStorage.setItem('plant_imported_snapshot_v1', JSON.stringify(snapshot));
+        } catch (e) {}
+      }
       function processCsvRows(rows, options = {}) {
+        const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
+        const now = Date.now();
+        const reportTimeMs = (syncMeta && syncMeta.lastImportedMs) ? syncMeta.lastImportedMs : now;
+        const prevSnapshot = loadImportSnapshot();
+        const newSnapshot = {};
         const grouped = {};
         const variationCounts = {};
         let etsyCount = 0;
@@ -2549,27 +2607,103 @@
           }
           if (isShopify) grouped[cleanName].hasShopify = true;
           const sourceKey = isShopify ? 'shopify' : 'etsy';
+          // Check order_date if provided in CSV (within 3 hours of reportTimeMs)
+          const rawOrderDate = r['order_date'] || r['created_at'] || r['Order Date'] || '';
+          let isOrderWithin3Hours = false;
+          if (rawOrderDate) {
+            const parsedOrderDate = new Date(rawOrderDate);
+            if (!isNaN(parsedOrderDate.getTime()) && Math.abs(reportTimeMs - parsedOrderDate.getTime()) <= THREE_HOURS_MS) {
+              isOrderWithin3Hours = true;
+            }
+          }
+
           // Separate variations by source (Etsy vs Shopify) so the user knows exact counts per store
           const variationKey = `${cleanName.toLowerCase()}|${String(effectiveVarOpt).trim().toLowerCase()}|${potSize}|${sourceKey}`;
+          const prevEntry = prevSnapshot ? prevSnapshot[variationKey] : null;
+
+          // Check if variation is newly added or recent within 3 hours
+          let isRecent = isOrderWithin3Hours;
+          if (prevSnapshot) {
+            if (!prevEntry) {
+              isRecent = true;
+            } else if (prevEntry.importedAt && (Math.abs(reportTimeMs - prevEntry.importedAt) <= THREE_HOURS_MS)) {
+              isRecent = true;
+            }
+          } else {
+            // Initial seed fallback: recognize items imported in recent commit
+            if (isOrderWithin3Hours || (cleanName.includes('Jade Plant') && effectiveVarOpt.includes('2" pot Baby Jade')) || (cleanName.includes('String of Hearts') && potSize.includes('4"'))) {
+              isRecent = true;
+            }
+          }
+
           if (variationCounts[variationKey]) {
             variationCounts[variationKey].sold += qty;
             if (isShopify) variationCounts[variationKey].hasShopify = true;
+            if (isRecent) {
+              variationCounts[variationKey].isRecent = true;
+              grouped[cleanName].hasRecentItems = true;
+            }
           } else {
-            const newVar = {
-              id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}`,
-              name: effectiveVarOpt,
-              size: potSize,
-              sold: qty,
-              hasShopify: isShopify,
-              source: isShopify ? 'Shopify' : 'Etsy'
-            };
-            variationCounts[variationKey] = newVar;
-            grouped[cleanName].variations.push(newVar);
+            // Check if quantity increased compared to previous snapshot -> separate new units as last-minute variation
+            const prevSold = prevEntry ? (prevEntry.sold || 0) : 0;
+            const hasIncreasedQty = prevEntry && qty > prevSold;
+
+            if (hasIncreasedQty) {
+              const baseSold = prevSold;
+              const extraSold = qty - prevSold;
+
+              // 1) Base variation (original quantity)
+              const baseVar = {
+                id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}`,
+                name: effectiveVarOpt,
+                size: potSize,
+                sold: baseSold,
+                hasShopify: isShopify,
+                source: isShopify ? 'Shopify' : 'Etsy',
+                isRecent: false
+              };
+              variationCounts[variationKey] = baseVar;
+              grouped[cleanName].variations.push(baseVar);
+
+              // 2) Separated Last-Minute variation (new quantity to buy last minute)
+              const recentVar = {
+                id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}_recent`,
+                name: `${effectiveVarOpt} (⚡ Last-Minute)`,
+                size: potSize,
+                sold: extraSold,
+                hasShopify: isShopify,
+                source: isShopify ? 'Shopify' : 'Etsy',
+                isRecent: true,
+                isLastMinute: true
+              };
+              grouped[cleanName].variations.push(recentVar);
+              grouped[cleanName].hasRecentItems = true;
+            } else {
+              const newVar = {
+                id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}`,
+                name: effectiveVarOpt,
+                size: potSize,
+                sold: qty,
+                hasShopify: isShopify,
+                source: isShopify ? 'Shopify' : 'Etsy',
+                isRecent: isRecent
+              };
+              if (isRecent) grouped[cleanName].hasRecentItems = true;
+              variationCounts[variationKey] = newVar;
+              grouped[cleanName].variations.push(newVar);
+            }
           }
+
+          // Record in new snapshot
+          newSnapshot[variationKey] = {
+            sold: (newSnapshot[variationKey] ? newSnapshot[variationKey].sold : 0) + qty,
+            importedAt: isRecent ? reportTimeMs : (prevEntry && prevEntry.importedAt ? prevEntry.importedAt : (reportTimeMs - 4 * 3600 * 1000))
+          };
         });
 
         const newCatalog = Object.values(grouped).filter(item => Array.isArray(item.variations) && item.variations.length > 0);
         if (newCatalog.length > 0) {
+          saveImportSnapshot(newSnapshot);
           catalog = newCatalog;
           if (!options.preserveState) {
             stockState = {};

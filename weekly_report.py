@@ -344,6 +344,7 @@ def summarize_shopify(orders: list[dict]) -> tuple[list[dict], int, int, float]:
                 price_set = line.get("discountedUnitPriceSet") or line.get("originalUnitPriceSet") or {}
                 shop_money = price_set.get("shopMoney") or {}
                 line_total = float(shop_money.get("amount") or 0) * quantity
+            order_created_at = clean_text(order.get("createdAt") or "")
             key = (str(product_id), title, variation, sku)
             if key not in totals:
                 totals[key] = {
@@ -354,7 +355,11 @@ def summarize_shopify(orders: list[dict]) -> tuple[list[dict], int, int, float]:
                     "units_sold": 0,
                     "item_sales": 0.0,
                     "source": "Shopify",
+                    "order_date": order_created_at,
                 }
+            else:
+                if order_created_at and (not totals[key].get("order_date") or order_created_at > totals[key]["order_date"]):
+                    totals[key]["order_date"] = order_created_at
             totals[key]["units_sold"] += quantity
             totals[key]["item_sales"] += line_total
             total_units += quantity
@@ -434,6 +439,8 @@ def summarize(receipts: list[dict]) -> tuple[dict, dict, int, float]:
             listing_totals[title]["units_sold"] += quantity
             listing_totals[title]["item_sales"] += line_total
 
+            create_ts = receipt.get("create_timestamp") or receipt.get("created_timestamp") or 0
+            receipt_date = datetime.fromtimestamp(create_ts, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") if create_ts else ""
             variation_label = get_variation_label(transaction)
             key = (str(listing_id), title, variation_label, sku)
             if key not in variation_totals:
@@ -444,7 +451,12 @@ def summarize(receipts: list[dict]) -> tuple[dict, dict, int, float]:
                     "sku": sku,
                     "units_sold": 0,
                     "item_sales": 0.0,
+                    "source": "Etsy",
+                    "order_date": receipt_date,
                 }
+            else:
+                if receipt_date and (not variation_totals[key].get("order_date") or receipt_date > variation_totals[key]["order_date"]):
+                    variation_totals[key]["order_date"] = receipt_date
             variation_totals[key]["units_sold"] += quantity
             variation_totals[key]["item_sales"] += line_total
 
@@ -559,7 +571,7 @@ def main() -> int:
         # so existing readers that use the original columns remain compatible.
         writer.writerow([
             "listing_title", "listing_id", "variation_options", "sku",
-            "units_sold", "item_sales", "source",
+            "units_sold", "item_sales", "source", "order_date",
         ])
         for row in sorted(
             combined_rows,
@@ -567,7 +579,7 @@ def main() -> int:
         ):
             writer.writerow([
                 row["listing_title"], row["listing_id"], row["variation_options"], row["sku"],
-                row["units_sold"], f"{row['item_sales']:.2f}", row["source"],
+                row["units_sold"], f"{row['item_sales']:.2f}", row["source"], row.get("order_date", ""),
             ])
 
     print(f"\nCombined Etsy + Shopify CSV saved locally to: {variation_csv.resolve()}")
