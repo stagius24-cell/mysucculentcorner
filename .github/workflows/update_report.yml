@@ -1,13 +1,13 @@
-name: Update Etsy Pending Orders Report
+
+name: Update Etsy + Shopify Pending Orders Report
 
 on:
-  workflow_dispatch: # Enables the manual "Run workflow" button in GitHub
+  workflow_dispatch:
   schedule:
-    # Optional: runs automatically every day at 6:00 AM PST (14:00 UTC)
     - cron: '0 14 * * *'
 
 permissions:
-  contents: write # Grants GitHub permission to commit the updated CSV
+  contents: write
 
 jobs:
   run-report:
@@ -32,29 +32,28 @@ jobs:
         run: |
           echo "$TOKENS_JSON" > etsy_tokens.json
 
-      - name: Run Etsy Pending Orders Script
+      - name: Run Etsy + Shopify Combined Report
         env:
           ETSY_KEYSTRING: ${{ secrets.ETSY_KEYSTRING }}
           ETSY_SHARED_SECRET: ${{ secrets.ETSY_SHARED_SECRET }}
           ETSY_SHOP_ID: ${{ secrets.ETSY_SHOP_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
         run: |
-          # --skip-github tells the script to just create the CSV locally;
-          # the next step uses standard git to commit both the CSV and any refreshed tokens.
           python weekly_report.py --output-dir . --skip-github
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Stage the updated CSV
+
           git add etsy_pending_order_variations.csv
-          
-          # Only commit if there are differences
+
           if git diff --staged --quiet; then
             echo "No changes in CSV report."
           else
-            git commit -m "Auto-update Etsy orders report [skip ci]"
+            git commit -m "Auto-update Etsy + Shopify orders report [skip ci]"
             git push
           fi
