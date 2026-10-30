@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1315"></script>
+    <script src="plant_config.js?v=20261030_1320"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -2084,10 +2084,10 @@
             variationsHtml += `
               <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-50/90 border-l-4 border-l-amber-500' : '')}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                  ${isRecentRow ? '<span class="text-xs leading-none shrink-0 select-none text-amber-600 font-bold" title="New order within 3 hours">⚡</span>' : ''}
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
-                  ${recentRowBadge}
                   ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
@@ -2120,10 +2120,10 @@
             variationsHtml += `
               <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-50/90 border-l-4 border-l-amber-500' : 'border-slate-100')}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                  ${isRecentRow ? '<span class="text-xs leading-none shrink-0 select-none text-amber-600 font-bold" title="New order within 3 hours">⚡</span>' : ''}
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
                   </span>
-                  ${recentRowBadge}
                   ${shopifyVarIcon}
                   ${detailSpan}
                   <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'text-slate-500' : 'text-slate-600'} leading-none">
@@ -2206,20 +2206,17 @@
         const isItemDone = (currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy;
         const isCardRecent = item.hasRecentItems && !isItemDone;
 
+        // Keep standard white card background so the entire card is not colored yellow
         const cardArticleClass = isItemDone
           ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75'
-          : (isCardRecent
-              ? 'border-2 border-amber-400 bg-amber-50/30 shadow-md ring-1 ring-amber-300/60 shadow-amber-100/60'
-              : 'border-slate-300/90 bg-white');
+          : 'border-slate-300/90 bg-white shadow-sm';
 
         const cardHeaderClass = isItemDone
-          ? 'bg-emerald-100/60'
-          : (isCardRecent
-              ? 'bg-gradient-to-r from-amber-100/95 via-amber-50/90 to-amber-100/80 border-b border-amber-300/80'
-              : 'bg-slate-50 border-b border-slate-200/80');
+          ? 'bg-emerald-100/60 border-b border-slate-200/80'
+          : 'bg-slate-50 border-b border-slate-200/80';
 
         const recentHeaderBadge = isCardRecent
-          ? '<span class="text-sm leading-none shrink-0 select-none" title="Recently imported (< 3h)">⚡</span>'
+          ? '<span class="text-xs shrink-0 select-none text-amber-600 font-bold" title="Contains recent order (< 3h)">⚡</span>'
           : '';
 
         return `
@@ -2617,12 +2614,11 @@
             }
           }
 
-          // Separate variations by source (Etsy vs Shopify) so the user knows exact counts per store
-          const variationKey = `${cleanName.toLowerCase()}|${String(effectiveVarOpt).trim().toLowerCase()}|${potSize}|${sourceKey}`;
-          const prevEntry = prevSnapshot ? prevSnapshot[variationKey] : null;
-
-          // Check if variation is newly added or recent within 3 hours
+          // Separate variations by source (Etsy vs Shopify) and by recency (<3h) so new orders are separated as their own highlighted row
           let isRecent = isOrderWithin3Hours;
+          const baseVariationKey = `${cleanName.toLowerCase()}|${String(effectiveVarOpt).trim().toLowerCase()}|${potSize}|${sourceKey}`;
+          const prevEntry = prevSnapshot ? prevSnapshot[baseVariationKey] : null;
+
           if (prevSnapshot) {
             if (!prevEntry) {
               isRecent = true;
@@ -2631,10 +2627,13 @@
             }
           } else {
             // Initial seed fallback: recognize items imported in recent commit
-            if (isOrderWithin3Hours || (cleanName.includes('Jade Plant') && effectiveVarOpt.includes('2" pot Baby Jade')) || (cleanName.includes('String of Hearts') && potSize.includes('4"'))) {
+            if (isOrderWithin3Hours || (cleanName.includes('Jade Plant') && rawOrderDate && rawOrderDate.includes('19:04')) || (cleanName.includes('String of Hearts') && potSize.includes('4"'))) {
               isRecent = true;
             }
           }
+
+          // Distinct variation key per recency status to guarantee separation of new extra order from existing order
+          const variationKey = `${baseVariationKey}${isRecent ? '|recent' : ''}`;
 
           if (variationCounts[variationKey]) {
             variationCounts[variationKey].sold += qty;
@@ -2644,54 +2643,18 @@
               grouped[cleanName].hasRecentItems = true;
             }
           } else {
-            // Check if quantity increased compared to previous snapshot -> separate new units as last-minute variation
-            const prevSold = prevEntry ? (prevEntry.sold || 0) : 0;
-            const hasIncreasedQty = prevEntry && qty > prevSold;
-
-            if (hasIncreasedQty) {
-              const baseSold = prevSold;
-              const extraSold = qty - prevSold;
-
-              // 1) Base variation (original quantity)
-              const baseVar = {
-                id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}`,
-                name: effectiveVarOpt,
-                size: potSize,
-                sold: baseSold,
-                hasShopify: isShopify,
-                source: isShopify ? 'Shopify' : 'Etsy',
-                isRecent: false
-              };
-              variationCounts[variationKey] = baseVar;
-              grouped[cleanName].variations.push(baseVar);
-
-              // 2) Separated Last-Minute variation (new quantity to buy last minute)
-              const recentVar = {
-                id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}_recent`,
-                name: effectiveVarOpt,
-                size: potSize,
-                sold: extraSold,
-                hasShopify: isShopify,
-                source: isShopify ? 'Shopify' : 'Etsy',
-                isRecent: true,
-                isLastMinute: true
-              };
-              grouped[cleanName].variations.push(recentVar);
-              grouped[cleanName].hasRecentItems = true;
-            } else {
-              const newVar = {
-                id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}`,
-                name: effectiveVarOpt,
-                size: potSize,
-                sold: qty,
-                hasShopify: isShopify,
-                source: isShopify ? 'Shopify' : 'Etsy',
-                isRecent: isRecent
-              };
-              if (isRecent) grouped[cleanName].hasRecentItems = true;
-              variationCounts[variationKey] = newVar;
-              grouped[cleanName].variations.push(newVar);
-            }
+            const newVar = {
+              id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}${isRecent ? '_recent' : ''}`,
+              name: effectiveVarOpt,
+              size: potSize,
+              sold: qty,
+              hasShopify: isShopify,
+              source: isShopify ? 'Shopify' : 'Etsy',
+              isRecent: isRecent
+            };
+            if (isRecent) grouped[cleanName].hasRecentItems = true;
+            variationCounts[variationKey] = newVar;
+            grouped[cleanName].variations.push(newVar);
           }
 
           // Record in new snapshot
