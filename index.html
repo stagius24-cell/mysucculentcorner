@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js"></script>
+    <script src="plant_config.js?v=20261030_1215"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -2607,6 +2607,39 @@
         setTimeout(adjustManualModalToViewport, 300);
         setTimeout(adjustManualModalToViewport, 500);
       };
+
+      // CLICKABLE PLANT IMAGE REGISTRY & HELPERS (Built-in + plant_config.js)
+      function isPlantImageClickable(plantName) {
+        if (!plantName) return false;
+        const n = plantName.toLowerCase();
+        if (n.includes('fang') || n.includes('beharensis') || n.includes('retusa') || n.includes('ice emerald') || n.includes('emerald ice') || n.includes('firestorm')) {
+          return true;
+        }
+        const list = (typeof window !== 'undefined' && window.CLICKABLE_IMAGE_PLANTS) || (typeof CLICKABLE_IMAGE_PLANTS !== 'undefined' ? CLICKABLE_IMAGE_PLANTS : []);
+        return list.some(item => {
+          return (item.match && item.match.some(m => n.includes(m.toLowerCase()))) ||
+                 (item.name && n.includes(item.name.toLowerCase()));
+        });
+      }
+      window.isPlantImageClickable = isPlantImageClickable;
+
+      function getClickablePlantImage(plantName) {
+        if (!plantName) return null;
+        const n = plantName.toLowerCase();
+        if (n.includes('fang') || n.includes('beharensis')) return 'kalanchoe_fang.jpg';
+        if (n.includes('retusa')) return 'haworthia_retusa.jpg';
+        if (n.includes('ice emerald') || n.includes('emerald ice')) return 'aeonium_emerald_ice.jpg';
+        if (n.includes('firestorm')) return 'sedum_firestorm.jpg';
+        const list = (typeof window !== 'undefined' && window.CLICKABLE_IMAGE_PLANTS) || (typeof CLICKABLE_IMAGE_PLANTS !== 'undefined' ? CLICKABLE_IMAGE_PLANTS : []);
+        for (const item of list) {
+          if ((item.match && item.match.some(m => n.includes(m.toLowerCase()))) ||
+              (item.name && n.includes(item.name.toLowerCase()))) {
+            return item.image || null;
+          }
+        }
+        return null;
+      }
+      window.getClickablePlantImage = getClickablePlantImage;
 
       // PLANT IMAGE PREVIEW POP-UP
       const plantImageCache = {};
