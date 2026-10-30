@@ -698,10 +698,65 @@ function normalizePlantVariation(cleanName, varOpt, defaultPotSize, rawTitle) {
   };
 }
 
+/**
+ * ---------------------------------------------------------------------
+ * CLICKABLE IMAGE PLANTS
+ * Plants whose titles in the shopping/counting list are clickable
+ * to open a full-resolution image preview modal.
+ * ---------------------------------------------------------------------
+ */
+var CLICKABLE_IMAGE_PLANTS = [
+  {
+    name: "Sedum Adolphi 'Firestorm'",
+    match: ["firestorm", "sedum adolphi firestorm", "sedum adolphi 'firestorm'"],
+    image: "sedum_firestorm.jpg"
+  },
+  {
+    name: "Aeonium 'Ice Emerald'",
+    match: ["emerald ice", "ice emerald", "aeonium emerald", "aeonium 'ice emerald'", "aeonium 'emerald ice'"],
+    image: "aeonium_emerald_ice.jpg"
+  },
+  {
+    name: "Haworthia retusa",
+    match: ["haworthia retusa", "retusa"],
+    image: "haworthia_retusa.jpg"
+  }
+];
+
+/**
+ * Check if a plant is configured to have a clickable title modal with an image.
+ */
+function isPlantImageClickable(plantName) {
+  if (!plantName) return false;
+  const n = plantName.toLowerCase();
+  return CLICKABLE_IMAGE_PLANTS.some(item => {
+    return (item.match && item.match.some(m => n.includes(m.toLowerCase()))) ||
+           (item.name && n.includes(item.name.toLowerCase()));
+  });
+}
+
+/**
+ * Get dedicated image URL/filename for a clickable plant.
+ */
+function getClickablePlantImage(plantName) {
+  if (!plantName) return null;
+  const n = plantName.toLowerCase();
+  for (const item of CLICKABLE_IMAGE_PLANTS) {
+    if ((item.match && item.match.some(m => n.includes(m.toLowerCase()))) ||
+        (item.name && n.includes(item.name.toLowerCase()))) {
+      return item.image || null;
+    }
+  }
+  return null;
+}
+
 // Attach to window for global access
 if (typeof window !== "undefined") {
   window.ZONE_CONFIG = ZONE_CONFIG;
   window.PLANT_DICTIONARY = PLANT_DICTIONARY;
+  window.CLICKABLE_IMAGE_PLANTS = CLICKABLE_IMAGE_PLANTS;
+  window.isPlantImageClickable = isPlantImageClickable;
+  window.getClickablePlantImage = getClickablePlantImage;
   window.resolvePlantInfo = resolvePlantInfo;
   window.classifyZone = classifyZone;
   window.getUnitPrice = getUnitPrice;
