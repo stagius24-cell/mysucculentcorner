@@ -285,6 +285,41 @@
       </div>
     </div>
 
+    <!-- PLANT IMAGE PREVIEW POP-UP MODAL -->
+    <div id="plantImageModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm p-3 pt-[max(1rem,env(safe-area-inset-top))] sm:pt-6 flex items-start justify-center" onclick="if(event.target===this) closePlantImageModal()">
+      <div class="w-full max-w-sm rounded-2xl bg-white p-3.5 shadow-2xl border border-slate-200 mt-1 sm:mt-2 relative animate-in fade-in zoom-in-95 duration-150">
+        <button onclick="closePlantImageModal()" aria-label="Close modal" class="absolute right-3 top-3 z-10 w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center cursor-pointer transition-colors shadow-sm">✕</button>
+
+        <div class="relative w-full aspect-square bg-slate-100 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200/80 mb-3 shadow-inner">
+          <div id="plantImgLoading" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500 text-xs bg-slate-50">
+            <svg class="animate-spin h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span class="font-semibold text-slate-600">Finding plant image...</span>
+          </div>
+          <img id="plantImgDisplay" src="" alt="Plant image" class="hidden w-full h-full object-cover rounded-xl" onload="document.getElementById('plantImgLoading').classList.add('hidden');this.classList.remove('hidden');" onerror="onPlantImageError()" />
+          <div id="plantImgError" class="hidden flex flex-col items-center justify-center p-4 text-center">
+            <span class="text-3xl mb-1.5">🌿</span>
+            <span class="text-xs font-semibold text-slate-600 mb-2">No direct preview found</span>
+            <a id="plantImgFallbackGoogle" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-sm cursor-pointer">
+              <span>Search on Google Images ↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="text-center px-1">
+          <h3 id="plantImgName" class="text-sm sm:text-base font-extrabold text-slate-900 leading-snug"></h3>
+          <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-center">
+            <a id="plantImgGoogleLink" href="#" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline inline-flex items-center gap-1">
+              <span>View more on Google Images</span>
+              <span class="text-[11px]">↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CSV UPLOAD MODAL -->
     <div id="csvModalBackdrop" onclick="if(event.target===this) closeCsvModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-sm w-full p-4 relative">
@@ -1855,7 +1890,7 @@
             <header class="px-2.5 py-1.5 ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">Manual</span>
-                <h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'line-through text-slate-400' : ''}">
+                <h2 onclick="openPlantImageModal(${escapeJsString(item.name)})" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'line-through text-slate-400' : ''}">
                   ${escapeHtml(item.name)}
                 </h2>
               </div>
@@ -2014,7 +2049,7 @@
         return `
           <article class="bg-white rounded-xl border ${(currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90'} shadow-sm overflow-hidden transition-all">
             <header class="px-2.5 py-1.5 ${(currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
-              <h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">
+              <h2 onclick="openPlantImageModal(${escapeJsString(item.name)})" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDoneInBuy || (currentMode === 'count' && allItemVarsCounted) ? 'line-through text-slate-400' : ''}">
                 ${escapeHtml(item.name)}
               </h2>
               ${headerBadgeHtml}
@@ -2388,6 +2423,92 @@
         const modal = document.getElementById('manualAddModal');
         modal.classList.remove('hidden');
         setTimeout(() => document.getElementById('quickManualName').focus(), 40);
+      };
+
+      // PLANT IMAGE PREVIEW POP-UP
+      const plantImageCache = {};
+
+      window.openPlantImageModal = function(plantName) {
+        if (!plantName) return;
+        const modal = document.getElementById('plantImageModal');
+        const img = document.getElementById('plantImgDisplay');
+        const loading = document.getElementById('plantImgLoading');
+        const errBox = document.getElementById('plantImgError');
+        const nameEl = document.getElementById('plantImgName');
+        const googleLink = document.getElementById('plantImgGoogleLink');
+        const fallbackGoogle = document.getElementById('plantImgFallbackGoogle');
+
+        const googleImgUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(plantName + ' succulent plant')}`;
+        nameEl.textContent = plantName;
+        googleLink.href = googleImgUrl;
+        fallbackGoogle.href = googleImgUrl;
+
+        img.classList.add('hidden');
+        errBox.classList.add('hidden');
+        loading.classList.remove('hidden');
+        modal.classList.remove('hidden');
+
+        // Check in-memory cache
+        if (plantImageCache[plantName]) {
+          img.src = plantImageCache[plantName];
+          return;
+        }
+
+        // Search Wikipedia / Wikimedia API for photo
+        const cleanQuery = plantName.replace(/['"“”`]/g, '').trim();
+        const searchTerms = [
+          cleanQuery,
+          cleanQuery.replace(/\s+(succulent|plant|cactus|combo).*$/i, ''),
+          cleanQuery.split(' ').slice(0, 2).join(' ')
+        ].filter((v, i, a) => v && a.indexOf(v) === i);
+
+        let attempt = 0;
+        function tryNextTerm() {
+          if (attempt >= searchTerms.length) {
+            onPlantImageError();
+            return;
+          }
+          const term = searchTerms[attempt++];
+          const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(term)}&gsrlimit=3&prop=pageimages&pithumbsize=800&format=json&origin=*`;
+          
+          fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+              const pages = data && data.query && data.query.pages ? data.query.pages : {};
+              let foundUrl = null;
+              for (const pid in pages) {
+                if (pages[pid].thumbnail && pages[pid].thumbnail.source) {
+                  foundUrl = pages[pid].thumbnail.source;
+                  break;
+                }
+              }
+              if (foundUrl) {
+                plantImageCache[plantName] = foundUrl;
+                img.src = foundUrl;
+              } else {
+                tryNextTerm();
+              }
+            })
+            .catch(() => tryNextTerm());
+        }
+
+        tryNextTerm();
+      };
+
+      window.closePlantImageModal = function() {
+        const modal = document.getElementById('plantImageModal');
+        if (modal) modal.classList.add('hidden');
+        const img = document.getElementById('plantImgDisplay');
+        if (img) img.src = '';
+      };
+
+      window.onPlantImageError = function() {
+        const loading = document.getElementById('plantImgLoading');
+        const img = document.getElementById('plantImgDisplay');
+        const errBox = document.getElementById('plantImgError');
+        if (loading) loading.classList.add('hidden');
+        if (img) img.classList.add('hidden');
+        if (errBox) errBox.classList.remove('hidden');
       };
 
       window.closeManualAdd = function() {
