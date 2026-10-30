@@ -149,12 +149,12 @@ var PLANT_DICTIONARY = [
   {
     preferredName: "Echeveria 'Red Sky'",
     zone: 1,
-    match: ["red sky"]
+    match: ["echeveria 'red sky'", "echeveria red sky", "red sky"]
   },
   {
     preferredName: "Echeveria 'Chroma'",
     zone: 1,
-    match: ["chroma"]
+    match: ["echeveria chroma", "chroma"]
   },
   {
     preferredName: "Echeveria 'Lola'",
