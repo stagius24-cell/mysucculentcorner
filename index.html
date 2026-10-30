@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1645"></script>
+    <script src="plant_config.js?v=20261030_1650"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -188,9 +188,9 @@
         </div>
       </div>
 
-      <!-- COLLAPSIBLE FILTERS (INLINE SEARCH & ACTION CONTROLS + SUB-ROW POT FILTERS) -->
-      <div id="headerRowFilters" class="overflow-hidden transition-all duration-500 ease-in-out max-h-40 opacity-100">
-        <!-- ROW 3: INLINE SEARCH + EYE + SIZE FILTER + SORT ICON -->
+      <!-- COLLAPSIBLE FILTERS (INLINE SEARCH + MERGED SORT BUTTON + UNDERNEATH EXPANDED OPTIONS) -->
+      <div id="headerRowFilters" class="overflow-hidden transition-all duration-700 ease-in-out max-h-48 opacity-100">
+        <!-- ROW 3: INLINE SEARCH + EYE + MERGED SORT BUTTON -->
         <div id="headerControlRow" class="relative max-w-xl mx-auto px-2.5 pb-1.5 flex items-center gap-1.5 h-10">
           
           <!-- SEARCH CONTAINER (INLINE COMPACT, SLOWLY EXPANDS OVER SIBLINGS ON FOCUS) -->
@@ -217,47 +217,60 @@
             <span id="hideCountedChipIcon">👁</span>
           </button>
 
-          <!-- SIZE POT FILTER BUTTON (EMERALD PALETTE, REPLACES HARSH BLACK ALL BUTTON) -->
-          <button onclick="handleAllChipClick()" id="chipAllBtn" data-size-filter="all" class="size-chip-top search-sibling-btn h-8 px-2.5 rounded-lg font-extrabold shrink-0 bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 text-xs cursor-pointer" title="Filter by pot size">
-            <span id="chipAllBtnLabel">Size</span>
-            <span id="chipCountAll" class="opacity-90 font-normal ml-0.5">0</span>
-            <span id="allChipCaret" class="text-[9px] opacity-75 transition-transform duration-500 inline-block">▾</span>
+          <!-- MERGED SORT BUTTON (SINGLE BUTTON WITH ICON: SORTS BY SIZE, SOLD, ZONE, ETC.) -->
+          <button onclick="toggleSortDrawer()" id="sortMainBtn" class="search-sibling-btn h-8 px-2.5 rounded-lg font-extrabold shrink-0 bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1.5 text-xs cursor-pointer" title="Sort and filter options">
+            <svg class="w-3.5 h-3.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+            </svg>
+            <span id="sortMainBtnLabel">Sort</span>
+            <span id="sortMainCaret" class="text-[9px] opacity-80 transition-transform duration-700 inline-block">▾</span>
           </button>
-
-          <!-- COMPACT SORT ICON SELECTOR -->
-          <div id="sortButtonWrapper" class="search-sibling-btn relative shrink-0 w-8 h-8" title="Sort plants">
-            <button type="button" aria-label="Sort plants" class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 shadow-sm pointer-events-none hover:bg-slate-200 transition-colors">
-              <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-              </svg>
-            </button>
-            <select id="sortSelect" aria-label="Sort plants by" onchange="handleSortChange(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base">
-              <option value="sold-desc" selected>Sort: Sold</option>
-              <option value="need-first">Sort: Need</option>
-              <option value="name-asc">Sort: A-Z</option>
-              <option value="zone">Sort: Zone</option>
-            </select>
-          </div>
         </div>
 
-        <!-- ROW 4: EXPANDED POT SIZE FILTER OPTIONS (UNDERNEATH SEARCH BAR) -->
-        <div id="extraSizeFiltersRow" class="max-w-xl mx-auto px-2.5 overflow-hidden transition-all duration-500 ease-in-out max-h-0 opacity-0 pointer-events-none">
-          <div class="pb-2 pt-0.5 flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
-            <button onclick="setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1">
-              All <span id="chipCountAllSub" class="opacity-80 font-normal ml-0.5">0</span>
-            </button>
-            <button onclick="setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1">
-              2" <span id="chipCount2" class="opacity-75 font-normal ml-0.5">0</span>
-            </button>
-            <button onclick="setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1">
-              4" <span id="chipCount4" class="opacity-75 font-normal ml-0.5">0</span>
-            </button>
-            <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1">
-              6"/2G <span id="chipCount6" class="opacity-75 font-normal ml-0.5">0</span>
-            </button>
-            <button onclick="setPotFilter('special')" data-size-filter="special" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1">
-              Sets/Spec <span id="chipCountSpecial" class="opacity-75 font-normal ml-0.5">0</span>
-            </button>
+        <!-- ROW 4: EXPANDED TAB UNDERNEATH SEARCH BAR (SLOW 700MS ANIMATION) -->
+        <div id="expandedSortTab" class="max-w-xl mx-auto px-2.5 overflow-hidden transition-all duration-700 ease-in-out max-h-0 opacity-0 pointer-events-none">
+          <div class="py-2 space-y-1.5 border-t border-slate-200/60 mt-0.5">
+            
+            <!-- SORT BY: SIZE, SOLD, ZONE, NEED, A-Z -->
+            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
+              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Sort:</span>
+              <button onclick="handleSortSelect('sold-desc')" data-sort-val="sold-desc" class="sort-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                🔥 Sold
+              </button>
+              <button onclick="handleSortSelect('size')" data-sort-val="size" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                📏 Size
+              </button>
+              <button onclick="handleSortSelect('zone')" data-sort-val="zone" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                🌱 Zone
+              </button>
+              <button onclick="handleSortSelect('need-first')" data-sort-val="need-first" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                🎯 Need
+              </button>
+              <button onclick="handleSortSelect('name-asc')" data-sort-val="name-asc" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                🔤 A-Z
+              </button>
+            </div>
+
+            <!-- FILTER BY POT SIZE: ALL, 2", 4", 6"/2G, SPEC -->
+            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
+              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Size:</span>
+              <button onclick="setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                All <span id="chipCountAll" class="opacity-80 font-normal ml-0.5">0</span>
+              </button>
+              <button onclick="setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                2" <span id="chipCount2" class="opacity-75 font-normal ml-0.5">0</span>
+              </button>
+              <button onclick="setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                4" <span id="chipCount4" class="opacity-75 font-normal ml-0.5">0</span>
+              </button>
+              <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                6"/2G <span id="chipCount6" class="opacity-75 font-normal ml-0.5">0</span>
+              </button>
+              <button onclick="setPotFilter('special')" data-size-filter="special" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                Spec <span id="chipCountSpecial" class="opacity-75 font-normal ml-0.5">0</span>
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1508,8 +1521,7 @@
       };
 
       window.handleSortChange = function(val) {
-        sortFilter = val;
-        renderAll();
+        handleSortSelect(val);
       };
 
       let isSearchExpanded = false;
@@ -1543,32 +1555,42 @@
         }
       });
 
-      let isSizeFiltersExpanded = false;
+      let isSortDrawerOpen = false;
 
-      window.handleAllChipClick = function() {
-        toggleSizeFilters();
-      };
-
-      window.toggleSizeFilters = function(expand) {
+      window.toggleSortDrawer = function(expand) {
         if (expand === undefined) {
-          isSizeFiltersExpanded = !isSizeFiltersExpanded;
+          isSortDrawerOpen = !isSortDrawerOpen;
         } else {
-          isSizeFiltersExpanded = !!expand;
+          isSortDrawerOpen = !!expand;
         }
-        const row = document.getElementById('extraSizeFiltersRow');
-        const caret = document.getElementById('allChipCaret');
-        if (row) {
-          if (isSizeFiltersExpanded) {
-            row.classList.remove('max-h-0', 'opacity-0', 'pointer-events-none');
-            row.classList.add('max-h-14', 'opacity-100', 'pointer-events-auto');
+        const tab = document.getElementById('expandedSortTab');
+        const caret = document.getElementById('sortMainCaret');
+        if (tab) {
+          if (isSortDrawerOpen) {
+            tab.classList.remove('max-h-0', 'opacity-0', 'pointer-events-none');
+            tab.classList.add('max-h-32', 'opacity-100', 'pointer-events-auto');
           } else {
-            row.classList.remove('max-h-14', 'opacity-100', 'pointer-events-auto');
-            row.classList.add('max-h-0', 'opacity-0', 'pointer-events-none');
+            tab.classList.remove('max-h-32', 'opacity-100', 'pointer-events-auto');
+            tab.classList.add('max-h-0', 'opacity-0', 'pointer-events-none');
           }
         }
         if (caret) {
-          caret.style.transform = isSizeFiltersExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+          caret.style.transform = isSortDrawerOpen ? 'rotate(180deg)' : 'rotate(0deg)';
         }
+      };
+
+      window.handleSortSelect = function(val) {
+        sortFilter = val;
+        // Update sort-chip buttons
+        document.querySelectorAll('.sort-chip').forEach(el => {
+          const v = el.getAttribute('data-sort-val');
+          const isMatch = (v === val);
+          el.className = isMatch
+            ? "sort-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer"
+            : "sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer";
+        });
+        updateSortMainBtnLabel();
+        renderAll();
       };
 
       window.setPotFilter = function(size) {
@@ -1577,23 +1599,47 @@
           const f = el.getAttribute('data-size-filter');
           const isMatch = (f === size);
           el.className = isMatch
-            ? "size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1"
-            : "size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1";
+            ? "size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer"
+            : "size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer";
         });
-        const allBtn = document.getElementById('chipAllBtn');
-        const allLabel = document.getElementById('chipAllBtnLabel');
-        if (allBtn && allLabel) {
-          if (size === 'all') {
-            allLabel.textContent = 'Size';
-            allBtn.className = "size-chip-top search-sibling-btn h-8 px-2.5 rounded-lg font-extrabold shrink-0 bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 text-xs cursor-pointer";
-          } else {
-            const displayNames = { '2': '2"', '4': '4"', '6': '6"/2G', 'special': 'Spec' };
-            allLabel.textContent = `Size: ${displayNames[size] || size}`;
-            allBtn.className = "size-chip-top search-sibling-btn h-8 px-2.5 rounded-lg font-extrabold shrink-0 bg-emerald-800 ring-2 ring-emerald-400/80 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 text-xs cursor-pointer";
-          }
-        }
+        updateSortMainBtnLabel();
         renderAll();
       };
+
+      function updateSortMainBtnLabel() {
+        const label = document.getElementById('sortMainBtnLabel');
+        if (!label) return;
+        const sortNames = {
+          'sold-desc': 'Sold',
+          'size': 'Size',
+          'zone': 'Zone',
+          'need-first': 'Need',
+          'name-asc': 'A-Z'
+        };
+        const activeSort = sortNames[sortFilter] || 'Sort';
+        if (potFilter && potFilter !== 'all') {
+          const sizeNames = { '2': '2"', '4': '4"', '6': '6"', 'special': 'Spec' };
+          label.textContent = `${activeSort} (${sizeNames[potFilter] || potFilter})`;
+        } else {
+          label.textContent = activeSort;
+        }
+      }
+
+      function getPlantSizeRank(item) {
+        const vars = item.visibleVariations || item.variations || [];
+        let minRank = 99;
+        vars.forEach(v => {
+          const s = String(v.size || v.name || '').toLowerCase();
+          let r = 50;
+          if (s.includes('2"') || s.includes('2 inch') || s === '2') r = 10;
+          else if (s.includes('4"') || s.includes('4 inch') || s === '4') r = 20;
+          else if (s.includes('6"') || s.includes('6 inch') || s === '6') r = 30;
+          else if (s.includes('2 gal') || s.includes('gallon') || s.includes('2g')) r = 40;
+          else if (s.includes('set') || s.includes('spec')) r = 60;
+          if (r < minRank) minRank = r;
+        });
+        return minRank;
+      }
 
       window.adjustStock = function(varId, delta) {
         const current = stockState[varId] || 0;
@@ -1998,6 +2044,10 @@
           if (aRecent !== bRecent) return aRecent ? -1 : 1;
 
           if (sortFilter === 'sold-desc') {
+            return b.totalSold - a.totalSold;
+          } else if (sortFilter === 'size') {
+            const rankDiff = getPlantSizeRank(a) - getPlantSizeRank(b);
+            if (rankDiff !== 0) return rankDiff;
             return b.totalSold - a.totalSold;
           } else if (sortFilter === 'name-asc') {
             return a.name.localeCompare(b.name);
