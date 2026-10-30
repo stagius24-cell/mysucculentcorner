@@ -1066,19 +1066,65 @@
           });
 
           if (response.status === 204) {
+            const totalDuration = 15;
+            let count = totalDuration;
+
+            if (window.cloudSyncTimer) {
+              clearInterval(window.cloudSyncTimer);
+              window.cloudSyncTimer = null;
+            }
+
             showDialog({
               icon: '⏳',
               title: 'Cloud Run Started',
-              message: 'GitHub is connecting to Etsy to fetch your latest orders. Waiting 20 seconds for the report to compile...'
+              messageHtml: `
+                <div class="mt-1 space-y-3">
+                  <div class="flex items-center justify-center gap-2">
+                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-200/80 shadow-2xs">
+                      <span class="w-4 h-4 rounded bg-[#F1641E] flex items-center justify-center p-0.5 text-white flex-shrink-0">
+                        <svg class="w-full h-full fill-current" viewBox="0 0 24 24">
+                          <path d="M8.559 2.445c0-.325.033-.52.59-.52h7.465c1.3 0 2.02 1.11 2.54 3.193l.42 1.666h1.27c.23-4.728.43-6.784.43-6.784s-3.196.36-5.09.36H6.635L1.521.196v1.37l1.725.326c1.21.24 1.5.496 1.6 1.606c0 0 .11 3.27.11 8.64c0 5.385-.09 8.61-.09 8.61c0 .973-.39 1.333-1.59 1.573l-1.722.33V24l5.13-.165h8.55c1.935 0 6.39.165 6.39.165c.105-1.17.75-6.48.855-7.064h-1.2l-1.284 2.91c-1.005 2.28-2.476 2.445-4.11 2.445h-4.906c-1.63 0-2.415-.64-2.415-2.05V12.8s3.62 0 4.79.096c.912.064 1.463.325 1.76 1.598l.39 1.695h1.41l-.09-4.278l.192-4.305h-1.391l-.45 1.89c-.283 1.244-.48 1.47-1.754 1.6c-1.666.17-4.815.14-4.815.14V2.45h-.05z"/>
+                        </svg>
+                      </span>
+                      <span class="text-xs font-extrabold text-orange-950">Etsy</span>
+                    </div>
+                    <span class="text-slate-400 font-bold text-xs">+</span>
+                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200/80 shadow-2xs">
+                      <span class="w-4 h-4 rounded bg-[#95BF47] flex items-center justify-center p-0.5 text-white flex-shrink-0">
+                        <svg class="w-full h-full fill-current" viewBox="0 0 24 24">
+                          <path d="M15.337 3.328c-.116-.05-.333-.03-.497.05-1.574.757-6.22 3.037-6.22 3.037s-1.848-.994-2.29-1.22c-.443-.227-1.31-.155-1.646-.106-.05.008-.881.272-2.257.698C1.56 7.42 0 11.233 0 11.233s.308 1.455.457 2.146c.15.69 8.01 10.575 8.01 10.575l10.366-3.834S24 5.37 24 5.37s-3.56-1.528-8.663-2.042zm-5.69 4.316l-3.647 1.13c.001-.257.003-.51.003-.786 0-2.409-.335-4.348-.872-5.886 2.155.27 3.59 2.723 4.516 5.542zm-7.186-5.066c.599 1.5.989 3.655.989 6.562 0 .149-.001.285-.003.422-2.37.734-4.949 1.532-7.532 2.331 1.451-5.594 4.172-8.3 6.546-9.315zm-2.898-2.741c.42 0 .843.143 1.249.422-3.123 1.47-6.474 5.169-7.887 12.576l-5.952 1.844c1.196-7.854 5.111-17.02 12.59-14.842z"/>
+                        </svg>
+                      </span>
+                      <span class="text-xs font-extrabold text-emerald-950">Shopify</span>
+                    </div>
+                  </div>
+
+                  <p class="text-xs text-slate-600 leading-relaxed">
+                    Compiling fresh orders from Etsy and Shopify in the cloud...
+                  </p>
+
+                  <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
+                    <div id="syncProgressBar" class="h-full bg-emerald-600 rounded-full transition-all duration-1000 ease-linear" style="width: 5%;"></div>
+                  </div>
+
+                  <div class="text-[11px] font-bold text-slate-500">
+                    <span id="syncCountdown">${totalDuration}s</span> remaining
+                  </div>
+                </div>
+              `
             });
 
-            let count = 20;
-            const timer = setInterval(() => {
+            window.cloudSyncTimer = setInterval(() => {
               count--;
-              const dialogMsg = document.getElementById('dialogMessage');
-              if (dialogMsg) dialogMsg.textContent = `GitHub is compiling your fresh Etsy report... (${count}s remaining)`;
+              const pct = Math.min(100, Math.round(((totalDuration - count) / totalDuration) * 100));
+              const countdownEl = document.getElementById('syncCountdown');
+              const barEl = document.getElementById('syncProgressBar');
+              if (countdownEl) countdownEl.textContent = `${count}s`;
+              if (barEl) barEl.style.width = `${pct}%`;
+
               if (count <= 0) {
-                clearInterval(timer);
+                clearInterval(window.cloudSyncTimer);
+                window.cloudSyncTimer = null;
                 closeDialog();
                 autoImportGithubCsv({ manual: true });
               }
@@ -1250,6 +1296,10 @@
       }
 
       window.closeDialog = function() {
+        if (window.cloudSyncTimer) {
+          clearInterval(window.cloudSyncTimer);
+          window.cloudSyncTimer = null;
+        }
         document.getElementById('dialogModalBackdrop').classList.add('hidden');
         dialogCallback = null;
       };
@@ -1782,9 +1832,9 @@
           } else {
             if (iconEl) iconEl.textContent = "🪴";
             document.getElementById('emptyStateTitle').textContent = "No Orders Loaded";
-            document.getElementById('emptyStateDesc').textContent = "Tap below to fetch your Etsy pending orders in the cloud.";
+            document.getElementById('emptyStateDesc').textContent = "Tap below to fetch your Etsy & Shopify pending orders in the cloud.";
             if (emptyActionBtn) {
-              emptyActionBtn.textContent = "⚡ Run Etsy Sync in Cloud";
+              emptyActionBtn.textContent = "⚡ Sync Etsy & Shopify in Cloud";
               emptyActionBtn.classList.remove('hidden');
             }
           }
