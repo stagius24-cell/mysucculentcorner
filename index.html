@@ -208,7 +208,7 @@
               <span class="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 truncate tracking-tight leading-snug">MySucculentCorner</span>
               <button onclick="toggleMenuDrawer(true)" class="text-left flex items-center gap-1 group focus:outline-none" title="Tap to view data source and sync options">
                 <span id="headerSyncIcon" class="text-[9px] leading-none hidden">🔄</span>
-                <span id="headerSyncTime" class="text-[10px] sm:text-[11px] font-bold text-slate-500 group-hover:text-emerald-700 truncate tracking-tight transition-colors">Updated: Pending load</span>
+                <span id="headerSyncTime" class="text-[10px] sm:text-[11px] font-bold text-slate-500 group-hover:text-emerald-700 truncate tracking-tight transition-colors">Last updated at Pending load</span>
               </button>
             </div>
           </div>
@@ -1106,6 +1106,35 @@
         });
       }
 
+      function formatHourMinute(d) {
+        if (!d) return '';
+        const dateObj = d instanceof Date ? d : new Date(d);
+        if (isNaN(dateObj.getTime())) return '';
+        return dateObj.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit'
+        });
+      }
+
+      function getFormattedHeaderTime() {
+        if (syncMeta && syncMeta.lastImportedMs) {
+          const formatted = formatHourMinute(syncMeta.lastImportedMs);
+          if (formatted) return `Last updated at ${formatted}`;
+        }
+        if (syncMeta && syncMeta.timestamp && syncMeta.timestamp !== 'Pending load') {
+          const parsed = new Date(syncMeta.timestamp);
+          if (!isNaN(parsed.getTime())) {
+            const formatted = formatHourMinute(parsed);
+            if (formatted) return `Last updated at ${formatted}`;
+          }
+          const timeMatch = String(syncMeta.timestamp).match(/\d{1,2}:\d{2}(?:\s*[APap][Mm])?/);
+          if (timeMatch) {
+            return `Last updated at ${timeMatch[0]}`;
+          }
+        }
+        return `Last updated at ${formatHourMinute(new Date())}`;
+      }
+
       function formatNowTimestamp() {
         return formatShortDateTime(new Date());
       }
@@ -1135,10 +1164,9 @@
         const rawTime = (syncMeta && syncMeta.timestamp && syncMeta.timestamp !== 'Pending load')
           ? syncMeta.timestamp
           : formatNowTimestamp();
-        const displayLabel = rawTime.toLowerCase().startsWith('updated') ? rawTime : `Updated: ${rawTime}`;
 
         if (headerTime) {
-          headerTime.textContent = displayLabel;
+          headerTime.textContent = getFormattedHeaderTime();
         }
         if (drawerSource) drawerSource.textContent = syncMeta.sourceName;
         if (drawerTime) drawerTime.textContent = rawTime;
