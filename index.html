@@ -262,9 +262,9 @@
                 onclick="expandSearch()" 
                 onkeydown="if(event.key==='Enter') collapseSearch()"
                 oninput="handleSearchDebounced(this.value)" 
-                class="w-full bg-slate-100 pl-7 pr-7 py-1 text-xs font-bold text-slate-800 rounded-lg border border-slate-300 focus:border-emerald-600 focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal h-8" 
+                class="w-full bg-slate-100 pl-7 pr-10 py-1 text-xs font-bold text-slate-800 rounded-lg border border-slate-300 focus:border-emerald-600 focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal h-8" 
               />
-              <button id="clearSearchBtn" onclick="clearSearch()" aria-label="Clear search" class="hidden absolute right-1.5 top-0.5 w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 text-xs font-bold">✕</button>
+              <button id="clearSearchBtn" onclick="clearSearch(event)" aria-label="Clear search" class="hidden absolute right-0 top-1/2 -translate-y-1/2 w-[38px] h-[38px] min-w-[38px] min-h-[38px] flex items-center justify-center text-slate-400 hover:text-slate-700 active:text-slate-900 text-sm font-bold cursor-pointer transition-colors">✕</button>
             </div>
             <button id="searchCancelBtn" onclick="collapseSearch()" class="h-8 shrink-0 text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center justify-center transition-all cursor-pointer">Cancel</button>
           </div>
@@ -1777,18 +1777,36 @@
       };
 
       window.handleSearchDebounced = function(q) {
+        const val = q || '';
+        const clearBtn = document.getElementById('clearSearchBtn');
+        if (clearBtn) {
+          clearBtn.classList.toggle('hidden', val.length === 0);
+        }
         if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
         searchDebounceTimer = setTimeout(() => {
-          searchQuery = (q || '').trim().toLowerCase();
-          document.getElementById('clearSearchBtn').classList.toggle('hidden', searchQuery.length === 0);
+          searchQuery = val.trim().toLowerCase();
           renderAll();
         }, 100);
       };
 
-      window.clearSearch = function() {
+      window.clearSearch = function(e) {
+        if (e) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+        triggerHaptic('light');
         searchQuery = '';
-        document.getElementById('searchInput').value = '';
-        document.getElementById('clearSearchBtn').classList.add('hidden');
+        const input = document.getElementById('searchInput');
+        if (input) {
+          input.value = '';
+        }
+        const clearBtn = document.getElementById('clearSearchBtn');
+        if (clearBtn) {
+          clearBtn.classList.add('hidden');
+        }
+        if (searchDebounceTimer) {
+          clearTimeout(searchDebounceTimer);
+        }
         renderAll();
       };
 
@@ -3736,7 +3754,15 @@
         }
       }
 
+      function autoBlurSearchOnScroll() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput && document.activeElement === searchInput) {
+          searchInput.blur();
+        }
+      }
+
       window.addEventListener('scroll', () => {
+        autoBlurSearchOnScroll();
         const currentY = Math.max(0, window.scrollY);
         const delta = currentY - lastScrollY;
         lastScrollY = currentY;
@@ -3765,6 +3791,13 @@
         // Scrolling down towards top: reveal header (requires sustained scroll)
         else if (accumulatedDelta < -25) {
           setHeaderCollapsed(false);
+        }
+      }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+        const searchContainer = document.getElementById('searchContainer');
+        if (searchContainer && !searchContainer.contains(e.target)) {
+          autoBlurSearchOnScroll();
         }
       }, { passive: true });
 
