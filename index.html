@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_mobile_ux_v3"></script>
+    <script src="plant_config.js?v=20261030_swipe_haptics_v1"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -39,6 +39,61 @@
       }
       #searchInput, #sortSelect {
         font-size: 14px !important;
+      }
+
+      
+      /* Tactile micro-bounce for iOS / tactile feedback */
+      .haptic-tap {
+        animation: hapticMicroBounce 90ms ease-out forwards;
+      }
+      @keyframes hapticMicroBounce {
+        0% { transform: scale(1); }
+        50% { transform: scale(0.97); }
+        100% { transform: scale(1); }
+      }
+
+      /* Swipe action layers & smooth pan physics */
+      .swipe-card-wrapper {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.75rem;
+        touch-action: pan-y;
+      }
+      .swipe-layer-left {
+        position: absolute;
+        inset: 0;
+        background-color: #16a34a; /* Sage/emerald green */
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding-left: 1.25rem;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 0.875rem;
+        border-radius: 0.75rem;
+        z-index: 0;
+      }
+      .swipe-layer-right {
+        position: absolute;
+        inset: 0;
+        background-color: #d97706; /* Warm amber / terracotta */
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 1.25rem;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 0.875rem;
+        border-radius: 0.75rem;
+        z-index: 0;
+      }
+      .swipe-card-content {
+        position: relative;
+        background: #ffffff;
+        border-radius: 0.75rem;
+        z-index: 1;
+        touch-action: pan-y;
+        will-change: transform;
       }
 
       /* Slower smooth search expansion animation (700ms) */
@@ -173,15 +228,15 @@
       <!-- ROW 2: 3-MODE SEGMENTED TABS (ALWAYS PINNED STICKY) -->
       <div id="headerRowTabs" class="max-w-xl mx-auto px-2.5 py-1">
         <div class="bg-slate-200/90 p-0.5 rounded-xl grid grid-cols-3 gap-1 text-xs font-bold">
-          <button id="tabStock" onclick="switchMode('count')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 bg-white text-slate-900 shadow-sm font-extrabold active:scale-[0.98] whitespace-nowrap cursor-pointer">
+          <button id="tabStock" onclick="triggerHaptic('light', this); switchMode('count')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 bg-white text-slate-900 shadow-sm font-extrabold active:scale-[0.98] whitespace-nowrap cursor-pointer">
             <span>📦 Count</span>
             <span id="badgeStockCount" class="text-[10px] px-1.5 py-0.5 leading-none bg-slate-200 text-slate-800 rounded-full font-extrabold">0</span>
           </button>
-          <button id="tabBuy" onclick="switchMode('buy')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900 active:scale-[0.98] whitespace-nowrap cursor-pointer">
+          <button id="tabBuy" onclick="triggerHaptic('light', this); switchMode('buy')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900 active:scale-[0.98] whitespace-nowrap cursor-pointer">
             <span>🛒 Buy</span>
             <span id="badgeBuyCount" class="text-[10px] px-1.5 py-0.5 leading-none bg-amber-300 text-amber-950 rounded-full font-extrabold">0</span>
           </button>
-          <button id="tabCart" onclick="switchMode('cart')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900 active:scale-[0.98] whitespace-nowrap cursor-pointer">
+          <button id="tabCart" onclick="triggerHaptic('light', this); switchMode('cart')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900 active:scale-[0.98] whitespace-nowrap cursor-pointer">
             <span>✅ Cart</span>
             <span id="badgeCartCount" class="text-[10px] px-1.5 py-0.5 leading-none bg-emerald-700 text-white rounded-full font-extrabold">0</span>
           </button>
@@ -221,7 +276,7 @@
             <div id="filterChipScroller" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 whitespace-nowrap" style="-webkit-overflow-scrolling: touch;">
               
               <!-- COMPACT SORT CYCLE CHIP (MIN 38px HEIGHT, 12px HORIZONTAL PADDING) -->
-              <button id="sortCycleBtn" onclick="cycleSort()" class="h-[38px] px-3 rounded-full font-extrabold text-xs shrink-0 bg-emerald-700 text-white shadow-sm flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer" title="Tap to cycle sort order">
+              <button id="sortCycleBtn" onclick="triggerHaptic('light', this); cycleSort()" class="h-[38px] px-3 rounded-full font-extrabold text-xs shrink-0 bg-emerald-700 text-white shadow-sm flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer" title="Tap to cycle sort order">
                 <span id="sortCycleIcon" class="inline-block transition-transform duration-300">⇅</span>
                 <span id="sortCycleLabel">Sort: Sold</span>
               </button>
@@ -230,22 +285,22 @@
               <div class="w-px h-5 bg-slate-300 mx-1 shrink-0" aria-hidden="true"></div>
 
               <!-- SIZE FILTER PILLS (MIN 38px HEIGHT, 12px HORIZONTAL PADDING) -->
-              <button onclick="setPotFilter('all')" data-size-filter="all" class="size-chip h-[38px] px-3 rounded-full font-extrabold text-xs shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+              <button onclick=\"triggerHaptic('light', this); setPotFilter('all')\" data-size-filter="all" class="size-chip h-[38px] px-3 rounded-full font-extrabold text-xs shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 flex items-center justify-center transition-all cursor-pointer">
                 All
               </button>
-              <button onclick="setPotFilter('2')" data-size-filter="2" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+              <button onclick=\"triggerHaptic('light', this); setPotFilter('2')\" data-size-filter="2" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
                 2"
               </button>
-              <button onclick="setPotFilter('4')" data-size-filter="4" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+              <button onclick=\"triggerHaptic('light', this); setPotFilter('4')\" data-size-filter="4" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
                 4"
               </button>
-              <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+              <button onclick=\"triggerHaptic('light', this); setPotFilter('6')\" data-size-filter="6" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
                 6"
               </button>
-              <button onclick="setPotFilter('2g')" data-size-filter="2g" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+              <button onclick=\"triggerHaptic('light', this); setPotFilter('2g')\" data-size-filter="2g" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
                 2-Gal
               </button>
-              <button onclick="setPotFilter('set')" data-size-filter="set" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+              <button onclick=\"triggerHaptic('light', this); setPotFilter('set')\" data-size-filter="set" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
                 Set
               </button>
             </div>
@@ -1519,6 +1574,243 @@
         handleSortSelect(val);
       };
 
+      
+      // ==========================================
+      // HAPTIC FEEDBACK & TACTILE MICRO-BOUNCE UTILITY
+      // ==========================================
+      window.triggerHaptic = function(type, element) {
+        try {
+          if ('vibrate' in navigator) {
+            if (type === 'light') {
+              navigator.vibrate(12);
+            } else if (type === 'check') {
+              navigator.vibrate([18, 40, 25]);
+            } else if (type === 'uncheck') {
+              navigator.vibrate(15);
+            }
+          }
+        } catch (e) {
+          // Silent fallback on restricted browsers
+        }
+
+        // Visual micro-bounce for iOS Safari & instant tactile feedback
+        if (element && element instanceof HTMLElement) {
+          element.classList.remove('haptic-tap');
+          // Force reflow
+          void element.offsetWidth;
+          element.classList.add('haptic-tap');
+          setTimeout(() => {
+            element.classList.remove('haptic-tap');
+          }, 110);
+        }
+      };
+
+      // ==========================================
+      // CARD HORIZONTAL SWIPE GESTURE ENGINE
+      // ==========================================
+      function initCardSwipeGestures(cardWrapper) {
+        const cardContent = cardWrapper.querySelector('.swipe-card-content');
+        const leftLayer = cardWrapper.querySelector('.swipe-layer-left');
+        const rightLayer = cardWrapper.querySelector('.swipe-layer-right');
+        if (!cardContent) return;
+
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let isSwiping = false;
+        let isVerticalScroll = false;
+        let hasHapticTriggeredAtThreshold = false;
+        const SWIPE_THRESHOLD = 75;
+
+        cardContent.addEventListener('touchstart', (e) => {
+          if (e.touches.length !== 1) return;
+          const touch = e.touches[0];
+          startX = touch.clientX;
+          startY = touch.clientY;
+          currentX = startX;
+          isSwiping = false;
+          isVerticalScroll = false;
+          hasHapticTriggeredAtThreshold = false;
+          cardContent.style.transition = 'none';
+        }, { passive: true });
+
+        cardContent.addEventListener('touchmove', (e) => {
+          if (isVerticalScroll || e.touches.length !== 1) return;
+          const touch = e.touches[0];
+          const deltaX = touch.clientX - startX;
+          const deltaY = touch.clientY - startY;
+
+          // Scroll Lock Guard: Measure initial deltaX vs deltaY
+          if (!isSwiping) {
+            if (Math.abs(deltaY) > Math.abs(deltaX)) {
+              isVerticalScroll = true;
+              return;
+            }
+            if (Math.abs(deltaX) > 8) {
+              isSwiping = true;
+            }
+          }
+
+          if (isSwiping) {
+            // Apply resistance curve: deltaX * 0.65
+            const appliedX = deltaX * 0.65;
+            cardContent.style.transform = `translateX(${appliedX}px)`;
+
+            if (deltaX > 0) {
+              if (leftLayer) leftLayer.style.opacity = Math.min(1, Math.abs(appliedX) / 45);
+              if (rightLayer) rightLayer.style.opacity = 0;
+            } else {
+              if (rightLayer) rightLayer.style.opacity = Math.min(1, Math.abs(appliedX) / 45);
+              if (leftLayer) leftLayer.style.opacity = 0;
+            }
+
+            // Haptic trigger when crossing threshold (once)
+            if (Math.abs(appliedX) >= SWIPE_THRESHOLD && !hasHapticTriggeredAtThreshold) {
+              triggerHaptic('light');
+              hasHapticTriggeredAtThreshold = true;
+            } else if (Math.abs(appliedX) < SWIPE_THRESHOLD && hasHapticTriggeredAtThreshold) {
+              hasHapticTriggeredAtThreshold = false;
+            }
+          }
+        }, { passive: true });
+
+        cardContent.addEventListener('touchend', (e) => {
+          if (!isSwiping) {
+            return;
+          }
+
+          const touch = e.changedTouches[0];
+          const deltaX = (touch.clientX - startX) * 0.65;
+          const cardType = cardWrapper.getAttribute('data-card-type');
+          const cardId = cardWrapper.getAttribute('data-card-id');
+
+          // Snap back crisply with cubic-bezier
+          cardContent.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)';
+          cardContent.style.transform = 'translateX(0px)';
+
+          setTimeout(() => {
+            if (leftLayer) leftLayer.style.opacity = 0;
+            if (rightLayer) rightLayer.style.opacity = 0;
+          }, 220);
+
+          if (deltaX >= SWIPE_THRESHOLD) {
+            // SWIPE RIGHT: Check / Complete
+            triggerHaptic('check', cardContent);
+            executeSwipeRightCheck(cardType, cardId);
+          } else if (deltaX <= -SWIPE_THRESHOLD) {
+            // SWIPE LEFT: Quick +1 Quantity in active tabs, or restore/uncheck in Cart/Checked
+            executeSwipeLeftAction(cardType, cardId, cardContent);
+          }
+        }, { passive: true });
+
+        cardContent.addEventListener('touchcancel', () => {
+          cardContent.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)';
+          cardContent.style.transform = 'translateX(0px)';
+          if (leftLayer) leftLayer.style.opacity = 0;
+          if (rightLayer) rightLayer.style.opacity = 0;
+        }, { passive: true });
+      }
+
+      function executeSwipeRightCheck(cardType, cardId) {
+        if (cardType === 'manual') {
+          const item = manualExportItems.find(x => x.id === cardId);
+          if (!item) return;
+          if (currentMode === 'count') {
+            toggleManualCounted(cardId);
+          } else {
+            toggleManualPurchased(cardId);
+          }
+        } else {
+          const item = catalog.find(x => x.id === cardId);
+          if (!item) return;
+          if (currentMode === 'count') {
+            // Check all uncounted variations for this plant
+            const uncounted = item.variations.filter(v => !countedState[v.id]);
+            if (uncounted.length > 0) {
+              uncounted.forEach(v => { countedState[v.id] = true; });
+              saveStorage();
+              renderAll();
+            } else {
+              // Uncheck if already all checked
+              item.variations.forEach(v => { countedState[v.id] = false; });
+              triggerHaptic('uncheck');
+              saveStorage();
+              renderAll();
+            }
+          } else {
+            // Buy / Cart mode: check all unpurchased variations
+            const unpurchased = item.variations.filter(v => !purchasedState[v.id]);
+            if (unpurchased.length > 0) {
+              let totalCost = 0;
+              unpurchased.forEach(v => {
+                purchasedState[v.id] = true;
+                const stock = stockState[v.id] || 0;
+                const buyQty = getEffectiveBuyQty(v.id, v.sold, stock);
+                totalCost += buyQty * getUnitPrice(item.name, v.name, v.size);
+              });
+              saveStorage();
+              renderAll();
+              showBottomUndo(unpurchased[0].id, totalCost);
+            } else {
+              // Uncheck in cart
+              item.variations.forEach(v => { purchasedState[v.id] = false; });
+              triggerHaptic('uncheck');
+              saveStorage();
+              revertBottomBar();
+              renderAll();
+            }
+          }
+        }
+      }
+
+      function executeSwipeLeftAction(cardType, cardId, cardContent) {
+        if (currentMode === 'cart') {
+          // In Cart mode: Swiping left removes/unchecks the item
+          triggerHaptic('uncheck', cardContent);
+          if (cardType === 'manual') {
+            toggleManualPurchased(cardId);
+          } else {
+            const item = catalog.find(x => x.id === cardId);
+            if (item) {
+              item.variations.forEach(v => { purchasedState[v.id] = false; });
+              saveStorage();
+              renderAll();
+            }
+          }
+          return;
+        }
+
+        // In Count or Buy mode: Swiping left does Quick +1 Quantity to first visible variation
+        triggerHaptic('light', cardContent);
+        if (cardType === 'manual') {
+          if (currentMode === 'count') {
+            adjustManualStock(cardId, 1);
+          } else {
+            const item = manualExportItems.find(x => x.id === cardId);
+            const shortfall = Math.max(0, Number(item.qty || 1) - Math.max(0, Number(item.stock || 0)));
+            adjustManualBuyQty(cardId, 1, shortfall);
+          }
+        } else {
+          const item = catalog.find(x => x.id === cardId);
+          if (!item || !item.variations || item.variations.length === 0) return;
+          const firstVar = item.variations[0];
+          if (currentMode === 'count') {
+            adjustStock(firstVar.id, 1);
+          } else {
+            const stock = stockState[firstVar.id] || 0;
+            const shortfall = Math.max(0, firstVar.sold - stock);
+            adjustBuyQty(firstVar.id, 1, shortfall);
+          }
+        }
+      }
+
+      // Attach swipe listeners after renderAll
+      function attachSwipeListenersToList() {
+        document.querySelectorAll('.swipe-card-wrapper').forEach(wrapper => {
+          initCardSwipeGestures(wrapper);
+        });
+      }
+
       let isSearchExpanded = false;
 
       window.expandSearch = function() {
@@ -1685,6 +1977,7 @@
       }
 
       window.adjustStock = function(varId, delta) {
+        triggerHaptic('light');
         const current = stockState[varId] || 0;
         stockState[varId] = Math.max(0, current + delta);
         countedState[varId] = true;
@@ -1703,12 +1996,13 @@
 
       window.toggleCountedStatus = function(varId) {
         countedState[varId] = !countedState[varId];
-        if (navigator.vibrate) navigator.vibrate(10);
+        triggerHaptic(countedState[varId] ? 'check' : 'uncheck');
         saveStorage();
         renderAll();
       };
 
       window.adjustBuyQty = function(varId, delta, defaultQty) {
+        triggerHaptic('light');
         const current = buyState[varId] !== undefined ? buyState[varId] : defaultQty;
         buyState[varId] = Math.max(0, current + delta);
         saveStorage();
@@ -1722,6 +2016,7 @@
       };
 
       window.adjustManualStock = function(id, delta) {
+        triggerHaptic('light');
         const item = manualExportItems.find(x => x.id === id);
         if (!item) return;
         item.stock = Math.max(0, Number(item.stock || 0) + delta);
@@ -1745,12 +2040,13 @@
         const item = manualExportItems.find(x => x.id === id);
         if (!item) return;
         item.countConfirmed = !item.countConfirmed;
-        if (navigator.vibrate) navigator.vibrate(10);
+        triggerHaptic(item.countConfirmed ? 'check' : 'uncheck');
         saveStorage();
         renderAll();
       };
 
       window.adjustManualBuyQty = function(id, delta, defaultQty) {
+        triggerHaptic('light');
         const item = manualExportItems.find(x => x.id === id);
         if (!item) return;
         const current = item.buyQty !== undefined ? item.buyQty : defaultQty;
@@ -1862,6 +2158,7 @@
       }
 
       window.triggerUndoAction = function() {
+        triggerHaptic('uncheck');
         if (!lastPurchasedVarId) return;
         const targetId = lastPurchasedVarId;
         if (targetId.startsWith('manual_')) {
@@ -1878,7 +2175,7 @@
       window.togglePurchased = function(varId, el) {
         const currentlyPurchased = !!purchasedState[varId];
         if (!currentlyPurchased && el) {
-          if (navigator.vibrate) navigator.vibrate(12);
+          triggerHaptic('check', el);
           el.classList.add('checking-active');
           let itemCost = 0.0;
           for (const item of catalog) {
@@ -1910,7 +2207,7 @@
         if (!item) return;
         const currentlyPurchased = !!item.purchased;
         if (!currentlyPurchased && el) {
-          if (navigator.vibrate) navigator.vibrate(12);
+          triggerHaptic('check', el);
           el.classList.add('checking-active');
           const buyQty = getManualEffectiveBuyQty(item);
           const price = getUnitPrice(item.name, item.size, item.size);
@@ -2121,6 +2418,7 @@
         });
 
         container.innerHTML = html;
+        attachSwipeListenersToList();
       }
 
       function renderManualCard(item) {
@@ -2239,7 +2537,14 @@
 
         const isManualDoneInBuy = currentMode === 'buy' && isPurchased;
         return `
-          <article class="bg-white rounded-xl border ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90'} shadow-sm overflow-hidden transition-all">
+          <div class="swipe-card-wrapper shadow-sm mb-2" data-card-type="manual" data-card-id="${item.id}">
+            <div class="swipe-layer-left">
+              <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Check</span>
+            </div>
+            <div class="swipe-layer-right">
+              <span class="flex items-center gap-1.5">${currentMode === 'cart' ? '✕ Uncheck' : '＋1 Qty'}</span>
+            </div>
+            <article class="swipe-card-content border ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90'} overflow-hidden transition-all">
             <header class="px-2.5 py-1.5 ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
                 <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">Manual</span>
@@ -2254,7 +2559,8 @@
             <div>
               ${rowHtml}
             </div>
-          </article>
+            </article>
+          </div>
         `;
       }
 
@@ -2455,7 +2761,14 @@
           : 'bg-slate-50 border-b border-slate-200/80';
 
         return `
-          <article class="rounded-xl border ${cardArticleClass} shadow-sm overflow-hidden transition-all">
+          <div class="swipe-card-wrapper shadow-sm mb-2" data-card-type="item" data-card-id="${item.id}">
+            <div class="swipe-layer-left">
+              <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Check</span>
+            </div>
+            <div class="swipe-layer-right">
+              <span class="flex items-center gap-1.5">${currentMode === 'cart' ? '✕ Uncheck' : '＋1 Qty'}</span>
+            </div>
+            <article class="swipe-card-content border ${cardArticleClass} overflow-hidden transition-all">
             <header class="px-2.5 py-1.5 ${cardHeaderClass} flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
                 <h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Tap to preview plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDone ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>
@@ -2465,7 +2778,8 @@
             <div>
               ${variationsHtml}
             </div>
-          </article>
+            </article>
+          </div>
         `;
       }
 
