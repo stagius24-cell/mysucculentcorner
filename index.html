@@ -344,8 +344,9 @@
       </div>
     </main>
 
-    <!-- FLOATING ACTION BUTTON (BOTTOM-RIGHT CIRCULAR FAB: 62x62px, 70% OPACITY, 1PT BLUR) -->
-    <aside id="floatingBarAside" class="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 sm:right-6 z-30 no-print">
+    <!-- FLOATING ACTION BUTTON (BOTTOM-RIGHT: CIRCULAR FAB IN COUNT/BUY, EXPANDED IN CART) -->
+    <aside id="floatingBarAside" class="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 sm:right-6 z-30 no-print flex items-center gap-2">
+      <!-- CIRCULAR FAB: SHOWN IN COUNT & BUY MODES -->
       <button 
         id="fabMainBtn" 
         onclick="handleFloatingActionButton(event)" 
@@ -362,6 +363,30 @@
           <span id="floatUndoCountdown" class="text-[11px] font-black tracking-tight text-white mt-0.5">9s</span>
         </div>
       </button>
+
+      <!-- EXPANDED CART BAR: SHOWN IN CART MODE (TOTAL COST + CLEAR CART BUTTON) -->
+      <div 
+        id="fabCartBar" 
+        class="hidden h-[54px] rounded-full text-white shadow-xl shadow-emerald-950/25 px-4 py-1.5 flex items-center gap-3 border border-white/25 ring-4 ring-emerald-600/20 transition-all duration-300 select-none animate-in fade-in zoom-in-95 duration-200"
+        style="background-color: rgba(6, 78, 59, 0.85); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);"
+      >
+        <div class="flex items-center gap-1.5 pr-2.5 border-r border-white/20 leading-none">
+          <span class="text-[11px] font-bold text-emerald-200">Total:</span>
+          <span id="cartBarTotalCost" class="text-sm sm:text-base font-black tracking-tight text-white">$0.00</span>
+        </div>
+        <button 
+          id="cartBarClearBtn"
+          onclick="triggerHaptic('light', this); clearCart()" 
+          title="Clear all items from cart" 
+          aria-label="Clear cart" 
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-extrabold text-xs shadow-xs transition-all cursor-pointer whitespace-nowrap"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          <span>Clear Cart</span>
+        </button>
+      </div>
     </aside>
 
     <!-- UTILITIES BOTTOM SHEET -->
@@ -2117,7 +2142,19 @@
 
       function updateFloatingBarVisibility() {
         const aside = document.getElementById('floatingBarAside');
-        if (aside) aside.style.display = 'flex';
+        const fabBtn = document.getElementById('fabMainBtn');
+        const cartBar = document.getElementById('fabCartBar');
+        if (!aside) return;
+
+        aside.style.display = 'flex';
+
+        if (currentMode === 'cart') {
+          if (fabBtn) fabBtn.classList.add('hidden');
+          if (cartBar) cartBar.classList.remove('hidden');
+        } else {
+          if (cartBar) cartBar.classList.add('hidden');
+          if (fabBtn) fabBtn.classList.remove('hidden');
+        }
       }
 
       window.handleFloatingActionButton = function(e) {
@@ -2969,6 +3006,10 @@
 
         const floatShortfallEl = document.getElementById('floatShortfall'); if (floatShortfallEl) floatShortfallEl.textContent = `🛒 ${totalShortfall} need`;
         const fCart = document.getElementById('floatCartTotal'); if (fCart) fCart.textContent = `$${totalCartCost.toFixed(2)}`;
+        const cartBarTotal = document.getElementById('cartBarTotalCost');
+        if (cartBarTotal) {
+          cartBarTotal.textContent = `$${totalCartCost.toFixed(2)}`;
+        }
         updateFloatingBarVisibility();
 
         const drawerSoldEl = document.getElementById('drawerSoldTotal');
@@ -3913,6 +3954,17 @@
 
       window.clearCart = function() {
         toggleMenuDrawer(false);
+        const hasCartItems = Object.values(purchasedState).some(Boolean) || manualExportItems.some(item => !!item.purchased);
+        if (!hasCartItems) {
+          showDialog({
+            icon: '🛒',
+            title: 'Cart is Empty',
+            message: 'There are no items currently in your cart.',
+            confirmText: 'OK',
+            showCancel: false
+          });
+          return;
+        }
         showDialog({
           icon: '🛒',
           title: 'Empty Cart?',
