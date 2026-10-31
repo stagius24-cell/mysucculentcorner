@@ -492,15 +492,16 @@ function getUnitPrice(plantName, varName, size) {
   const v = (varName || "").toLowerCase();
   const s = (size || "").toLowerCase();
   if (p.includes("scilla") || p.includes("socialis") || p.includes("socialist") || p.includes("ledebouria")) return 8.00;
-  if ((p.includes("milii") || p.includes("milli")) && (p.includes("variegat") || p.includes("eurphobia") || !p.includes("set"))) return 5.00;
-  if (p.includes("euphorbia") || p.includes("euphoria") || p.includes("eurphobia") || p.includes("crown of thorns")) return 18.00;
+  if ((p.includes("milii") || p.includes("milli")) && (p.includes("variegat") || v.includes("variegat") || p.includes("eurphobia"))) return 5.00;
+  if ((p.includes("milii") || p.includes("milli") || p.includes("crown of thorns")) && (p.includes("set") || v.includes("set") || s.includes("set"))) return 3.00;
   if (p.includes("string of hearts") || p.includes("vsoh")) {
     return (s.includes("2") || v.includes("2")) ? 1.50 : 3.50;
   }
-  if (s.includes("gallon") || v.includes("gallon") || s.includes("2g") || v.includes("2g")) return 20.00;
+  if (s.includes("gallon") || v.includes("gallon") || s.includes("2g") || v.includes("2g") || s.includes("2 gal") || s.includes("2-gal")) return 20.00;
   if (s.includes("6") || v.includes("6")) return 6.00;
   if (s.includes("4") || v.includes("4")) return 2.50;
   if (s.includes("2") || v.includes("2")) return 1.00;
+  if (p.includes("euphorbia") || p.includes("euphoria") || p.includes("eurphobia") || p.includes("crown of thorns")) return 18.00;
   return 5.00;
 }
 

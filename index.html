@@ -425,6 +425,14 @@
 
       <!-- ACTION BUTTONS -->
       <div class="space-y-1.5 text-xs font-bold text-slate-800">
+        <button onclick="prepareFinalInvoice()" class="w-full py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl flex items-center justify-between gap-2.5 active:scale-[0.99] transition-all shadow-xs">
+          <span class="flex items-center gap-2.5 font-extrabold">
+            <span>🧾</span>
+            <span>Prepare Final Buying Invoice</span>
+          </span>
+          <span class="text-[10px] font-extrabold bg-emerald-900/60 text-emerald-100 px-2 py-0.5 rounded-full">Invoice</span>
+        </button>
+
         <button onclick="shareShoppingList()" class="w-full py-2.5 px-3 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 rounded-xl flex items-center justify-between gap-2.5 active:scale-[0.99] transition-all shadow-xs">
           <span class="flex items-center gap-2.5 font-bold">
             <span>📋</span>
@@ -557,6 +565,106 @@
           <span class="text-xs font-extrabold text-emerald-700 block">Tap to choose CSV file</span>
           <span class="text-[11px] text-slate-400 mt-0.5 block">or drag & drop here</span>
         </div>
+      </div>
+    </div>
+
+    <!-- FINAL BUYING INVOICE MODAL -->
+    <div id="invoiceModalBackdrop" onclick="if(event.target===this) closeInvoiceModal()" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <div id="invoiceModalCard" class="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        
+        <!-- MODAL HEADER -->
+        <div class="p-3.5 sm:p-4 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between gap-3 shrink-0">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="text-2xl shrink-0">🧾</span>
+            <div class="min-w-0">
+              <h2 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug truncate">Final Buying Invoice</h2>
+              <p class="text-[11px] font-bold text-slate-500 truncate">Grouped by size & specialty pricing</p>
+            </div>
+          </div>
+          <button onclick="closeInvoiceModal()" aria-label="Close invoice" class="w-8 h-8 rounded-full bg-white hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm border border-slate-200 shadow-xs active:scale-95 transition-all shrink-0">✕</button>
+        </div>
+
+        <!-- SOURCE FILTER PILLS -->
+        <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200/80 shrink-0">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider">Source:</span>
+            <div class="bg-slate-200/90 p-0.5 rounded-xl inline-flex gap-1 text-xs">
+              <button id="invoiceSourceCartBtn" onclick="switchInvoiceSource('cart')" class="py-1 px-3 rounded-lg text-xs font-black transition-all bg-emerald-700 text-white shadow-xs">
+                🛒 In Cart (<span id="invoiceCartCount">0</span>)
+              </button>
+              <button id="invoiceSourceNeededBtn" onclick="switchInvoiceSource('needed')" class="py-1 px-3 rounded-lg text-xs font-bold transition-all text-slate-700 hover:text-slate-900">
+                📋 All Needed (<span id="invoiceNeededCount">0</span>)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCROLLABLE INVOICE CONTENT -->
+        <div class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3" id="invoicePrintArea">
+          <!-- METADATA HEADER -->
+          <div class="flex items-center justify-between text-[11px] text-slate-500 font-semibold pb-1.5 border-b border-dashed border-slate-200">
+            <span id="invoiceDateStamp">Today</span>
+            <span id="invoiceSourceLabel" class="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">Cart Items</span>
+          </div>
+
+          <!-- EMPTY STATE (if no items) -->
+          <div id="invoiceEmptyState" class="hidden py-8 text-center">
+            <span class="text-3xl">🛒</span>
+            <p class="text-xs font-bold text-slate-700 mt-2">No items to bill in this view</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">Swipe items in Buy mode to add to Cart, or switch to All Needed.</p>
+          </div>
+
+          <!-- INVOICE TABLE -->
+          <div id="invoiceTableWrapper" class="overflow-hidden rounded-xl border border-slate-200 shadow-xs">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100/90 text-slate-700 font-extrabold border-b border-slate-200">
+                  <th class="py-2.5 px-3">Item / Size</th>
+                  <th class="py-2.5 px-2 text-center w-14">Qty</th>
+                  <th class="py-2.5 px-2 text-right w-16">Price</th>
+                  <th class="py-2.5 px-3 text-right w-20">Total</th>
+                </tr>
+              </thead>
+              <tbody id="invoiceTableBody" class="divide-y divide-slate-100 font-semibold text-slate-800">
+                <!-- Dynamically populated rows -->
+              </tbody>
+              <tfoot>
+                <tr class="bg-emerald-50/70 font-black text-slate-900 border-t-2 border-emerald-600/30">
+                  <td class="py-3 px-3 text-xs sm:text-sm font-black text-slate-900">GRAND TOTAL</td>
+                  <td id="invoiceTotalPots" class="py-3 px-2 text-center text-sm font-black text-emerald-900">0</td>
+                  <td class="py-3 px-2 text-right text-slate-400">—</td>
+                  <td id="invoiceGrandTotalCost" class="py-3 px-3 text-right text-sm font-black text-emerald-900">$0.00</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- NOTES / SET CONVERSIONS -->
+          <div id="invoiceNotesContainer" class="hidden text-[11px] text-slate-600 bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 space-y-1">
+            <!-- Dynamic notes -->
+          </div>
+        </div>
+
+        <!-- MODAL FOOTER ACTIONS -->
+        <div class="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 shrink-0">
+          <div class="text-[11px] text-slate-500 font-bold">
+            <span id="invoiceSummaryFooter">0 pots total</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="shareInvoiceText()" class="py-2 px-3 bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-xs" title="Share invoice text">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+              <span>Share</span>
+            </button>
+            <button onclick="copyInvoiceText()" class="py-2 px-3 bg-white hover:bg-slate-100 active:scale-95 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs" title="Copy formatted text to clipboard">
+              <span>📋</span>
+              <span>Copy</span>
+            </button>
+            <button onclick="closeInvoiceModal()" class="py-2 px-3.5 bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-800 rounded-xl text-xs font-bold transition-all">
+              Done
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1076,15 +1184,16 @@
         const v = (varName || "").toLowerCase();
         const s = (size || "").toLowerCase();
         if (p.includes("scilla") || p.includes("socialis") || p.includes("socialist") || p.includes("ledebouria")) return 8.00;
-        if ((p.includes("milii") || p.includes("milli")) && (p.includes("variegat") || p.includes("eurphobia") || !p.includes("set"))) return 5.00;
-        if (p.includes("euphorbia") || p.includes("euphoria") || p.includes("eurphobia") || p.includes("crown of thorns")) return 18.00;
+        if ((p.includes("milii") || p.includes("milli")) && (p.includes("variegat") || v.includes("variegat") || p.includes("eurphobia"))) return 5.00;
+        if ((p.includes("milii") || p.includes("milli") || p.includes("crown of thorns")) && (p.includes("set") || v.includes("set") || s.includes("set"))) return 3.00;
         if (p.includes("string of hearts") || p.includes("vsoh")) {
           return (s.includes("2") || v.includes("2")) ? 1.50 : 3.50;
         }
-        if (s.includes("gallon") || v.includes("gallon") || s.includes("2g") || v.includes("2g")) return 20.00;
+        if (s.includes("gallon") || v.includes("gallon") || s.includes("2g") || v.includes("2g") || s.includes("2 gal") || s.includes("2-gal")) return 20.00;
         if (s.includes("6") || v.includes("6")) return 6.00;
         if (s.includes("4") || v.includes("4")) return 2.50;
         if (s.includes("2") || v.includes("2")) return 1.00;
+        if (p.includes("euphorbia") || p.includes("euphoria") || p.includes("eurphobia") || p.includes("crown of thorns")) return 18.00;
         return 5.00;
       }
 
@@ -3848,6 +3957,427 @@
           "'": '&#39;'
         }[char]));
       }
+
+      // =======================================================================
+      // FINAL BUYING INVOICE LOGIC & DISPLAY
+      // =======================================================================
+      let currentInvoiceSource = 'cart';
+      let lastGeneratedInvoiceText = '';
+
+      window.classifyInvoiceItem = function(plantName, varName, size, qty) {
+        const p = (plantName || '').toLowerCase();
+        const v = (varName || '').toLowerCase();
+        const s = (size || '').toLowerCase();
+
+        // 1. Set of 3 Euphorbia Milli -> count as 3 separated 2" pot
+        if ((p.includes('milii') || p.includes('milli') || p.includes('crown of thorns')) &&
+            (p.includes('set') || v.includes('set') || s.includes('set'))) {
+          return {
+            key: 'pot_2',
+            label: '2" Pot',
+            unitPrice: 1.00,
+            potQty: qty * 3,
+            sortOrder: 1,
+            note: `${qty}× Set of 3 Euphorbia Milli counted as ${qty * 3}× 2" pots`
+          };
+        }
+
+        // 2. Variegated Scilla Socialis
+        if (p.includes('scilla') || p.includes('socialis') || p.includes('socialist') || p.includes('ledebouria')) {
+          return {
+            key: 'v_scilla',
+            label: 'Variegated Scilla Socialis',
+            unitPrice: 8.00,
+            potQty: qty,
+            sortOrder: 8,
+            note: null
+          };
+        }
+
+        // 3. Variegated Euphorbia Milii
+        if ((p.includes('milii') || p.includes('milli')) && (p.includes('variegat') || v.includes('variegat') || p.includes('eurphobia'))) {
+          return {
+            key: 'v_milii',
+            label: 'Variegated Euphorbia Milii',
+            unitPrice: 5.00,
+            potQty: qty,
+            sortOrder: 7,
+            note: null
+          };
+        }
+
+        // 4. Variegated String of Hearts in 2" and 4"
+        if (p.includes('string of hearts') || p.includes('vsoh')) {
+          if (s.includes('2') || v.includes('2')) {
+            return {
+              key: 'vsoh_2',
+              label: 'Variegated String of Hearts 2"',
+              unitPrice: 1.50,
+              potQty: qty,
+              sortOrder: 5,
+              note: null
+            };
+          } else {
+            return {
+              key: 'vsoh_4',
+              label: 'Variegated String of Hearts 4"',
+              unitPrice: 3.50,
+              potQty: qty,
+              sortOrder: 6,
+              note: null
+            };
+          }
+        }
+
+        // 5. Standard pot sizes (check 2-Gallon first to avoid "2" false positive)
+        if (s.includes('gallon') || v.includes('gallon') || s.includes('2g') || v.includes('2g') || s.includes('2 gal') || s.includes('2-gal') || v.includes('2 gal') || v.includes('2-gal')) {
+          return {
+            key: 'pot_2g',
+            label: '2G Pot (2-Gallon)',
+            unitPrice: 20.00,
+            potQty: qty,
+            sortOrder: 4,
+            note: null
+          };
+        }
+
+        if (s.includes('6') || v.includes('6')) {
+          return {
+            key: 'pot_6',
+            label: '6" Pot',
+            unitPrice: 6.00,
+            potQty: qty,
+            sortOrder: 3,
+            note: null
+          };
+        }
+
+        if (s.includes('4') || v.includes('4')) {
+          return {
+            key: 'pot_4',
+            label: '4" Pot',
+            unitPrice: 2.50,
+            potQty: qty,
+            sortOrder: 2,
+            note: null
+          };
+        }
+
+        if (s.includes('2') || v.includes('2')) {
+          return {
+            key: 'pot_2',
+            label: '2" Pot',
+            unitPrice: 1.00,
+            potQty: qty,
+            sortOrder: 1,
+            note: null
+          };
+        }
+
+        // Other / unclassified fallback
+        const unitPrice = getUnitPrice(plantName, varName, size);
+        return {
+          key: 'other_' + (size || 'special').toLowerCase().replace(/\s+/g, '_'),
+          label: `${plantName || 'Plant'} (${size || 'Special'})`,
+          unitPrice: unitPrice,
+          potQty: qty,
+          sortOrder: 9,
+          note: null
+        };
+      };
+
+      window.prepareFinalInvoice = function() {
+        toggleMenuDrawer(false);
+        const cartUnits = Object.keys(purchasedState).filter(k => !!purchasedState[k]).length +
+          manualExportItems.filter(i => !!i.purchased).length;
+        
+        currentInvoiceSource = cartUnits > 0 ? 'cart' : 'needed';
+        renderInvoiceModal(currentInvoiceSource);
+        
+        const backdrop = document.getElementById('invoiceModalBackdrop');
+        if (backdrop) {
+          backdrop.classList.remove('hidden');
+          document.body.classList.add('overflow-hidden');
+        }
+      };
+
+      window.closeInvoiceModal = function() {
+        const backdrop = document.getElementById('invoiceModalBackdrop');
+        if (backdrop) {
+          backdrop.classList.add('hidden');
+          document.body.classList.remove('overflow-hidden');
+        }
+      };
+
+      window.switchInvoiceSource = function(source) {
+        currentInvoiceSource = source;
+        renderInvoiceModal(source);
+      };
+
+      window.renderInvoiceModal = function(source = 'cart') {
+        const cartBtn = document.getElementById('invoiceSourceCartBtn');
+        const neededBtn = document.getElementById('invoiceSourceNeededBtn');
+        const sourceLabel = document.getElementById('invoiceSourceLabel');
+        const dateStamp = document.getElementById('invoiceDateStamp');
+
+        // Update counts on filter pills
+        let cartItemCount = 0;
+        let neededItemCount = 0;
+
+        catalog.forEach(item => {
+          item.variations.forEach(v => {
+            const stock = stockState[v.id] || 0;
+            const buyQty = getEffectiveBuyQty(v.id, v.sold, stock);
+            if (buyQty > 0) {
+              if (purchasedState[v.id]) cartItemCount++;
+              else neededItemCount++;
+            }
+          });
+        });
+        manualExportItems.forEach(item => {
+          const buyQty = getManualEffectiveBuyQty(item);
+          if (buyQty > 0) {
+            if (item.purchased) cartItemCount++;
+            else neededItemCount++;
+          }
+        });
+
+        const cEl = document.getElementById('invoiceCartCount');
+        const nEl = document.getElementById('invoiceNeededCount');
+        if (cEl) cEl.textContent = cartItemCount;
+        if (nEl) nEl.textContent = neededItemCount;
+
+        if (cartBtn && neededBtn) {
+          if (source === 'cart') {
+            cartBtn.className = "py-1 px-3 rounded-lg text-xs font-black transition-all bg-emerald-700 text-white shadow-xs";
+            neededBtn.className = "py-1 px-3 rounded-lg text-xs font-bold transition-all text-slate-700 hover:text-slate-900";
+            if (sourceLabel) sourceLabel.textContent = "Cart Items (Purchased)";
+          } else {
+            cartBtn.className = "py-1 px-3 rounded-lg text-xs font-bold transition-all text-slate-700 hover:text-slate-900";
+            neededBtn.className = "py-1 px-3 rounded-lg text-xs font-black transition-all bg-emerald-700 text-white shadow-xs";
+            if (sourceLabel) sourceLabel.textContent = "All Needed Items (Buy List)";
+          }
+        }
+
+        if (dateStamp) {
+          const now = new Date();
+          dateStamp.textContent = now.toLocaleDateString(undefined, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          }) + ' • ' + now.toLocaleTimeString(undefined, {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        }
+
+        // Aggregate line items
+        const lineGroups = {};
+
+        const processItem = (name, varName, size, qty) => {
+          if (!qty || qty <= 0) return;
+          const res = classifyInvoiceItem(name, varName, size, qty);
+          if (!lineGroups[res.key]) {
+            lineGroups[res.key] = {
+              key: res.key,
+              label: res.label,
+              unitPrice: res.unitPrice,
+              potQty: 0,
+              sortOrder: res.sortOrder,
+              notes: []
+            };
+          }
+          lineGroups[res.key].potQty += res.potQty;
+          if (res.note && !lineGroups[res.key].notes.includes(res.note)) {
+            lineGroups[res.key].notes.push(res.note);
+          }
+        };
+
+        catalog.forEach(item => {
+          item.variations.forEach(v => {
+            const stock = stockState[v.id] || 0;
+            const buyQty = getEffectiveBuyQty(v.id, v.sold, stock);
+            if (buyQty <= 0) return;
+
+            const isCart = !!purchasedState[v.id];
+            if (source === 'cart' && isCart) {
+              processItem(item.name, v.name, v.size, buyQty);
+            } else if (source === 'needed' && !isCart) {
+              processItem(item.name, v.name, v.size, buyQty);
+            }
+          });
+        });
+
+        manualExportItems.forEach(item => {
+          const buyQty = getManualEffectiveBuyQty(item);
+          if (buyQty <= 0) return;
+
+          const isCart = !!item.purchased;
+          if (source === 'cart' && isCart) {
+            processItem(item.name, item.size, item.size, buyQty);
+          } else if (source === 'needed' && !isCart) {
+            processItem(item.name, item.size, item.size, buyQty);
+          }
+        });
+
+        const sortedLines = Object.values(lineGroups).sort((a, b) => a.sortOrder - b.sortOrder);
+        const tbody = document.getElementById('invoiceTableBody');
+        const emptyState = document.getElementById('invoiceEmptyState');
+        const tableWrapper = document.getElementById('invoiceTableWrapper');
+        const totalPotsEl = document.getElementById('invoiceTotalPots');
+        const grandTotalEl = document.getElementById('invoiceGrandTotalCost');
+        const footerSummary = document.getElementById('invoiceSummaryFooter');
+        const notesContainer = document.getElementById('invoiceNotesContainer');
+
+        if (sortedLines.length === 0) {
+          if (tbody) tbody.innerHTML = '';
+          if (emptyState) emptyState.classList.remove('hidden');
+          if (tableWrapper) tableWrapper.classList.add('hidden');
+          if (totalPotsEl) totalPotsEl.textContent = '0';
+          if (grandTotalEl) grandTotalEl.textContent = '$0.00';
+          if (footerSummary) footerSummary.textContent = '0 pots total';
+          if (notesContainer) {
+            notesContainer.innerHTML = '';
+            notesContainer.classList.add('hidden');
+          }
+          lastGeneratedInvoiceText = `🧾 FINAL BUYING INVOICE\nSource: ${source === 'cart' ? 'Cart Items' : 'All Needed'}\n(Empty - No items)\n`;
+          return;
+        }
+
+        if (emptyState) emptyState.classList.add('hidden');
+        if (tableWrapper) tableWrapper.classList.remove('hidden');
+
+        let grandTotal = 0;
+        let totalPots = 0;
+        let textLines = [];
+        let rowsHtml = '';
+
+        textLines.push("🧾 FINAL BUYING INVOICE");
+        textLines.push(`My Succulent Corner • ${dateStamp ? dateStamp.textContent : ''}`);
+        textLines.push(`Source: ${source === 'cart' ? 'In Cart (Purchased)' : 'All Needed (Buy List)'}`);
+        textLines.push("----------------------------------------------");
+        textLines.push(
+          "ITEM / SIZE".padEnd(28) +
+          "QTY".padStart(5) +
+          "PRICE".padStart(8) +
+          "TOTAL".padStart(10)
+        );
+        textLines.push("----------------------------------------------");
+
+        sortedLines.forEach((line, idx) => {
+          const subtotal = line.potQty * line.unitPrice;
+          grandTotal += subtotal;
+          totalPots += line.potQty;
+
+          const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60';
+          rowsHtml += `
+            <tr class="${rowBg} hover:bg-emerald-50/40 transition-colors">
+              <td class="py-2.5 px-3">
+                <div class="font-extrabold text-slate-900">${line.label}</div>
+                ${line.notes.length ? `<div class="text-[10px] text-emerald-800 font-bold mt-0.5">↳ ${line.notes.join('; ')}</div>` : ''}
+              </td>
+              <td class="py-2.5 px-2 text-center font-extrabold text-slate-800">${line.potQty}</td>
+              <td class="py-2.5 px-2 text-right text-slate-600 font-semibold">$${line.unitPrice.toFixed(2)}</td>
+              <td class="py-2.5 px-3 text-right font-black text-slate-900">$${subtotal.toFixed(2)}</td>
+            </tr>
+          `;
+
+          textLines.push(
+            line.label.padEnd(28) +
+            String(line.potQty).padStart(5) +
+            (`$${line.unitPrice.toFixed(2)}`).padStart(8) +
+            (`$${subtotal.toFixed(2)}`).padStart(10)
+          );
+          if (line.notes.length) {
+            line.notes.forEach(n => {
+              textLines.push(`   ↳ ${n}`);
+            });
+          }
+        });
+
+        textLines.push("----------------------------------------------");
+        textLines.push(
+          "GRAND TOTAL".padEnd(28) +
+          String(totalPots).padStart(5) +
+          " ".padStart(8) +
+          (`$${grandTotal.toFixed(2)}`).padStart(10)
+        );
+        textLines.push("----------------------------------------------");
+
+        lastGeneratedInvoiceText = textLines.join('\n');
+
+        if (tbody) tbody.innerHTML = rowsHtml;
+        if (totalPotsEl) totalPotsEl.textContent = totalPots;
+        if (grandTotalEl) grandTotalEl.textContent = `$${grandTotal.toFixed(2)}`;
+        if (footerSummary) footerSummary.textContent = `${totalPots} pots • $${grandTotal.toFixed(2)} total`;
+
+        // Render notes legend if any
+        const allNotes = sortedLines.flatMap(l => l.notes);
+        if (notesContainer) {
+          if (allNotes.length > 0) {
+            notesContainer.innerHTML = `
+              <div class="font-extrabold text-slate-700 flex items-center gap-1">
+                <span>ℹ️</span>
+                <span>Special Item Conversions:</span>
+              </div>
+              <ul class="list-disc list-inside space-y-0.5 text-slate-600 font-medium pl-1">
+                ${allNotes.map(n => `<li>${n}</li>`).join('')}
+              </ul>
+            `;
+            notesContainer.classList.remove('hidden');
+          } else {
+            notesContainer.innerHTML = '';
+            notesContainer.classList.add('hidden');
+          }
+        }
+      };
+
+      window.copyInvoiceText = function() {
+        if (!lastGeneratedInvoiceText) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(lastGeneratedInvoiceText).then(() => {
+            showDialog({
+              icon: '📋',
+              title: 'Invoice Copied!',
+              message: 'Buying invoice text copied to clipboard. Ready to paste into Messages, WhatsApp, or Notes.',
+              confirmText: 'Done',
+              showCancel: false
+            });
+          }).catch(() => {
+            fallbackCopyInvoice(lastGeneratedInvoiceText);
+          });
+        } else {
+          fallbackCopyInvoice(lastGeneratedInvoiceText);
+        }
+      };
+
+      function fallbackCopyInvoice(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showDialog({
+          icon: '📋',
+          title: 'Invoice Copied!',
+          message: 'Buying invoice text copied to clipboard.',
+          confirmText: 'Done',
+          showCancel: false
+        });
+      }
+
+      window.shareInvoiceText = function() {
+        if (!lastGeneratedInvoiceText) return;
+        if (navigator.share) {
+          navigator.share({
+            title: 'Plant Buying Invoice - My Succulent Corner',
+            text: lastGeneratedInvoiceText
+          }).catch(() => {});
+        } else {
+          copyInvoiceText();
+        }
+      };
 
       window.shareShoppingList = function() {
         let text = "🪴 PLANT SHOPPING LIST\n\n";
