@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1658"></script>
+    <script src="plant_config.js?v=20261030_1702"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -248,23 +248,23 @@
               </button>
             </div>
 
-            <!-- FILTER BY POT SIZE: ALL, 2", 4", 6"/2G, SPEC -->
+            <!-- FILTER BY POT SIZE: ALL, 2", 4", 6"/2G, SPEC (VARIATION SIZE ONLY) -->
             <div class="flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
               <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Size:</span>
-              <button onclick="setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
-                All <span id="chipCountAll" class="opacity-80 font-normal ml-0.5">0</span>
+              <button onclick="setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-3 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+                All
               </button>
-              <button onclick="setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
-                2" <span id="chipCount2" class="opacity-75 font-normal ml-0.5">0</span>
+              <button onclick="setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+                2"
               </button>
-              <button onclick="setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
-                4" <span id="chipCount4" class="opacity-75 font-normal ml-0.5">0</span>
+              <button onclick="setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+                4"
               </button>
-              <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
-                6"/2G <span id="chipCount6" class="opacity-75 font-normal ml-0.5">0</span>
+              <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+                6"/2G
               </button>
-              <button onclick="setPotFilter('special')" data-size-filter="special" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
-                Spec <span id="chipCountSpecial" class="opacity-75 font-normal ml-0.5">0</span>
+              <button onclick="setPotFilter('special')" data-size-filter="special" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+                Spec
               </button>
             </div>
 
@@ -2532,13 +2532,16 @@
         document.getElementById('badgeCartCount').textContent = totalCartUnits;
 
         const totalPlants = catalog.length + manualExportItems.length;
-        document.getElementById('chipCountAll').textContent = totalPlants;
-        const subCountEl = document.getElementById('chipCountAllSub');
-        if (subCountEl) subCountEl.textContent = totalPlants;
-        document.getElementById('chipCount2').textContent = count2;
-        document.getElementById('chipCount4').textContent = count4;
-        document.getElementById('chipCount6').textContent = count6;
-        document.getElementById('chipCountSpecial').textContent = countSpecial;
+        const countAllEl = document.getElementById('chipCountAll');
+        if (countAllEl) countAllEl.textContent = totalPlants;
+        const count2El = document.getElementById('chipCount2');
+        if (count2El) count2El.textContent = count2;
+        const count4El = document.getElementById('chipCount4');
+        if (count4El) count4El.textContent = count4;
+        const count6El = document.getElementById('chipCount6');
+        if (count6El) count6El.textContent = count6;
+        const countSpecEl = document.getElementById('chipCountSpecial');
+        if (countSpecEl) countSpecEl.textContent = countSpecial;
 
         const floatShortfallEl = document.getElementById('floatShortfall'); if (floatShortfallEl) floatShortfallEl.textContent = `🛒 ${totalShortfall} need`;
         document.getElementById('floatCartTotal').textContent = `$${totalCartCost.toFixed(2)}`;
