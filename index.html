@@ -75,6 +75,10 @@
         transition: all 700ms cubic-bezier(0.25, 1, 0.5, 1);
       }
 
+      html, body {
+        overscroll-behavior-y: contain;
+      }
+
       /* Remove spinner arrows from number inputs */
       input[type="number"]::-webkit-inner-spin-button,
       input[type="number"]::-webkit-outer-spin-button {
@@ -1247,7 +1251,7 @@
               localStorage.setItem('plant_sync_meta_v1', JSON.stringify(syncMeta));
             } catch (e) {}
 
-            const importStats = processCsvRows(rows, { preserveState: false, silent: true });
+            const importStats = processCsvRows(rows, { preserveState: true, silent: !manual });
             updateSyncStatusUI(false);
 
             if (manual) {
@@ -3187,7 +3191,7 @@
             try {
               localStorage.setItem('plant_sync_meta_v1', JSON.stringify(syncMeta));
             } catch (e) {}
-            processCsvRows(results.data);
+            processCsvRows(results.data, { preserveState: true });
             updateSyncStatusUI(false);
             closeCsvModal();
           },
@@ -3467,7 +3471,7 @@
         if (newCatalog.length > 0) {
           saveImportSnapshot(newSnapshot);
           catalog = newCatalog;
-          if (!options.preserveState) {
+          if (options.preserveState === false) {
             stockState = {};
             countedState = {};
             buyState = {};
