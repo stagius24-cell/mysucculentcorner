@@ -143,6 +143,8 @@
         position: relative;
         overflow: hidden;
         touch-action: pan-y;
+        user-select: none;
+        -webkit-user-select: none;
       }
       .swipe-card-wrapper {
         border-radius: 0.75rem;
@@ -150,23 +152,23 @@
       .swipe-layer-left, .swipe-layer-right {
         position: absolute;
         inset: 0;
-        background-color: #16a34a; /* Sage/emerald green */
+        background-color: #10b981; /* Fresh emerald green */
         display: flex;
         align-items: center;
         color: #ffffff;
         font-weight: 800;
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         z-index: 0;
         opacity: 0;
         pointer-events: none;
       }
       .swipe-layer-left {
         justify-content: flex-start;
-        padding-left: 1.25rem;
+        padding-left: 1.125rem;
       }
       .swipe-layer-right {
         justify-content: flex-end;
-        padding-right: 1.25rem;
+        padding-right: 1.125rem;
       }
       .swipe-card-wrapper .swipe-layer-left,
       .swipe-card-wrapper .swipe-layer-right {
@@ -179,8 +181,7 @@
         will-change: transform;
         -webkit-backface-visibility: hidden;
         backface-visibility: hidden;
-        -webkit-perspective: 1000;
-        perspective: 1000;
+        transform: translate3d(0, 0, 0);
       }
       .swipe-card-content {
         background: #ffffff;
@@ -1602,8 +1603,36 @@
       };
 
       // ==========================================
-      // VARIATION ROW HORIZONTAL SWIPE GESTURE ENGINE (GPU 60/120FPS SMOOTH)
+      // VARIATION ROW HORIZONTAL SWIPE GESTURE ENGINE (120FPS SILKY SMOOTH)
       // ==========================================
+      function applyInstantRowVisual(rowContent, varId, isManual, isCheck) {
+        if (!rowContent) return;
+        const checkBtn = rowContent.querySelector('button[aria-label*="cart"], button[aria-label*="counted"], button[title*="cart"], button[title*="count"], button:first-child');
+        if (isCheck) {
+          rowContent.classList.remove('bg-white');
+          rowContent.classList.add('bg-emerald-50/80');
+          if (checkBtn) {
+            checkBtn.classList.remove('bg-white', 'text-slate-300', 'border-slate-300', 'text-transparent');
+            checkBtn.classList.add('bg-emerald-700', 'border-emerald-700', 'text-white', 'shadow-xs');
+            checkBtn.textContent = '✓';
+          }
+        } else {
+          rowContent.classList.remove('bg-emerald-50/80');
+          rowContent.classList.add('bg-white');
+          if (checkBtn) {
+            checkBtn.classList.remove('bg-emerald-700', 'border-emerald-700', 'text-white', 'shadow-xs');
+            checkBtn.classList.add('bg-white', 'border-slate-300');
+            if (currentMode === 'buy') {
+              checkBtn.classList.add('text-transparent');
+              checkBtn.textContent = '';
+            } else {
+              checkBtn.classList.add('text-slate-300');
+              checkBtn.textContent = '✓';
+            }
+          }
+        }
+      }
+
       function initRowSwipeGestures(rowWrapper) {
         const rowContent = rowWrapper.querySelector('.swipe-row-content') || rowWrapper.querySelector('.swipe-card-content');
         const leftLayer = rowWrapper.querySelector('.swipe-layer-left');
@@ -1612,44 +1641,22 @@
 
         let startX = 0;
         let startY = 0;
-        let pendingX = 0;
+        let currentDeltaX = 0;
         let isSwiping = false;
         let isVerticalScroll = false;
         let hasHapticTriggeredAtThreshold = false;
-        let rafId = null;
-        const SWIPE_THRESHOLD = 70;
-
-        function updateSwipeTransform() {
-          rafId = null;
-          if (!isSwiping) return;
-          rowContent.style.transform = `translate3d(${pendingX}px, 0, 0)`;
-
-          if (pendingX > 0) {
-            if (leftLayer) leftLayer.style.opacity = Math.min(1, Math.abs(pendingX) / 45);
-            if (rightLayer) rightLayer.style.opacity = '0';
-          } else {
-            if (rightLayer) rightLayer.style.opacity = Math.min(1, Math.abs(pendingX) / 45);
-            if (leftLayer) leftLayer.style.opacity = '0';
-          }
-
-          const absX = Math.abs(pendingX);
-          if (absX >= SWIPE_THRESHOLD && !hasHapticTriggeredAtThreshold) {
-            triggerHaptic('light');
-            hasHapticTriggeredAtThreshold = true;
-          } else if (absX < SWIPE_THRESHOLD && hasHapticTriggeredAtThreshold) {
-            hasHapticTriggeredAtThreshold = false;
-          }
-        }
+        const SWIPE_THRESHOLD = 60;
 
         rowContent.addEventListener('touchstart', (e) => {
           if (e.touches.length !== 1) return;
           const touch = e.touches[0];
           startX = touch.clientX;
           startY = touch.clientY;
-          pendingX = 0;
+          currentDeltaX = 0;
           isSwiping = false;
           isVerticalScroll = false;
           hasHapticTriggeredAtThreshold = false;
+
           rowContent.style.transition = 'none';
           if (leftLayer) leftLayer.style.transition = 'none';
           if (rightLayer) rightLayer.style.transition = 'none';
@@ -1661,13 +1668,14 @@
           const deltaX = touch.clientX - startX;
           const deltaY = touch.clientY - startY;
 
-          // Scroll Lock Guard: Lock into horizontal swipe early
           if (!isSwiping) {
-            if (Math.abs(deltaY) > Math.abs(deltaX)) {
+            const absX = Math.abs(deltaX);
+            const absY = Math.abs(deltaY);
+            if (absX < 6 && absY < 6) return;
+            if (absY > absX) {
               isVerticalScroll = true;
               return;
-            }
-            if (Math.abs(deltaX) > 6) {
+            } else {
               isSwiping = true;
             }
           }
@@ -1676,65 +1684,99 @@
             if (e.cancelable) {
               e.preventDefault();
             }
-            pendingX = deltaX * 0.65;
-            if (!rafId) {
-              rafId = requestAnimationFrame(updateSwipeTransform);
+
+            // Direct 1:1 tracking up to threshold, gentle elastic rubber-banding beyond
+            let appliedX = deltaX;
+            const absDelta = Math.abs(deltaX);
+            if (absDelta > SWIPE_THRESHOLD) {
+              const sign = deltaX > 0 ? 1 : -1;
+              appliedX = sign * (SWIPE_THRESHOLD + (absDelta - SWIPE_THRESHOLD) * 0.38);
+            }
+            currentDeltaX = appliedX;
+
+            // Immediate 120fps direct hardware transform
+            rowContent.style.transform = `translate3d(${appliedX}px, 0, 0)`;
+
+            // Smooth reveal of action background layers
+            if (appliedX > 0) {
+              if (leftLayer) leftLayer.style.opacity = Math.min(1, appliedX / 42);
+              if (rightLayer) rightLayer.style.opacity = '0';
+            } else {
+              if (rightLayer) rightLayer.style.opacity = Math.min(1, (-appliedX) / 42);
+              if (leftLayer) leftLayer.style.opacity = '0';
+            }
+
+            // Tactile feedback pulse at threshold
+            if (absDelta >= SWIPE_THRESHOLD && !hasHapticTriggeredAtThreshold) {
+              triggerHaptic('light');
+              hasHapticTriggeredAtThreshold = true;
+            } else if (absDelta < SWIPE_THRESHOLD && hasHapticTriggeredAtThreshold) {
+              hasHapticTriggeredAtThreshold = false;
             }
           }
         }, { passive: false });
 
-        rowContent.addEventListener('touchend', () => {
-          if (rafId) {
-            cancelAnimationFrame(rafId);
-            rafId = null;
+        const handleTouchEnd = () => {
+          if (!isSwiping) {
+            rowContent.style.transition = 'transform 240ms cubic-bezier(0.2, 0.9, 0.3, 1)';
+            rowContent.style.transform = 'translate3d(0px, 0, 0)';
+            return;
           }
-          if (!isSwiping) return;
           isSwiping = false;
 
-          const finalX = pendingX;
+          const finalX = currentDeltaX;
           const varId = rowWrapper.getAttribute('data-var-id');
           const isManual = rowWrapper.getAttribute('data-is-manual') === 'true';
 
-          // Snap back smoothly using luxurious easing
-          rowContent.style.transition = 'transform 260ms cubic-bezier(0.25, 1, 0.5, 1)';
+          // Snap back smoothly with snappy spring easing
+          rowContent.style.transition = 'transform 240ms cubic-bezier(0.2, 0.9, 0.3, 1)';
           rowContent.style.transform = 'translate3d(0px, 0, 0)';
 
           if (leftLayer) {
-            leftLayer.style.transition = 'opacity 260ms ease-out';
+            leftLayer.style.transition = 'opacity 200ms ease-out';
             leftLayer.style.opacity = '0';
           }
           if (rightLayer) {
-            rightLayer.style.transition = 'opacity 260ms ease-out';
+            rightLayer.style.transition = 'opacity 200ms ease-out';
             rightLayer.style.opacity = '0';
           }
 
           if (Math.abs(finalX) >= SWIPE_THRESHOLD) {
+            // Determine target checked state
+            let willBeChecked = true;
             if (currentMode === 'cart') {
-              triggerHaptic('uncheck', rowContent);
+              willBeChecked = false;
+            } else if (isManual) {
+              const item = manualExportItems.find(x => x.id === varId);
+              const cur = currentMode === 'count' ? !!(item && item.countConfirmed) : !!(item && item.purchased);
+              willBeChecked = !cur;
             } else {
-              triggerHaptic('check', rowContent);
+              const cur = currentMode === 'count' ? !!countedState[varId] : !!purchasedState[varId];
+              willBeChecked = !cur;
             }
-            // Wait for snapback to finish so DOM replacement does not flicker mid-animation
+
+            // Apply instant visual feedback to eliminate re-render flicker
+            applyInstantRowVisual(rowContent, varId, isManual, willBeChecked);
+            triggerHaptic(willBeChecked ? 'check' : 'uncheck');
+
+            // Wait for snapback to settle smoothly before updating underlying data state
             setTimeout(() => {
               executeSwipeCheck(varId, isManual);
-            }, 260);
+            }, 240);
           }
-        }, { passive: true });
+        };
 
+        rowContent.addEventListener('touchend', handleTouchEnd, { passive: true });
         rowContent.addEventListener('touchcancel', () => {
-          if (rafId) {
-            cancelAnimationFrame(rafId);
-            rafId = null;
-          }
           isSwiping = false;
-          rowContent.style.transition = 'transform 260ms cubic-bezier(0.25, 1, 0.5, 1)';
+          rowContent.style.transition = 'transform 240ms cubic-bezier(0.2, 0.9, 0.3, 1)';
           rowContent.style.transform = 'translate3d(0px, 0, 0)';
           if (leftLayer) {
-            leftLayer.style.transition = 'opacity 260ms ease-out';
+            leftLayer.style.transition = 'opacity 200ms ease-out';
             leftLayer.style.opacity = '0';
           }
           if (rightLayer) {
-            rightLayer.style.transition = 'opacity 260ms ease-out';
+            rightLayer.style.transition = 'opacity 200ms ease-out';
             rightLayer.style.opacity = '0';
           }
         }, { passive: true });
