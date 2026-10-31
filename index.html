@@ -419,7 +419,7 @@
           <div class="min-w-0 flex-1">
             <span id="qtyModalModeLabel" class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full inline-block mb-1">Stock Quantity</span>
             <h3 id="qtyModalPlantName" class="text-base font-extrabold text-slate-900 truncate">Plant Name</h3>
-            <p id="qtyModalVariationName" class="text-xs text-slate-500 font-semibold truncate">4" Pot • Target: 10</p>
+            <p id="qtyModalVariationName" class="text-xs text-slate-500 font-semibold truncate">4" Pot</p>
           </div>
           <button onclick="closeQtyModal()" aria-label="Close" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold text-sm shrink-0 active:scale-90 transition-all cursor-pointer">✕</button>
         </div>
@@ -2922,7 +2922,8 @@
           const item = manualExportItems.find(x => x.id === id);
           if (!item) return;
           plantName = item.name || 'Manual Plant';
-          variationDetails = item.size || '4" Pot';
+          const { badgeText, detailText } = getCleanVariationParts({ name: item.size || '4" Pot', size: item.size || '4"' });
+          variationDetails = [badgeText, detailText].filter(Boolean).join(' • ') || (item.size || '4"');
           targetQty = Math.max(1, Number(item.qty || 1));
           const stock = Math.max(0, Number(item.stock || 0));
           shortfall = Math.max(0, targetQty - stock);
@@ -2932,7 +2933,8 @@
             const v = item.variations.find(x => x.id === id);
             if (v) {
               plantName = item.name;
-              variationDetails = `${v.name ? v.name + ' • ' : ''}${v.size || '4"'}`;
+              const { badgeText, detailText } = getCleanVariationParts(v);
+              variationDetails = [badgeText, detailText].filter(Boolean).join(' • ') || (v.size || '4"');
               targetQty = v.sold || 0;
               const stock = stockState[v.id] || 0;
               shortfall = Math.max(0, targetQty - stock);
@@ -2966,7 +2968,7 @@
         }
 
         if (nameEl) nameEl.textContent = plantName;
-        if (descEl) descEl.textContent = `${variationDetails} • Target: ${targetQty}${currentMode !== 'count' ? ` • Needed: ${shortfall}` : ''}`;
+        if (descEl) descEl.textContent = variationDetails;
         if (inputEl) inputEl.value = currentVal;
         if (targetBtn) targetBtn.textContent = `Target (🎯 ${targetQty})`;
 
