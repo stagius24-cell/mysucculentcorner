@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_swipe_haptics_v1"></script>
+    <script src="plant_config.js?v=20261030_1820"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -39,61 +39,6 @@
       }
       #searchInput, #sortSelect {
         font-size: 14px !important;
-      }
-
-      
-      /* Tactile micro-bounce for iOS / tactile feedback */
-      .haptic-tap {
-        animation: hapticMicroBounce 90ms ease-out forwards;
-      }
-      @keyframes hapticMicroBounce {
-        0% { transform: scale(1); }
-        50% { transform: scale(0.97); }
-        100% { transform: scale(1); }
-      }
-
-      /* Swipe action layers & smooth pan physics */
-      .swipe-card-wrapper {
-        position: relative;
-        overflow: hidden;
-        border-radius: 0.75rem;
-        touch-action: pan-y;
-      }
-      .swipe-layer-left {
-        position: absolute;
-        inset: 0;
-        background-color: #16a34a; /* Sage/emerald green */
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        padding-left: 1.25rem;
-        color: #ffffff;
-        font-weight: 800;
-        font-size: 0.875rem;
-        border-radius: 0.75rem;
-        z-index: 0;
-      }
-      .swipe-layer-right {
-        position: absolute;
-        inset: 0;
-        background-color: #d97706; /* Warm amber / terracotta */
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding-right: 1.25rem;
-        color: #ffffff;
-        font-weight: 800;
-        font-size: 0.875rem;
-        border-radius: 0.75rem;
-        z-index: 0;
-      }
-      .swipe-card-content {
-        position: relative;
-        background: #ffffff;
-        border-radius: 0.75rem;
-        z-index: 1;
-        touch-action: pan-y;
-        will-change: transform;
       }
 
       /* Slower smooth search expansion animation (700ms) */
@@ -197,9 +142,9 @@
   </head>
   <body class="bg-slate-100 text-slate-900 antialiased min-h-screen pb-28 select-none">
     <!-- ULTRA-COMPACT STICKY HEADER -->
-    <header id="appStickyHeader" class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs no-print pt-[env(safe-area-inset-top,0px)]">
+    <header id="appStickyHeader" class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm no-print pt-[env(safe-area-inset-top,0px)]">
       <!-- ROW 1: BRAND + LIVE SYNC STATUS + QUICK ACTIONS (COLLAPSIBLE ON SCROLL) -->
-      <div id="headerRowBrand" class="overflow-hidden transition-all duration-300 ease-in-out max-h-16 opacity-100">
+      <div id="headerRowBrand" class="overflow-hidden transition-all duration-700 ease-in-out max-h-24 opacity-100">
         <div class="max-w-xl mx-auto px-2.5 py-1.5 flex items-center justify-between gap-2">
           <div class="flex items-center gap-2.5 min-w-0">
             <!-- MASCOT LOGO -->
@@ -216,7 +161,7 @@
           </div>
           <!-- QUICK ACTIONS -->
           <div class="flex items-center gap-1.5 shrink-0">
-            <button onclick="toggleMenuDrawer(true)" title="Utilities menu" aria-label="Utilities menu" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 flex items-center justify-center active:scale-95 transition-all cursor-pointer">
+            <button onclick="toggleMenuDrawer(true)" title="Utilities menu" aria-label="Utilities menu" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 flex items-center justify-center active:scale-95 transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M4 6h16M4 12h16M4 18h16" />
               </svg>
@@ -225,92 +170,114 @@
         </div>
       </div>
 
-      <!-- ROW 2: 3-MODE SEGMENTED TABS (ALWAYS PINNED STICKY) -->
-      <div id="headerRowTabs" class="max-w-xl mx-auto px-2.5 py-1">
+      <!-- ROW 2: 3-MODE SEGMENTED TABS (PERMANENTLY PINNED AT TOP) -->
+      <div id="headerRowTabs" class="max-w-xl mx-auto px-2.5 py-1.5">
         <div class="bg-slate-200/90 p-0.5 rounded-xl grid grid-cols-3 gap-1 text-xs font-bold">
-          <button id="tabStock" onclick="triggerHaptic('light', this); switchMode('count')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 bg-white text-slate-900 shadow-sm font-extrabold active:scale-[0.98] whitespace-nowrap cursor-pointer">
+          <button id="tabStock" onclick="switchMode('count')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 bg-white text-slate-900 shadow-sm font-extrabold active:scale-[0.98] whitespace-nowrap">
             <span>📦 Count</span>
             <span id="badgeStockCount" class="text-[10px] px-1.5 py-0.5 leading-none bg-slate-200 text-slate-800 rounded-full font-extrabold">0</span>
           </button>
-          <button id="tabBuy" onclick="triggerHaptic('light', this); switchMode('buy')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900 active:scale-[0.98] whitespace-nowrap cursor-pointer">
+          <button id="tabBuy" onclick="switchMode('buy')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900 active:scale-[0.98] whitespace-nowrap">
             <span>🛒 Buy</span>
             <span id="badgeBuyCount" class="text-[10px] px-1.5 py-0.5 leading-none bg-amber-300 text-amber-950 rounded-full font-extrabold">0</span>
           </button>
-          <button id="tabCart" onclick="triggerHaptic('light', this); switchMode('cart')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900 active:scale-[0.98] whitespace-nowrap cursor-pointer">
+          <button id="tabCart" onclick="switchMode('cart')" class="py-1.5 px-1 rounded-lg text-center transition-all flex items-center justify-center gap-1 text-slate-600 hover:text-slate-900 active:scale-[0.98] whitespace-nowrap">
             <span>✅ Cart</span>
             <span id="badgeCartCount" class="text-[10px] px-1.5 py-0.5 leading-none bg-emerald-700 text-white rounded-full font-extrabold">0</span>
           </button>
         </div>
       </div>
 
-      <!-- ROW 3: PINNED SEARCH BAR & EYE BUTTON (ALWAYS PINNED STICKY) -->
-      <div id="headerRowSearch" class="max-w-xl mx-auto px-2.5 py-1">
-        <div class="relative flex items-center gap-1.5">
-          <div class="relative flex-1 flex items-center h-10">
-            <span class="absolute left-3 text-slate-400 pointer-events-none text-xs">🔍</span>
-            <input 
-              id="searchInput" 
-              type="text" 
-              placeholder="Search plant" 
-              onfocus="handleSearchFocus()"
-              onblur="handleSearchBlur()"
-              oninput="handleSearchDebounced(this.value)" 
-              class="w-full bg-slate-100 pl-8 pr-11 text-xs sm:text-sm font-bold text-slate-800 rounded-xl border border-slate-300 focus:border-emerald-600 focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal h-10 shadow-2xs" 
-            />
-            <!-- FAST SEARCH CLEAR (40x40px TOUCH TARGET) -->
-            <button id="clearSearchBtn" onclick="clearSearch()" aria-label="Clear search" class="hidden absolute right-1 top-0 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-700 active:text-slate-900 text-xs font-bold cursor-pointer transition-colors">✕</button>
+      <!-- COLLAPSIBLE FILTERS (INLINE SEARCH + MERGED SORT BUTTON + UNDERNEATH EXPANDED OPTIONS) -->
+      <div id="headerRowFilters" class="overflow-hidden transition-all duration-700 ease-in-out max-h-48 opacity-100">
+        <!-- ROW 3: INLINE SEARCH + EYE + MERGED SORT BUTTON -->
+        <div id="headerControlRow" class="relative max-w-xl mx-auto px-2.5 pb-1.5 flex items-center gap-1.5 h-10">
+          
+          <!-- SEARCH CONTAINER (INLINE COMPACT, SLOWLY EXPANDS OVER SIBLINGS ON FOCUS) -->
+          <div id="searchContainer" class="flex-1 min-w-0 flex items-center">
+            <div class="relative flex-1 flex items-center h-8">
+              <span class="absolute left-2.5 top-2 text-xs pointer-events-none text-slate-400">🔍</span>
+              <input 
+                id="searchInput" 
+                type="text" 
+                placeholder="Search plant" 
+                onfocus="expandSearch()" 
+                onclick="expandSearch()" 
+                onkeydown="if(event.key==='Enter') collapseSearch()"
+                oninput="handleSearchDebounced(this.value)" 
+                class="w-full bg-slate-100 pl-7 pr-7 py-1 text-xs font-bold text-slate-800 rounded-lg border border-slate-300 focus:border-emerald-600 focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal h-8" 
+              />
+              <button id="clearSearchBtn" onclick="clearSearch()" aria-label="Clear search" class="hidden absolute right-1.5 top-0.5 w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 text-xs font-bold">✕</button>
+            </div>
+            <button id="searchCancelBtn" onclick="collapseSearch()" class="h-8 shrink-0 text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center justify-center transition-all cursor-pointer">Cancel</button>
           </div>
 
-          <!-- EYE BUTTON (HIDE DONE TOGGLE, 40x40px TOUCH TARGET) -->
-          <button id="hideCountedChip" onclick="toggleHideCounted()" class="w-10 h-10 rounded-xl font-bold shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center text-sm shadow-sm transition-all cursor-pointer" title="Tap to hide completed items" aria-label="Toggle hide completed items">
+          <!-- EYE BUTTON (HIDE DONE TOGGLE) -->
+          <button id="hideCountedChip" onclick="toggleHideCounted()" class="search-sibling-btn w-8 h-8 rounded-lg font-bold shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center text-sm shadow-sm" title="Tap to hide completed items" aria-label="Toggle hide completed items">
             <span id="hideCountedChipIcon">👁</span>
           </button>
+
+          <!-- MERGED SORT BUTTON (SINGLE BUTTON WITH ICON: SORTS BY SIZE, SOLD, ZONE, ETC.) -->
+          <button onclick="toggleSortDrawer()" id="sortMainBtn" class="search-sibling-btn h-8 px-2.5 rounded-lg font-extrabold shrink-0 bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1.5 text-xs cursor-pointer" title="Sort and filter options">
+            <svg id="sortMainIcon" class="w-3.5 h-3.5 text-white shrink-0 transition-all duration-700 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path id="sortMainIconPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 4h13M3 8h9m-9 4h6M17 8v12m0 0l-4-4m4 4l4-4" />
+            </svg>
+            <span id="sortMainBtnLabel">Sort</span>
+            <span id="sortMainCaret" class="text-[9px] opacity-80 transition-transform duration-700 inline-block">▾</span>
+          </button>
         </div>
-      </div>
 
-      <!-- ROW 4: SINGLE-LINE HORIZONTAL CHIP SCROLLER FOR FILTERS (COLLAPSIBLE ON SCROLL & ON SEARCH) -->
-      <div id="headerRowFilters" class="overflow-hidden transition-all duration-300 ease-in-out max-h-14 opacity-100">
-        <div class="relative max-w-xl mx-auto px-2.5 pb-2">
-          <!-- Subtle right-edge gradient fade -->
-          <div class="relative after:absolute after:right-0 after:top-0 after:bottom-0 after:w-7 after:bg-gradient-to-l after:from-white/95 after:to-transparent after:pointer-events-none">
-            <div id="filterChipScroller" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 whitespace-nowrap" style="-webkit-overflow-scrolling: touch;">
-              
-              <!-- COMPACT SORT CYCLE CHIP (MIN 38px HEIGHT, 12px HORIZONTAL PADDING) -->
-              <button id="sortCycleBtn" onclick="triggerHaptic('light', this); cycleSort()" class="h-[38px] px-3 rounded-full font-extrabold text-xs shrink-0 bg-emerald-700 text-white shadow-sm flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer" title="Tap to cycle sort order">
-                <span id="sortCycleIcon" class="inline-block transition-transform duration-300">⇅</span>
-                <span id="sortCycleLabel">Sort: Sold</span>
+        <!-- ROW 4: EXPANDED TAB UNDERNEATH SEARCH BAR (SLOW 700MS ANIMATION) -->
+        <div id="expandedSortTab" class="max-w-xl mx-auto px-2.5 overflow-hidden transition-all duration-700 ease-in-out max-h-0 opacity-0 pointer-events-none">
+          <div class="py-2 space-y-1.5 border-t border-slate-200/60 mt-0.5">
+            
+            <!-- SORT BY: SIZE, SOLD, ZONE, NEED, A-Z -->
+            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
+              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Sort:</span>
+              <button onclick="handleSortSelect('sold-desc')" data-sort-val="sold-desc" class="sort-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                🔥 Sold
               </button>
+              <button onclick="handleSortSelect('zone')" data-sort-val="zone" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                🌱 Zone
+              </button>
+              <button onclick="handleSortSelect('need-first')" data-sort-val="need-first" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                🎯 Need
+              </button>
+              <button onclick="handleSortSelect('name-asc')" data-sort-val="name-asc" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
+                🔤 A-Z
+              </button>
+            </div>
 
-              <!-- VERTICAL DIVIDER -->
-              <div class="w-px h-5 bg-slate-300 mx-1 shrink-0" aria-hidden="true"></div>
-
-              <!-- SIZE FILTER PILLS (MIN 38px HEIGHT, 12px HORIZONTAL PADDING) -->
-              <button onclick=\"triggerHaptic('light', this); setPotFilter('all')\" data-size-filter="all" class="size-chip h-[38px] px-3 rounded-full font-extrabold text-xs shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+            <!-- FILTER BY POT SIZE: ALL, 2", 4", 6", 2G, SET -->
+            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
+              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Size:</span>
+              <button onclick="setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-3 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
                 All
               </button>
-              <button onclick=\"triggerHaptic('light', this); setPotFilter('2')\" data-size-filter="2" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+              <button onclick="setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
                 2"
               </button>
-              <button onclick=\"triggerHaptic('light', this); setPotFilter('4')\" data-size-filter="4" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+              <button onclick="setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
                 4"
               </button>
-              <button onclick=\"triggerHaptic('light', this); setPotFilter('6')\" data-size-filter="6" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+              <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
                 6"
               </button>
-              <button onclick=\"triggerHaptic('light', this); setPotFilter('2g')\" data-size-filter="2g" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
-                2-Gal
+              <button onclick="setPotFilter('2g')" data-size-filter="2g" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+                2G
               </button>
-              <button onclick=\"triggerHaptic('light', this); setPotFilter('set')\" data-size-filter="set" class="size-chip h-[38px] px-3 rounded-full font-bold text-xs shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center transition-all cursor-pointer">
+              <button onclick="setPotFilter('set')" data-size-filter="set" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
                 Set
               </button>
             </div>
+
           </div>
         </div>
       </div>
     </header>
 
     <!-- MAIN PLANT LIST -->
-    <main class="max-w-xl mx-auto px-2.5 pt-2 pb-[110px]">
+    <main class="max-w-xl mx-auto px-2.5 pt-2">
       <div id="plantListContainer" class="space-y-2"></div>
       <div id="emptyState" class="hidden py-14 px-4 text-center text-slate-500 bg-white/60 rounded-2xl border border-dashed border-slate-300 mt-2">
         <div class="text-3xl mb-2" id="emptyStateIcon">🪴</div>
@@ -323,39 +290,36 @@
     </main>
 
     <!-- FLOATING BOTTOM BAR: FULL-LENGTH +ADD PLANT BUTTON / 9S UNDO (25% OPACITY + BLURRED BACKGROUND) -->
-    <aside id="floatingBarAside" class="fixed bottom-0 inset-x-0 z-20 flex flex-col items-center justify-end px-3 pb-[max(12px,env(safe-area-inset-bottom))] pointer-events-none no-print transition-all duration-300">
-      
-      <!-- STACKED 4-SECOND UNDO TOAST (CLEANLY ABOVE DOCK, NO LAYOUT JUMP) -->
-      <div id="floatUndoToast" style="display: none;" class="pointer-events-auto mb-2 max-w-md w-full mx-auto px-4 py-2.5 rounded-2xl bg-slate-900/95 text-white shadow-xl backdrop-blur-md border border-white/10 flex items-center justify-between gap-3 text-xs transition-all duration-200">
-        <div class="flex items-center gap-2 min-w-0">
-          <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">✓</span>
-          <span class="truncate">Added to Cart</span>
-          <span id="floatUndoItemCost" class="font-extrabold text-emerald-300 leading-none shrink-0">+$0.00</span>
-        </div>
-        <button onclick="triggerUndoAction()" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center gap-1 transition-all active:scale-95 shrink-0 cursor-pointer shadow-sm">
-          <span>↩ Undo (<span id="floatUndoCountdown">4s</span>)</span>
-        </button>
-      </div>
-
-      <!-- SLEEK SINGLE-ROW FLOATING DOCK -->
-      <div id="floatingBarContainer" class="pointer-events-auto max-w-md w-full shadow-xl rounded-full overflow-hidden transition-all duration-300" style="background-color: rgba(6, 78, 59, 0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <aside id="floatingBarAside" class="fixed bottom-0 inset-x-0 z-20 flex justify-center px-3 pb-[max(0.6rem,env(safe-area-inset-bottom))] pointer-events-none no-print">
+      <div id="floatingBarContainer" class="pointer-events-auto max-w-md w-full shadow-xl rounded-full overflow-hidden transition-all duration-300" style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
         
-        <!-- DEFAULT: +ADD PLANT BUTTON (COUNT & BUY MODES) -->
+        <!-- DEFAULT: FULL-LENGTH +ADD PLANT BUTTON (COUNT & BUY MODES) -->
         <div id="floatAddPlantView" style="display: flex;" class="w-full">
-          <button onclick="openManualAdd()" class="w-full h-11 px-4 rounded-full text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md border border-white/20 active:scale-[0.98] transition-all cursor-pointer">
+          <button onclick="openManualAdd()" class="w-full h-10 px-4 rounded-full text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-md border border-white/20 active:scale-[0.98] transition-all cursor-pointer" style="background-color: rgba(6, 78, 59, 0.25); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
             <span class="text-base font-bold leading-none">＋</span>
             <span>Add Plant</span>
           </button>
         </div>
 
         <!-- CART SUMMARY VIEW (CART MODE) -->
-        <div id="floatCartView" style="display: none;" class="w-full h-11 px-4 rounded-full text-white border border-white/20 flex items-center justify-between gap-2 text-xs shadow-md">
+        <div id="floatCartView" style="display: none; background-color: rgba(6, 78, 59, 0.25); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);" class="w-full h-10 px-3.5 rounded-full text-white border border-white/20 flex items-center justify-between gap-2 text-xs shadow-md">
           <div class="flex items-center gap-1.5 min-w-0">
             <span class="text-xs font-semibold text-emerald-200">Total:</span>
             <span class="font-extrabold text-white text-sm" id="floatCartTotal">$0.00</span>
           </div>
-          <button onclick="clearCart()" class="text-xs font-extrabold px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white active:scale-95 transition-all shrink-0 cursor-pointer shadow-sm">
+          <button onclick="clearCart()" class="text-xs font-extrabold px-3 py-1 rounded-full bg-rose-600/90 hover:bg-rose-500 text-white active:scale-95 transition-all shrink-0 cursor-pointer shadow-sm">
             <span>Clear Cart</span>
+          </button>
+        </div>
+
+        <!-- INLINE 9-SECOND UNDO VIEW -->
+        <div id="floatUndoView" style="display: none; background-color: rgba(6, 78, 59, 0.25); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);" class="w-full h-10 px-3.5 rounded-full text-white border border-white/20 flex items-center justify-between gap-3 text-xs shadow-md">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="shrink-0 text-sm">✓</span>
+            <span id="floatUndoItemCost" class="font-extrabold text-emerald-100 text-sm leading-none">+$0.00</span>
+          </div>
+          <button onclick="triggerUndoAction()" class="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center gap-1.5 transition-all active:scale-95 shrink-0 cursor-pointer shadow-sm">
+            <span>↩ Undo (<span id="floatUndoCountdown">9s</span>)</span>
           </button>
         </div>
 
@@ -417,57 +381,56 @@
     </div>
 
     <!-- PLANT IMAGE PREVIEW POP-UP MODAL -->
-    <!-- PLANT IMAGE PREVIEW BOTTOM SHEET -->
-    <div id="plantImageModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex flex-col justify-end p-0" onclick="if(event.target===this) closePlantImageModal()">
-      <div class="w-full max-w-lg mx-auto bg-white rounded-t-[20px] p-4 shadow-2xl border-t border-slate-200 max-h-[85vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] animate-in slide-in-from-bottom duration-200 relative">
-        <!-- Visual drag pill -->
-        <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-3" aria-hidden="true"></div>
-        
-        <button onclick="closePlantImageModal()" aria-label="Close sheet" class="absolute right-3.5 top-3.5 z-10 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center cursor-pointer transition-colors shadow-2xs">✕</button>
+    <div id="plantImageModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm p-3 pt-[max(1rem,env(safe-area-inset-top))] sm:pt-6 flex items-start justify-center" onclick="if(event.target===this) closePlantImageModal()">
+      <div class="w-full max-w-sm rounded-2xl bg-white p-3.5 shadow-2xl border border-slate-200 mt-1 sm:mt-2 relative animate-in fade-in zoom-in-95 duration-150">
+        <button onclick="closePlantImageModal()" aria-label="Close modal" class="absolute right-3 top-3 z-10 w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center cursor-pointer transition-colors shadow-sm">✕</button>
 
-        <div class="relative w-full aspect-square bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center border border-slate-200 mb-3 shadow-inner">
-          <img id="plantImageModalImg" src="" alt="Plant preview" class="w-full h-full object-cover transition-opacity duration-200" />
-          <div id="plantImageModalPlaceholder" class="hidden absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-100 p-4 text-center">
-            <span class="text-4xl mb-2">🪴</span>
-            <span class="text-xs font-bold text-slate-600">No Image Available</span>
+        <div class="relative w-full aspect-square bg-slate-100 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200/80 mb-3 shadow-inner">
+          <div id="plantImgLoading" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500 text-xs bg-slate-50">
+            <svg class="animate-spin h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span class="font-semibold text-slate-600">Finding plant image...</span>
+          </div>
+          <img id="plantImgDisplay" src="" alt="Plant image" referrerpolicy="no-referrer" class="hidden w-full h-full object-cover rounded-xl" onload="document.getElementById('plantImgLoading').classList.add('hidden');this.classList.remove('hidden');" onerror="onPlantImageError()" />
+          <div id="plantImgError" class="hidden flex flex-col items-center justify-center p-4 text-center">
+            <span class="text-3xl mb-1.5">🌿</span>
+            <span class="text-xs font-semibold text-slate-600 mb-2">No direct preview found</span>
+            <a id="plantImgFallbackGoogle" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-sm cursor-pointer">
+              <span>Search on Google Images ↗</span>
+            </a>
           </div>
         </div>
 
-        <div class="flex items-center justify-between gap-2">
-          <div class="min-w-0">
-            <h3 id="plantImageModalTitle" class="text-base font-extrabold text-slate-900 truncate">Plant Name</h3>
-            <p id="plantImageModalSubtitle" class="text-xs text-slate-500 font-medium truncate">Touch outside or drag down to close</p>
+        <div class="text-center px-1">
+          <h3 id="plantImgName" class="text-sm sm:text-base font-extrabold text-slate-900 leading-snug"></h3>
+          <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-center">
+            <a id="plantImgGoogleLink" href="#" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline inline-flex items-center gap-1">
+              <span>View more on Google Images</span>
+              <span class="text-[11px]">↗</span>
+            </a>
           </div>
-          <button onclick="closePlantImageModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs shrink-0 cursor-pointer transition-colors active:scale-95">Done</button>
         </div>
       </div>
     </div>
 
     <!-- CSV UPLOAD MODAL -->
-    <!-- CSV UPLOAD BOTTOM SHEET -->
-    <div id="csvModalBackdrop" onclick="if(event.target===this) closeCsvModal()" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex flex-col justify-end p-0">
-      <div class="bg-white rounded-t-[20px] shadow-2xl border-t border-slate-200 max-w-lg w-full mx-auto p-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] relative max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
-        <!-- Visual drag pill -->
-        <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-3" aria-hidden="true"></div>
-
-        <button onclick="closeCsvModal()" aria-label="Close CSV upload" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 absolute right-3.5 top-3.5 text-slate-600 flex items-center justify-center text-xs font-bold cursor-pointer">✕</button>
+    <div id="csvModalBackdrop" onclick="if(event.target===this) closeCsvModal()" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-sm w-full p-4 relative">
+        <button onclick="closeCsvModal()" aria-label="Close CSV upload" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 absolute right-3 top-3 text-slate-600 flex items-center justify-center text-xs font-bold">✕</button>
         <div class="flex items-center gap-2 mb-2">
           <span class="text-lg">📄</span>
           <h3 class="text-sm font-extrabold text-slate-900">Upload Etsy Variations CSV</h3>
         </div>
         <p class="text-xs text-slate-500 mb-3 leading-relaxed">
-          Select your Etsy variations CSV file. All plant counts, stock items, and pricing formulas will recalculate instantly.
+          Select your Etsy sold variations CSV file. Plant names, pot sizes, and nursery zones will organize automatically.
         </p>
-
-        <label class="block w-full border-2 border-dashed border-emerald-400 bg-emerald-50/50 hover:bg-emerald-50 rounded-xl p-5 text-center cursor-pointer transition-colors mb-3">
-          <span class="text-2xl block mb-1">📂</span>
-          <span class="text-xs font-extrabold text-emerald-800 block">Choose CSV File</span>
-          <span class="text-[10px] text-slate-400 block mt-0.5">Supports Etsy variations export format</span>
-          <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="handleCsvFileSelected(event)" />
-        </label>
-
-        <div class="flex gap-2">
-          <button onclick="closeCsvModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all active:scale-95 cursor-pointer">Cancel</button>
+        <div id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-xl p-6 text-center cursor-pointer bg-slate-50 transition-colors">
+          <input type="file" id="csvFileInput" accept=".csv,text/csv" class="hidden" onchange="handleFileSelect(event)" />
+          <div class="text-2xl mb-1">📥</div>
+          <span class="text-xs font-extrabold text-emerald-700 block">Tap to choose CSV file</span>
+          <span class="text-[11px] text-slate-400 mt-0.5 block">or drag & drop here</span>
         </div>
       </div>
     </div>
@@ -490,10 +453,8 @@
     </div>
 
     <!-- QUICK MANUAL PLANT ENTRY MODAL -->
-    <div id="manualAddModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex flex-col justify-end p-0 transition-opacity duration-200" onclick="if(event.target===this) closeManualAdd()">
-      <div class="w-full max-w-lg mx-auto max-h-[85vh] overflow-y-auto rounded-t-[20px] bg-white p-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-2xl border-t border-slate-200 animate-in slide-in-from-bottom duration-200 relative">
-        <!-- Visual drag pill -->
-        <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-3" aria-hidden="true"></div>
+    <div id="manualAddModal" class="hidden fixed left-0 right-0 z-50 bg-slate-950/50 backdrop-blur-sm p-4 flex items-center justify-center transition-[top,height] duration-150" style="top: 0; height: 100dvh;" onclick="if(event.target===this) closeManualAdd()">
+      <div class="w-full max-w-sm max-h-[calc(100%-1rem)] overflow-y-auto rounded-2xl bg-white p-3.5 sm:p-4 shadow-2xl border border-slate-200 my-auto">
         <div class="flex items-center justify-between mb-2.5">
           <h2 class="text-sm font-extrabold text-slate-900">＋ Add Plant Manually</h2>
           <button onclick="closeManualAdd()" aria-label="Close modal" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center">✕</button>
@@ -1574,243 +1535,6 @@
         handleSortSelect(val);
       };
 
-      
-      // ==========================================
-      // HAPTIC FEEDBACK & TACTILE MICRO-BOUNCE UTILITY
-      // ==========================================
-      window.triggerHaptic = function(type, element) {
-        try {
-          if ('vibrate' in navigator) {
-            if (type === 'light') {
-              navigator.vibrate(12);
-            } else if (type === 'check') {
-              navigator.vibrate([18, 40, 25]);
-            } else if (type === 'uncheck') {
-              navigator.vibrate(15);
-            }
-          }
-        } catch (e) {
-          // Silent fallback on restricted browsers
-        }
-
-        // Visual micro-bounce for iOS Safari & instant tactile feedback
-        if (element && element instanceof HTMLElement) {
-          element.classList.remove('haptic-tap');
-          // Force reflow
-          void element.offsetWidth;
-          element.classList.add('haptic-tap');
-          setTimeout(() => {
-            element.classList.remove('haptic-tap');
-          }, 110);
-        }
-      };
-
-      // ==========================================
-      // CARD HORIZONTAL SWIPE GESTURE ENGINE
-      // ==========================================
-      function initCardSwipeGestures(cardWrapper) {
-        const cardContent = cardWrapper.querySelector('.swipe-card-content');
-        const leftLayer = cardWrapper.querySelector('.swipe-layer-left');
-        const rightLayer = cardWrapper.querySelector('.swipe-layer-right');
-        if (!cardContent) return;
-
-        let startX = 0;
-        let startY = 0;
-        let currentX = 0;
-        let isSwiping = false;
-        let isVerticalScroll = false;
-        let hasHapticTriggeredAtThreshold = false;
-        const SWIPE_THRESHOLD = 75;
-
-        cardContent.addEventListener('touchstart', (e) => {
-          if (e.touches.length !== 1) return;
-          const touch = e.touches[0];
-          startX = touch.clientX;
-          startY = touch.clientY;
-          currentX = startX;
-          isSwiping = false;
-          isVerticalScroll = false;
-          hasHapticTriggeredAtThreshold = false;
-          cardContent.style.transition = 'none';
-        }, { passive: true });
-
-        cardContent.addEventListener('touchmove', (e) => {
-          if (isVerticalScroll || e.touches.length !== 1) return;
-          const touch = e.touches[0];
-          const deltaX = touch.clientX - startX;
-          const deltaY = touch.clientY - startY;
-
-          // Scroll Lock Guard: Measure initial deltaX vs deltaY
-          if (!isSwiping) {
-            if (Math.abs(deltaY) > Math.abs(deltaX)) {
-              isVerticalScroll = true;
-              return;
-            }
-            if (Math.abs(deltaX) > 8) {
-              isSwiping = true;
-            }
-          }
-
-          if (isSwiping) {
-            // Apply resistance curve: deltaX * 0.65
-            const appliedX = deltaX * 0.65;
-            cardContent.style.transform = `translateX(${appliedX}px)`;
-
-            if (deltaX > 0) {
-              if (leftLayer) leftLayer.style.opacity = Math.min(1, Math.abs(appliedX) / 45);
-              if (rightLayer) rightLayer.style.opacity = 0;
-            } else {
-              if (rightLayer) rightLayer.style.opacity = Math.min(1, Math.abs(appliedX) / 45);
-              if (leftLayer) leftLayer.style.opacity = 0;
-            }
-
-            // Haptic trigger when crossing threshold (once)
-            if (Math.abs(appliedX) >= SWIPE_THRESHOLD && !hasHapticTriggeredAtThreshold) {
-              triggerHaptic('light');
-              hasHapticTriggeredAtThreshold = true;
-            } else if (Math.abs(appliedX) < SWIPE_THRESHOLD && hasHapticTriggeredAtThreshold) {
-              hasHapticTriggeredAtThreshold = false;
-            }
-          }
-        }, { passive: true });
-
-        cardContent.addEventListener('touchend', (e) => {
-          if (!isSwiping) {
-            return;
-          }
-
-          const touch = e.changedTouches[0];
-          const deltaX = (touch.clientX - startX) * 0.65;
-          const cardType = cardWrapper.getAttribute('data-card-type');
-          const cardId = cardWrapper.getAttribute('data-card-id');
-
-          // Snap back crisply with cubic-bezier
-          cardContent.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)';
-          cardContent.style.transform = 'translateX(0px)';
-
-          setTimeout(() => {
-            if (leftLayer) leftLayer.style.opacity = 0;
-            if (rightLayer) rightLayer.style.opacity = 0;
-          }, 220);
-
-          if (deltaX >= SWIPE_THRESHOLD) {
-            // SWIPE RIGHT: Check / Complete
-            triggerHaptic('check', cardContent);
-            executeSwipeRightCheck(cardType, cardId);
-          } else if (deltaX <= -SWIPE_THRESHOLD) {
-            // SWIPE LEFT: Quick +1 Quantity in active tabs, or restore/uncheck in Cart/Checked
-            executeSwipeLeftAction(cardType, cardId, cardContent);
-          }
-        }, { passive: true });
-
-        cardContent.addEventListener('touchcancel', () => {
-          cardContent.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)';
-          cardContent.style.transform = 'translateX(0px)';
-          if (leftLayer) leftLayer.style.opacity = 0;
-          if (rightLayer) rightLayer.style.opacity = 0;
-        }, { passive: true });
-      }
-
-      function executeSwipeRightCheck(cardType, cardId) {
-        if (cardType === 'manual') {
-          const item = manualExportItems.find(x => x.id === cardId);
-          if (!item) return;
-          if (currentMode === 'count') {
-            toggleManualCounted(cardId);
-          } else {
-            toggleManualPurchased(cardId);
-          }
-        } else {
-          const item = catalog.find(x => x.id === cardId);
-          if (!item) return;
-          if (currentMode === 'count') {
-            // Check all uncounted variations for this plant
-            const uncounted = item.variations.filter(v => !countedState[v.id]);
-            if (uncounted.length > 0) {
-              uncounted.forEach(v => { countedState[v.id] = true; });
-              saveStorage();
-              renderAll();
-            } else {
-              // Uncheck if already all checked
-              item.variations.forEach(v => { countedState[v.id] = false; });
-              triggerHaptic('uncheck');
-              saveStorage();
-              renderAll();
-            }
-          } else {
-            // Buy / Cart mode: check all unpurchased variations
-            const unpurchased = item.variations.filter(v => !purchasedState[v.id]);
-            if (unpurchased.length > 0) {
-              let totalCost = 0;
-              unpurchased.forEach(v => {
-                purchasedState[v.id] = true;
-                const stock = stockState[v.id] || 0;
-                const buyQty = getEffectiveBuyQty(v.id, v.sold, stock);
-                totalCost += buyQty * getUnitPrice(item.name, v.name, v.size);
-              });
-              saveStorage();
-              renderAll();
-              showBottomUndo(unpurchased[0].id, totalCost);
-            } else {
-              // Uncheck in cart
-              item.variations.forEach(v => { purchasedState[v.id] = false; });
-              triggerHaptic('uncheck');
-              saveStorage();
-              revertBottomBar();
-              renderAll();
-            }
-          }
-        }
-      }
-
-      function executeSwipeLeftAction(cardType, cardId, cardContent) {
-        if (currentMode === 'cart') {
-          // In Cart mode: Swiping left removes/unchecks the item
-          triggerHaptic('uncheck', cardContent);
-          if (cardType === 'manual') {
-            toggleManualPurchased(cardId);
-          } else {
-            const item = catalog.find(x => x.id === cardId);
-            if (item) {
-              item.variations.forEach(v => { purchasedState[v.id] = false; });
-              saveStorage();
-              renderAll();
-            }
-          }
-          return;
-        }
-
-        // In Count or Buy mode: Swiping left does Quick +1 Quantity to first visible variation
-        triggerHaptic('light', cardContent);
-        if (cardType === 'manual') {
-          if (currentMode === 'count') {
-            adjustManualStock(cardId, 1);
-          } else {
-            const item = manualExportItems.find(x => x.id === cardId);
-            const shortfall = Math.max(0, Number(item.qty || 1) - Math.max(0, Number(item.stock || 0)));
-            adjustManualBuyQty(cardId, 1, shortfall);
-          }
-        } else {
-          const item = catalog.find(x => x.id === cardId);
-          if (!item || !item.variations || item.variations.length === 0) return;
-          const firstVar = item.variations[0];
-          if (currentMode === 'count') {
-            adjustStock(firstVar.id, 1);
-          } else {
-            const stock = stockState[firstVar.id] || 0;
-            const shortfall = Math.max(0, firstVar.sold - stock);
-            adjustBuyQty(firstVar.id, 1, shortfall);
-          }
-        }
-      }
-
-      // Attach swipe listeners after renderAll
-      function attachSwipeListenersToList() {
-        document.querySelectorAll('.swipe-card-wrapper').forEach(wrapper => {
-          initCardSwipeGestures(wrapper);
-        });
-      }
-
       let isSearchExpanded = false;
 
       window.expandSearch = function() {
@@ -1879,55 +1603,18 @@
         }
       };
 
-      const SORT_MODES = [
-        { val: 'sold-desc', label: 'Sort: Sold', icon: '🔥' },
-        { val: 'zone', label: 'Sort: Zone', icon: '🌱' },
-        { val: 'need-first', label: 'Sort: Need', icon: '🎯' },
-        { val: 'name-asc', label: 'Sort: A-Z', icon: '🔤' }
-      ];
-
-      window.cycleSort = function() {
-        const curIdx = SORT_MODES.findIndex(m => m.val === sortFilter);
-        const nextIdx = (curIdx + 1) % SORT_MODES.length;
-        handleSortSelect(SORT_MODES[nextIdx].val);
-      };
-
       window.handleSortSelect = function(val) {
         sortFilter = val;
-        const curMode = SORT_MODES.find(m => m.val === val) || SORT_MODES[0];
-        const cycleLabel = document.getElementById('sortCycleLabel');
-        const cycleIcon = document.getElementById('sortCycleIcon');
-        if (cycleLabel) cycleLabel.textContent = `${curMode.label}`;
-        if (cycleIcon) cycleIcon.textContent = `${curMode.icon}`;
+        // Update sort-chip buttons
+        document.querySelectorAll('.sort-chip').forEach(el => {
+          const v = el.getAttribute('data-sort-val');
+          const isMatch = (v === val);
+          el.className = isMatch
+            ? "sort-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer"
+            : "sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer";
+        });
+        updateSortMainBtnLabel();
         renderAll();
-      };
-
-      window.handleSearchFocus = function() {
-        // Hide bottom floating bar when keyboard is open
-        const aside = document.getElementById('floatingBarAside');
-        if (aside) aside.classList.add('translate-y-28', 'opacity-0', 'pointer-events-none');
-        // Collapse filter row to maximize list space
-        const filterRow = document.getElementById('headerRowFilters');
-        if (filterRow) {
-          filterRow.style.maxHeight = '0px';
-          filterRow.style.opacity = '0';
-          filterRow.style.pointerEvents = 'none';
-        }
-      };
-
-      window.handleSearchBlur = function() {
-        // Restore bottom floating bar
-        const aside = document.getElementById('floatingBarAside');
-        if (aside) aside.classList.remove('translate-y-28', 'opacity-0', 'pointer-events-none');
-        // Restore filter row if not scrolled down
-        if (!isHeaderCollapsed) {
-          const filterRow = document.getElementById('headerRowFilters');
-          if (filterRow) {
-            filterRow.style.maxHeight = '56px';
-            filterRow.style.opacity = '1';
-            filterRow.style.pointerEvents = 'auto';
-          }
-        }
       };
 
       window.setPotFilter = function(size) {
@@ -1936,9 +1623,10 @@
           const f = el.getAttribute('data-size-filter');
           const isMatch = (f === size);
           el.className = isMatch
-            ? "size-chip h-[38px] px-3 rounded-full font-extrabold text-xs transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 flex items-center justify-center cursor-pointer"
-            : "size-chip h-[38px] px-3 rounded-full font-bold text-xs transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 active:scale-95 flex items-center justify-center cursor-pointer";
+            ? "size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer"
+            : "size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer";
         });
+        updateSortMainBtnLabel();
         renderAll();
       };
 
@@ -1977,7 +1665,6 @@
       }
 
       window.adjustStock = function(varId, delta) {
-        triggerHaptic('light');
         const current = stockState[varId] || 0;
         stockState[varId] = Math.max(0, current + delta);
         countedState[varId] = true;
@@ -1996,13 +1683,12 @@
 
       window.toggleCountedStatus = function(varId) {
         countedState[varId] = !countedState[varId];
-        triggerHaptic(countedState[varId] ? 'check' : 'uncheck');
+        if (navigator.vibrate) navigator.vibrate(10);
         saveStorage();
         renderAll();
       };
 
       window.adjustBuyQty = function(varId, delta, defaultQty) {
-        triggerHaptic('light');
         const current = buyState[varId] !== undefined ? buyState[varId] : defaultQty;
         buyState[varId] = Math.max(0, current + delta);
         saveStorage();
@@ -2016,7 +1702,6 @@
       };
 
       window.adjustManualStock = function(id, delta) {
-        triggerHaptic('light');
         const item = manualExportItems.find(x => x.id === id);
         if (!item) return;
         item.stock = Math.max(0, Number(item.stock || 0) + delta);
@@ -2040,13 +1725,12 @@
         const item = manualExportItems.find(x => x.id === id);
         if (!item) return;
         item.countConfirmed = !item.countConfirmed;
-        triggerHaptic(item.countConfirmed ? 'check' : 'uncheck');
+        if (navigator.vibrate) navigator.vibrate(10);
         saveStorage();
         renderAll();
       };
 
       window.adjustManualBuyQty = function(id, delta, defaultQty) {
-        triggerHaptic('light');
         const item = manualExportItems.find(x => x.id === id);
         if (!item) return;
         const current = item.buyQty !== undefined ? item.buyQty : defaultQty;
@@ -2070,15 +1754,23 @@
       function updateFloatingBarVisibility() {
         const aside = document.getElementById('floatingBarAside');
         if (!aside) return;
+        const undoView = document.getElementById('floatUndoView');
         const addView = document.getElementById('floatAddPlantView');
         const cartView = document.getElementById('floatCartView');
 
         aside.style.display = 'flex';
 
-        if (currentMode === 'cart') {
+        const isUndoActive = undoView && undoView.style.display !== 'none' && lastPurchasedVarId !== null;
+        if (isUndoActive) {
+          if (undoView) undoView.style.display = 'flex';
+          if (addView) addView.style.display = 'none';
+          if (cartView) cartView.style.display = 'none';
+        } else if (currentMode === 'cart') {
+          if (undoView) undoView.style.display = 'none';
           if (addView) addView.style.display = 'none';
           if (cartView) cartView.style.display = 'flex';
         } else {
+          if (undoView) undoView.style.display = 'none';
           if (cartView) cartView.style.display = 'none';
           if (addView) addView.style.display = 'flex';
         }
@@ -2117,8 +1809,7 @@
         if (undoItemCostEl) {
           undoItemCostEl.textContent = `+$${itemCost.toFixed(2)}`;
         }
-        const undoToast = document.getElementById('floatUndoToast');
-        if (undoToast) undoToast.style.display = 'flex';
+        undoView.style.display = 'flex';
         if (undoTimeout) {
           clearTimeout(undoTimeout);
           undoTimeout = null;
@@ -2127,7 +1818,7 @@
           clearInterval(undoInterval);
           undoInterval = null;
         }
-        let secondsLeft = 4;
+        let secondsLeft = 9;
         countdownEl.textContent = `${secondsLeft}s`;
         undoInterval = setInterval(() => {
           secondsLeft -= 1;
@@ -2140,7 +1831,8 @@
         }, 1000);
         undoTimeout = setTimeout(() => {
           revertBottomBar();
-        }, 4000);
+        }, 9000);
+        updateFloatingBarVisibility();
       }
 
       function revertBottomBar() {
@@ -2152,13 +1844,13 @@
           clearInterval(undoInterval);
           undoInterval = null;
         }
-        const undoToast = document.getElementById('floatUndoToast');
-        if (undoToast) undoToast.style.display = 'none';
+        const undoView = document.getElementById('floatUndoView');
+        if (undoView) undoView.style.display = 'none';
         lastPurchasedVarId = null;
+        updateFloatingBarVisibility();
       }
 
       window.triggerUndoAction = function() {
-        triggerHaptic('uncheck');
         if (!lastPurchasedVarId) return;
         const targetId = lastPurchasedVarId;
         if (targetId.startsWith('manual_')) {
@@ -2175,7 +1867,7 @@
       window.togglePurchased = function(varId, el) {
         const currentlyPurchased = !!purchasedState[varId];
         if (!currentlyPurchased && el) {
-          triggerHaptic('check', el);
+          if (navigator.vibrate) navigator.vibrate(12);
           el.classList.add('checking-active');
           let itemCost = 0.0;
           for (const item of catalog) {
@@ -2207,7 +1899,7 @@
         if (!item) return;
         const currentlyPurchased = !!item.purchased;
         if (!currentlyPurchased && el) {
-          triggerHaptic('check', el);
+          if (navigator.vibrate) navigator.vibrate(12);
           el.classList.add('checking-active');
           const buyQty = getManualEffectiveBuyQty(item);
           const price = getUnitPrice(item.name, item.size, item.size);
@@ -2418,7 +2110,6 @@
         });
 
         container.innerHTML = html;
-        attachSwipeListenersToList();
       }
 
       function renderManualCard(item) {
@@ -2439,18 +2130,7 @@
 
         if (currentMode === 'count') {
           rowHtml = `
-            <div class="py-1 px-2 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : ''}">
-              <!-- 44x44px CHECKBOX TOUCH AREA (CLEANLY ON LEFT EDGE) -->
-              <button
-                onclick="toggleManualCounted('${item.id}')"
-                title="${isCounted ? 'Count verified (tap to unmark)' : 'Tap to confirm count'}"
-                aria-label="Mark manual plant counted"
-                class="w-11 h-11 shrink-0 flex items-center justify-center p-1 active:scale-90 transition-transform cursor-pointer"
-              >
-                <div class="w-6 h-6 rounded-md border flex items-center justify-center text-xs font-extrabold ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'}">✓</div>
-              </button>
-
-              <!-- MIDDLE SECTION: SIZE BADGE + DETAIL + TARGET COUNTS -->
+            <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : ''}">
               <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
                 <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border-emerald-200'} shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
                 ${detailSpan}
@@ -2460,29 +2140,24 @@
                   <span class="${shortfall > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-extrabold'}" title="Needed">🛒 ${shortfall}</span>
                 </div>
               </div>
-
-              <!-- 36x36px QUANTITY STEPPER (FAR RIGHT EDGE) -->
-              <div class="inline-flex items-center rounded-lg border border-slate-300 bg-slate-50 overflow-hidden shrink-0 shadow-2xs h-9" title="📦 In Stock">
-                <button onclick="adjustManualStock('${item.id}', -1)" aria-label="Decrease stock" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-200 active:bg-slate-300 font-extrabold text-sm transition-colors cursor-pointer">−</button>
-                <input type="number" min="0" value="${stock}" inputmode="numeric" pattern="[0-9]*" onfocus="this.select()" onclick="this.select()" onchange="setManualStock('${item.id}', this.value)" class="w-8 h-9 text-center text-xs font-extrabold bg-white text-slate-900 border-x border-slate-300 focus:outline-none focus:bg-emerald-50" />
-                <button onclick="adjustManualStock('${item.id}', 1)" aria-label="Increase stock" class="w-9 h-9 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-sm transition-colors cursor-pointer">+</button>
+              <div class="flex items-center gap-1 shrink-0">
+                <div class="inline-flex items-center rounded-md border border-slate-300 bg-slate-50 overflow-hidden shrink-0 shadow-sm" title="📦 In Stock">
+                  <button onclick="adjustManualStock('${item.id}', -1)" aria-label="Decrease stock" class="w-6 h-6 flex items-center justify-center text-slate-700 hover:bg-slate-200 active:bg-slate-300 font-extrabold text-xs transition-colors">−</button>
+                  <input type="number" min="0" value="${stock}" inputmode="numeric" pattern="[0-9]*" onfocus="this.select()" onclick="this.select()" onchange="setManualStock('${item.id}', this.value)" class="w-7 h-6 text-center text-xs font-extrabold bg-white text-slate-900 border-x border-slate-300 focus:outline-none focus:bg-emerald-50" />
+                  <button onclick="adjustManualStock('${item.id}', 1)" aria-label="Increase stock" class="w-6 h-6 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-xs transition-colors">+</button>
+                </div>
+                <button
+                  onclick="toggleManualCounted('${item.id}')"
+                  title="${isCounted ? 'Count verified (tap to unmark)' : 'Tap to confirm count'}"
+                  aria-label="Mark manual plant counted"
+                  class="w-6 h-6 rounded-md border ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'} flex items-center justify-center text-xs font-extrabold active:scale-90 transition-all shrink-0 cursor-pointer"
+                >✓</button>
               </div>
             </div>
           `;
         } else if (currentMode === 'buy') {
           rowHtml = `
-            <div class="py-1 px-2 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : ''}">
-              <!-- 44x44px CHECKBOX TOUCH AREA (CLEANLY ON LEFT EDGE) -->
-              <button 
-                onclick="toggleManualPurchased('${item.id}', this)"
-                title="${isPurchased ? 'In cart (tap to uncheck)' : 'Add to cart'}"
-                aria-label="Add to cart"
-                class="w-11 h-11 shrink-0 flex items-center justify-center p-1 active:scale-90 transition-transform cursor-pointer"
-              >
-                <div class="w-6 h-6 rounded-md border border-emerald-700 flex items-center justify-center text-xs font-extrabold ${isPurchased ? 'bg-emerald-700 text-white' : 'bg-white text-transparent hover:bg-emerald-50'}">✓</div>
-              </button>
-
-              <!-- MIDDLE SECTION: SIZE BADGE + DETAIL + TARGET COUNTS -->
+            <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : ''}">
               <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
                 <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border-emerald-200'} shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
                 ${detailSpan}
@@ -2492,44 +2167,35 @@
                   <span title="In Stock">📦 ${stock}</span>
                 </div>
               </div>
-
-              <!-- 36x36px QUANTITY STEPPER (FAR RIGHT EDGE) -->
-              <div class="inline-flex items-center rounded-lg border ${isPurchased ? 'border-emerald-200 bg-emerald-50/50 opacity-75' : 'border-slate-300 bg-slate-50'} overflow-hidden shrink-0 shadow-2xs h-9" title="🛒 Qty to Buy">
-                <button onclick="adjustManualBuyQty('${item.id}', -1, ${shortfall})" aria-label="Decrease buy quantity" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-200 active:bg-slate-300 font-extrabold text-sm transition-colors cursor-pointer">−</button>
-                <input type="number" min="0" value="${buyQty}" inputmode="numeric" pattern="[0-9]*" onfocus="this.select()" onclick="this.select()" onchange="setManualBuyQtyDirect('${item.id}', this.value)" class="w-8 h-9 text-center text-xs font-extrabold bg-white text-slate-900 border-x border-slate-300 focus:outline-none focus:bg-amber-50" />
-                <button onclick="adjustManualBuyQty('${item.id}', 1, ${shortfall})" aria-label="Increase buy quantity" class="w-9 h-9 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-sm transition-colors cursor-pointer">+</button>
+              <div class="flex items-center gap-1 shrink-0">
+                <div class="inline-flex items-center rounded-md border border-slate-300 bg-slate-50 overflow-hidden shrink-0 shadow-sm" title="🛒 Qty to Buy">
+                  <button onclick="adjustManualBuyQty('${item.id}', -1, ${shortfall})" aria-label="Decrease buy quantity" class="w-6 h-6 flex items-center justify-center text-slate-700 hover:bg-slate-200 active:bg-slate-300 font-extrabold text-xs transition-colors">−</button>
+                  <input type="number" min="0" value="${buyQty}" inputmode="numeric" pattern="[0-9]*" onfocus="this.select()" onclick="this.select()" onchange="setManualBuyQtyDirect('${item.id}', this.value)" class="w-7 h-6 text-center text-xs font-extrabold bg-white text-slate-900 border-x border-slate-300 focus:outline-none focus:bg-amber-50" />
+                  <button onclick="adjustManualBuyQty('${item.id}', 1, ${shortfall})" aria-label="Increase buy quantity" class="w-6 h-6 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-xs transition-colors">+</button>
+                </div>
+                <button onclick="toggleManualPurchased('${item.id}', this)" title="Add to cart" aria-label="Add to cart" class="w-6 h-6 rounded-md border border-emerald-700 ${isPurchased ? 'bg-emerald-700 text-white' : 'bg-white text-transparent hover:bg-emerald-50'} flex items-center justify-center text-xs font-extrabold transition-all shrink-0 cursor-pointer active:scale-90">${isPurchased ? '✓' : ''}</button>
               </div>
             </div>
           `;
         } else {
           rowHtml = `
-            <div class="py-1 px-2 flex items-center justify-between gap-1.5 border-t border-emerald-100 first:border-0 bg-emerald-50/60">
-              <!-- 44x44px CHECKBOX TOUCH AREA (CLEANLY ON LEFT EDGE) -->
-              <button 
-                onclick="toggleManualPurchased('${item.id}', this)"
-                title="Remove from cart"
-                aria-label="Remove from cart"
-                class="w-11 h-11 shrink-0 flex items-center justify-center p-1 active:scale-90 transition-transform cursor-pointer"
-              >
-                <div class="w-6 h-6 rounded-md bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 flex items-center justify-center text-xs font-extrabold transition-colors">✓</div>
-              </button>
-
-              <!-- MIDDLE SECTION: SIZE BADGE + DETAIL + TARGET COUNTS -->
+            <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-emerald-100 first:border-0 bg-emerald-50/60">
               <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
                 <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60 shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
                 ${detailSpan}
                 <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
                   <span class="text-emerald-800 font-extrabold" title="Estimated line cost">$${lineSubtotal}</span>
                   <span class="text-slate-300" aria-hidden="true">/</span>
-                  <span title="Original target quantity">🎯 ${sold}</span>
+                  <span title="Target quantity">🎯 ${sold}</span>
                 </div>
               </div>
-
-              <!-- 36x36px QUANTITY STEPPER (FAR RIGHT EDGE) -->
-              <div class="inline-flex items-center rounded-lg border border-emerald-300 bg-white overflow-hidden shrink-0 shadow-2xs h-9" title="🛒 Qty in Cart">
-                <button onclick="adjustManualBuyQty('${item.id}', -1, ${shortfall})" aria-label="Decrease cart quantity" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 font-extrabold text-sm transition-colors cursor-pointer">−</button>
-                <input type="number" min="0" value="${buyQty}" inputmode="numeric" pattern="[0-9]*" onfocus="this.select()" onclick="this.select()" onchange="setManualBuyQtyDirect('${item.id}', this.value)" class="w-8 h-9 text-center text-xs font-extrabold bg-white text-emerald-950 border-x border-emerald-200 focus:outline-none focus:bg-emerald-50" />
-                <button onclick="adjustManualBuyQty('${item.id}', 1, ${shortfall})" aria-label="Increase cart quantity" class="w-9 h-9 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-sm transition-colors cursor-pointer">+</button>
+              <div class="flex items-center gap-1 shrink-0">
+                <div class="inline-flex items-center rounded-md border border-emerald-300 bg-white overflow-hidden shrink-0 shadow-sm" title="🛒 Qty in Cart">
+                  <button onclick="adjustManualBuyQty('${item.id}', -1, ${shortfall})" aria-label="Decrease cart quantity" class="w-6 h-6 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 font-extrabold text-xs transition-colors">−</button>
+                  <input type="number" min="0" value="${buyQty}" inputmode="numeric" pattern="[0-9]*" onfocus="this.select()" onclick="this.select()" onchange="setManualBuyQtyDirect('${item.id}', this.value)" class="w-7 h-6 text-center text-xs font-extrabold bg-white text-emerald-950 border-x border-emerald-200 focus:outline-none focus:bg-emerald-50" />
+                  <button onclick="adjustManualBuyQty('${item.id}', 1, ${shortfall})" aria-label="Increase cart quantity" class="w-6 h-6 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-xs transition-colors">+</button>
+                </div>
+                <button onclick="toggleManualPurchased('${item.id}', this)" title="Remove from cart" aria-label="Remove from cart" class="w-6 h-6 rounded-md bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 transition-all cursor-pointer shrink-0 flex items-center justify-center text-xs font-extrabold active:scale-90">✓</button>
               </div>
             </div>
           `;
@@ -2537,30 +2203,26 @@
 
         const isManualDoneInBuy = currentMode === 'buy' && isPurchased;
         return `
-          <div class="swipe-card-wrapper shadow-sm mb-2" data-card-type="manual" data-card-id="${item.id}">
-            <div class="swipe-layer-left">
-              <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Check</span>
-            </div>
-            <div class="swipe-layer-right">
-              <span class="flex items-center gap-1.5">${currentMode === 'cart' ? '✕ Uncheck' : '＋1 Qty'}</span>
-            </div>
-            <article class="swipe-card-content border ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90'} overflow-hidden transition-all">
+          <article class="bg-white rounded-xl border ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90'} shadow-sm overflow-hidden transition-all">
             <header class="px-2.5 py-1.5 ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5 min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 min-w-0">
                 <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">Manual</span>
-                <h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Tap to preview plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>
+                ${
+                  (typeof isPlantImageClickable === 'function' ? isPlantImageClickable(item.name) : item.name.toLowerCase().includes('firestorm'))
+                    ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                    : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isManualDoneInBuy || (currentMode === 'count' && isCounted) ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                }
               </div>
               <div class="flex items-center gap-1 shrink-0">
                 ${currentMode === 'count' && isCounted ? '<span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded shrink-0">Counted</span>' : ''}
                 ${isManualDoneInBuy ? '<span class="text-[10px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded shrink-0">In Cart</span>' : ''}
-                <button onclick="removeManualPlant('${item.id}')" title="Delete manual plant" aria-label="Delete manual plant" class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center font-bold text-xs transition-colors shrink-0 cursor-pointer">✕</button>
+                <button onclick="removeManualPlant('${item.id}')" title="Delete manual plant" aria-label="Delete manual plant" class="w-6 h-6 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center font-bold text-xs transition-colors shrink-0">✕</button>
               </div>
             </header>
             <div>
               ${rowHtml}
             </div>
-            </article>
-          </div>
+          </article>
         `;
       }
 
@@ -2590,6 +2252,7 @@
 
         item.visibleVariations.forEach(v => {
           const isRecentRow = !!v.isRecent;
+          const recentRowBadge = '';
           const stock = stockState[v.id] || 0;
           const isCounted = !!countedState[v.id];
           const shortfall = Math.max(0, v.sold - stock);
@@ -2616,18 +2279,7 @@
 
           if (currentMode === 'count') {
             variationsHtml += `
-              <div class="py-1 px-2 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : '')}">
-                <!-- 44x44px CHECKBOX TOUCH AREA (CLEANLY ON LEFT EDGE) -->
-                <button
-                  onclick="toggleCountedStatus('${v.id}')"
-                  title="${isCounted ? 'Count verified (tap to unmark)' : 'Tap to confirm 0 stock / counted'}"
-                  aria-label="Mark variation counted"
-                  class="w-11 h-11 shrink-0 flex items-center justify-center p-1 active:scale-90 transition-transform cursor-pointer"
-                >
-                  <div class="w-6 h-6 rounded-md border flex items-center justify-center text-xs font-extrabold ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'}">✓</div>
-                </button>
-
-                <!-- MIDDLE SECTION: SIZE BADGE + DETAIL + TARGET COUNTS -->
+              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : '')}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
@@ -2640,34 +2292,29 @@
                     <span class="${shortfall > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-extrabold'}" title="Needed">🛒 ${shortfall}</span>
                   </div>
                 </div>
-
-                <!-- 36x36px QUANTITY STEPPER (FAR RIGHT EDGE) -->
-                <div class="inline-flex items-center rounded-lg border border-slate-300 bg-slate-50 overflow-hidden shrink-0 shadow-2xs h-9" title="📦 In Stock">
-                  <button onclick="adjustStock('${v.id}', -1)" aria-label="Decrease stock" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-200 active:bg-slate-300 font-extrabold text-sm transition-colors cursor-pointer">−</button>
-                  <input 
-                    type="number" min="0" value="${stock}" inputmode="numeric" pattern="[0-9]*"
-                    onfocus="this.select()" onclick="this.select()"
-                    onchange="setStockDirect('${v.id}', this.value)"
-                    class="w-8 h-9 text-center text-xs font-extrabold bg-white text-slate-900 border-x border-slate-300 focus:outline-none focus:bg-emerald-50"
-                  />
-                  <button onclick="adjustStock('${v.id}', 1)" aria-label="Increase stock" class="w-9 h-9 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-sm transition-colors cursor-pointer">+</button>
+                <div class="flex items-center gap-1 shrink-0">
+                  <div class="inline-flex items-center rounded-md border border-slate-300 bg-slate-50 overflow-hidden shrink-0 shadow-sm" title="📦 In Stock">
+                    <button onclick="adjustStock('${v.id}', -1)" aria-label="Decrease stock" class="w-6 h-6 flex items-center justify-center text-slate-700 hover:bg-slate-200 active:bg-slate-300 font-extrabold text-xs transition-colors">−</button>
+                    <input 
+                      type="number" min="0" value="${stock}" inputmode="numeric" pattern="[0-9]*"
+                      onfocus="this.select()" onclick="this.select()"
+                      onchange="setStockDirect('${v.id}', this.value)"
+                      class="w-7 h-6 text-center text-xs font-extrabold bg-white text-slate-900 border-x border-slate-300 focus:outline-none focus:bg-emerald-50"
+                    />
+                    <button onclick="adjustStock('${v.id}', 1)" aria-label="Increase stock" class="w-6 h-6 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-xs transition-colors">+</button>
+                  </div>
+                  <button
+                    onclick="toggleCountedStatus('${v.id}')"
+                    title="${isCounted ? 'Count verified (tap to unmark)' : 'Tap to confirm 0 stock / counted'}"
+                    aria-label="Mark variation counted"
+                    class="w-6 h-6 rounded-md border ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'} flex items-center justify-center text-xs font-extrabold active:scale-90 transition-all shrink-0 cursor-pointer"
+                  >✓</button>
                 </div>
               </div>
             `;
           } else if (currentMode === 'buy') {
             variationsHtml += `
-              <div class="py-1 px-2 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : '')}">
-                <!-- 44x44px CHECKBOX TOUCH AREA (CLEANLY ON LEFT EDGE) -->
-                <button 
-                  onclick="togglePurchased('${v.id}', this)"
-                  title="${isPurchased ? 'In cart (tap to uncheck)' : 'Add to cart'}"
-                  aria-label="Add to cart"
-                  class="w-11 h-11 shrink-0 flex items-center justify-center p-1 active:scale-90 transition-transform cursor-pointer"
-                >
-                  <div class="w-6 h-6 rounded-md border border-emerald-700 flex items-center justify-center text-xs font-extrabold ${isPurchased ? 'bg-emerald-700 text-white' : 'bg-white text-transparent hover:bg-emerald-50'}">✓</div>
-                </button>
-
-                <!-- MIDDLE SECTION: SIZE BADGE + DETAIL + TARGET COUNTS -->
+              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-slate-100 first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : '')}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
@@ -2680,34 +2327,29 @@
                     <span title="In Stock">📦 ${stock}</span>
                   </div>
                 </div>
-
-                <!-- 36x36px QUANTITY STEPPER (FAR RIGHT EDGE) -->
-                <div class="inline-flex items-center rounded-lg border ${isPurchased ? 'border-emerald-200 bg-emerald-50/50 opacity-75' : 'border-slate-300 bg-slate-50'} overflow-hidden shrink-0 shadow-2xs h-9" title="🛒 Qty to Buy">
-                  <button onclick="adjustBuyQty('${v.id}', -1, ${shortfall})" aria-label="Decrease buy quantity" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-200 active:bg-slate-300 font-extrabold text-sm transition-colors cursor-pointer">−</button>
-                  <input 
-                    type="number" min="0" value="${buyQty}" inputmode="numeric" pattern="[0-9]*"
-                    onfocus="this.select()" onclick="this.select()"
-                    onchange="setBuyQtyDirect('${v.id}', this.value)"
-                    class="w-8 h-9 text-center text-xs font-extrabold bg-white text-slate-900 border-x border-slate-300 focus:outline-none focus:bg-amber-50"
-                  />
-                  <button onclick="adjustBuyQty('${v.id}', 1, ${shortfall})" aria-label="Increase buy quantity" class="w-9 h-9 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-sm transition-colors cursor-pointer">+</button>
+                <div class="flex items-center gap-1 shrink-0">
+                  <div class="inline-flex items-center rounded-md border ${isPurchased ? 'border-emerald-200 bg-emerald-50/50 opacity-75' : 'border-slate-300 bg-slate-50'} overflow-hidden shrink-0 shadow-sm" title="🛒 Qty to Buy">
+                    <button onclick="adjustBuyQty('${v.id}', -1, ${shortfall})" aria-label="Decrease buy quantity" class="w-6 h-6 flex items-center justify-center text-slate-700 hover:bg-slate-200 active:bg-slate-300 font-extrabold text-xs transition-colors">−</button>
+                    <input 
+                      type="number" min="0" value="${buyQty}" inputmode="numeric" pattern="[0-9]*"
+                      onfocus="this.select()" onclick="this.select()"
+                      onchange="setBuyQtyDirect('${v.id}', this.value)"
+                      class="w-7 h-6 text-center text-xs font-extrabold bg-white text-slate-900 border-x border-slate-300 focus:outline-none focus:bg-amber-50"
+                    />
+                    <button onclick="adjustBuyQty('${v.id}', 1, ${shortfall})" aria-label="Increase buy quantity" class="w-6 h-6 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-xs transition-colors">+</button>
+                  </div>
+                  <button 
+                    onclick="togglePurchased('${v.id}', this)"
+                    title="${isPurchased ? 'In cart (tap to uncheck)' : 'Add to cart'}"
+                    aria-label="Add to cart"
+                    class="w-6 h-6 rounded-md border border-emerald-700 ${isPurchased ? 'bg-emerald-700 text-white' : 'bg-white text-transparent hover:bg-emerald-50'} flex items-center justify-center text-xs font-extrabold transition-all shrink-0 cursor-pointer active:scale-90"
+                  >${isPurchased ? '✓' : ''}</button>
                 </div>
               </div>
             `;
           } else {
             variationsHtml += `
-              <div class="py-1 px-2 flex items-center justify-between gap-1.5 border-t border-emerald-100 first:border-0 ${isRecentRow ? 'bg-amber-100/80' : 'bg-emerald-50/60'}">
-                <!-- 44x44px CHECKBOX TOUCH AREA (CLEANLY ON LEFT EDGE) -->
-                <button 
-                  onclick="togglePurchased('${v.id}', this)"
-                  title="Remove from cart"
-                  aria-label="Remove from cart"
-                  class="w-11 h-11 shrink-0 flex items-center justify-center p-1 active:scale-90 transition-transform cursor-pointer"
-                >
-                  <div class="w-6 h-6 rounded-md bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 flex items-center justify-center text-xs font-extrabold transition-colors">✓</div>
-                </button>
-
-                <!-- MIDDLE SECTION: SIZE BADGE + DETAIL + TARGET COUNTS -->
+              <div class="py-1 px-2.5 flex items-center justify-between gap-1.5 border-t border-emerald-100 first:border-0 ${isRecentRow ? 'bg-amber-100/80' : 'bg-emerald-50/60'}">
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
                   <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60'} shrink-0 leading-tight">
                     ${escapeHtml(badgeText)}
@@ -2720,17 +2362,23 @@
                     <span title="Original target quantity">🎯 ${v.sold}</span>
                   </div>
                 </div>
-
-                <!-- 36x36px QUANTITY STEPPER (FAR RIGHT EDGE) -->
-                <div class="inline-flex items-center rounded-lg border border-emerald-300 bg-white overflow-hidden shrink-0 shadow-2xs h-9" title="🛒 Qty in Cart">
-                  <button onclick="adjustBuyQty('${v.id}', -1, ${shortfall})" aria-label="Decrease cart quantity" class="w-9 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 font-extrabold text-sm transition-colors cursor-pointer">−</button>
-                  <input 
-                    type="number" min="0" value="${buyQty}" inputmode="numeric" pattern="[0-9]*"
-                    onfocus="this.select()" onclick="this.select()"
-                    onchange="setBuyQtyDirect('${v.id}', this.value)"
-                    class="w-8 h-9 text-center text-xs font-extrabold bg-white text-emerald-950 border-x border-emerald-200 focus:outline-none focus:bg-emerald-50"
-                  />
-                  <button onclick="adjustBuyQty('${v.id}', 1, ${shortfall})" aria-label="Increase cart quantity" class="w-9 h-9 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-sm transition-colors cursor-pointer">+</button>
+                <div class="flex items-center gap-1 shrink-0">
+                  <div class="inline-flex items-center rounded-md border border-emerald-300 bg-white overflow-hidden shrink-0 shadow-sm" title="🛒 Qty in Cart">
+                    <button onclick="adjustBuyQty('${v.id}', -1, ${shortfall})" aria-label="Decrease cart quantity" class="w-6 h-6 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 font-extrabold text-xs transition-colors">−</button>
+                    <input 
+                      type="number" min="0" value="${buyQty}" inputmode="numeric" pattern="[0-9]*"
+                      onfocus="this.select()" onclick="this.select()"
+                      onchange="setBuyQtyDirect('${v.id}', this.value)"
+                      class="w-7 h-6 text-center text-xs font-extrabold bg-white text-emerald-950 border-x border-emerald-200 focus:outline-none focus:bg-emerald-50"
+                    />
+                    <button onclick="adjustBuyQty('${v.id}', 1, ${shortfall})" aria-label="Increase cart quantity" class="w-6 h-6 flex items-center justify-center text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100 active:bg-emerald-200 font-extrabold text-xs transition-colors">+</button>
+                  </div>
+                  <button 
+                    onclick="togglePurchased('${v.id}', this)"
+                    title="Remove from cart"
+                    aria-label="Remove from cart"
+                    class="w-6 h-6 rounded-md bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 transition-all cursor-pointer shrink-0 flex items-center justify-center text-xs font-extrabold active:scale-90"
+                  >✓</button>
                 </div>
               </div>
             `;
@@ -2750,6 +2398,7 @@
 
         const isItemDoneInBuy = currentMode === 'buy' && allItemVarsPurchased;
         const isItemDone = (currentMode === 'count' && allItemVarsCounted) || isItemDoneInBuy;
+        const isCardRecent = item.hasRecentItems && !isItemDone;
 
         // Keep standard white card background so the entire card is not colored yellow
         const cardArticleClass = isItemDone
@@ -2760,26 +2409,25 @@
           ? 'bg-emerald-100/60 border-b border-slate-200/80'
           : 'bg-slate-50 border-b border-slate-200/80';
 
+        const recentHeaderBadge = '';
+
         return `
-          <div class="swipe-card-wrapper shadow-sm mb-2" data-card-type="item" data-card-id="${item.id}">
-            <div class="swipe-layer-left">
-              <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Check</span>
-            </div>
-            <div class="swipe-layer-right">
-              <span class="flex items-center gap-1.5">${currentMode === 'cart' ? '✕ Uncheck' : '＋1 Qty'}</span>
-            </div>
-            <article class="swipe-card-content border ${cardArticleClass} overflow-hidden transition-all">
+          <article class="rounded-xl border ${cardArticleClass} shadow-sm overflow-hidden transition-all">
             <header class="px-2.5 py-1.5 ${cardHeaderClass} flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                <h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Tap to preview plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDone ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>
+                ${recentHeaderBadge}
+                ${
+                  (typeof isPlantImageClickable === 'function' ? isPlantImageClickable(item.name) : item.name.toLowerCase().includes('firestorm'))
+                    ? `<h2 onclick="openPlantImageModal(this.getAttribute('data-plant-name'))" data-plant-name="${escapeHtml(item.name)}" title="Click to view plant image" class="text-[15px] sm:text-base font-extrabold text-slate-900 hover:text-emerald-700 truncate tracking-tight leading-snug cursor-pointer transition-colors ${isItemDone ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                    : `<h2 class="text-[15px] sm:text-base font-extrabold text-slate-900 truncate tracking-tight leading-snug ${isItemDone ? 'title-strikethrough line-through decoration-1 decoration-slate-400 text-slate-400' : ''}">${escapeHtml(item.name)}</h2>`
+                }
               </div>
               ${headerBadgeHtml}
             </header>
             <div>
               ${variationsHtml}
             </div>
-            </article>
-          </div>
+          </article>
         `;
       }
 
@@ -3774,7 +3422,7 @@
       function setHeaderCollapsed(collapse) {
         if (isHeaderCollapsed === collapse) return;
         isHeaderCollapsed = collapse;
-        scrollTransitionTimer = Date.now() + 400; // Smooth 300ms transition lock
+        scrollTransitionTimer = Date.now() + 750; // Lock during 700ms CSS transition to prevent oscillation
         accumulatedDelta = 0;
 
         const brandRow = document.getElementById('headerRowBrand');
@@ -3792,12 +3440,12 @@
           }
         } else {
           if (brandRow) {
-            brandRow.style.maxHeight = '64px';
+            brandRow.style.maxHeight = '100px';
             brandRow.style.opacity = '1';
             brandRow.style.pointerEvents = 'auto';
           }
           if (filtersRow) {
-            filtersRow.style.maxHeight = '56px';
+            filtersRow.style.maxHeight = '160px';
             filtersRow.style.opacity = '1';
             filtersRow.style.pointerEvents = 'auto';
           }
@@ -3805,18 +3453,12 @@
       }
 
       window.addEventListener('scroll', () => {
-        // Auto-blur search input when user scrolls the main list to dismiss keyboard
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && document.activeElement === searchInput) {
-          searchInput.blur();
-        }
-
         const currentY = Math.max(0, window.scrollY);
         const delta = currentY - lastScrollY;
         lastScrollY = currentY;
 
         // Near top of page: always fully expanded
-        if (currentY <= 20) {
+        if (currentY <= 30) {
           setHeaderCollapsed(false);
           return;
         }
@@ -3832,12 +3474,12 @@
         }
         accumulatedDelta += delta;
 
-        // Scrolling down into content: collapse brand & filter rows (pinned Search & Tabs remain)
-        if (accumulatedDelta > 20 && currentY > 50) {
+        // Scrolling up into content: collapse header (requires sustained scroll)
+        if (accumulatedDelta > 25 && currentY > 60) {
           setHeaderCollapsed(true);
         }
-        // Scrolling up towards top: reveal brand & filter rows
-        else if (accumulatedDelta < -20) {
+        // Scrolling down towards top: reveal header (requires sustained scroll)
+        else if (accumulatedDelta < -25) {
           setHeaderCollapsed(false);
         }
       }, { passive: true });
