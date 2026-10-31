@@ -661,8 +661,8 @@
     </div>
 
     <!-- QUICK MANUAL PLANT ENTRY MODAL -->
-    <div id="manualAddModal" class="hidden fixed left-0 right-0 z-50 bg-slate-950/60 backdrop-blur-sm p-4 flex items-center justify-center opacity-0 pointer-events-none" style="top: 0; height: 100dvh;" onclick="if(event.target===this) closeManualAdd()">
-      <div id="manualAddModalCard" class="w-full max-w-sm max-h-[calc(100%-1rem)] overflow-y-auto rounded-2xl bg-white p-3.5 sm:p-4 shadow-2xl border border-slate-200 my-auto transform translate-y-8 scale-[0.96] opacity-0">
+    <div id="manualAddModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm px-4 pt-6 sm:pt-14 pb-4 flex items-start justify-center sm:items-center opacity-0 pointer-events-none" onclick="if(event.target===this) closeManualAdd()">
+      <div id="manualAddModalCard" class="w-full max-w-sm max-h-[calc(100%-2rem)] overflow-y-auto rounded-2xl bg-white p-3.5 sm:p-4 shadow-2xl border border-slate-200 transform translate-y-8 scale-[0.96] opacity-0">
         <div class="flex items-center justify-between mb-2.5">
           <h2 class="text-sm font-extrabold text-slate-900">＋ Add Plant Manually</h2>
           <button onclick="closeManualAdd()" aria-label="Close modal" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center">✕</button>
@@ -672,10 +672,10 @@
 
         <input type="hidden" id="quickManualSize" value='4"' />
         <div id="manualSizePills" class="grid grid-cols-4 gap-1.5 mb-2.5">
-          <button type="button" onclick="selectManualSizePill('2&quot;')" data-size-val='2"' class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center">2"</button>
-          <button type="button" onclick="selectManualSizePill('4&quot;')" data-size-val='4"' class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-extrabold border border-emerald-700 bg-emerald-700 text-white shadow-sm active:scale-95 transition-all text-center">4"</button>
-          <button type="button" onclick="selectManualSizePill('6&quot;')" data-size-val='6"' class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center">6"</button>
-          <button type="button" onclick="selectManualSizePill('2G')" data-size-val="2G" class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center">2G</button>
+          <button type="button" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="selectManualSizePill('2&quot;')" data-size-val='2"' class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center">2"</button>
+          <button type="button" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="selectManualSizePill('4&quot;')" data-size-val='4"' class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-extrabold border border-emerald-700 bg-emerald-700 text-white shadow-sm active:scale-95 transition-all text-center">4"</button>
+          <button type="button" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="selectManualSizePill('6&quot;')" data-size-val='6"' class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center">6"</button>
+          <button type="button" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="selectManualSizePill('2G')" data-size-val="2G" class="manual-size-pill py-1.5 px-1 rounded-lg text-xs font-bold border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all text-center">2G</button>
         </div>
 
         <div class="flex items-center justify-between gap-3 mb-3 bg-slate-50 py-1.5 px-2.5 rounded-xl border border-slate-200">
@@ -683,9 +683,9 @@
             <label class="block text-xs font-extrabold text-slate-800" for="quickManualQty">🎯 Quantity</label>
           </div>
           <div class="flex items-center rounded-lg border border-slate-300 bg-white p-0.5 gap-1 shadow-sm">
-            <button type="button" aria-label="Decrease quantity" onclick="adjustQuickManualQty(-1)" class="w-7 h-7 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-sm active:scale-95">−</button>
+            <button type="button" aria-label="Decrease quantity" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="adjustQuickManualQty(-1)" class="w-7 h-7 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-sm active:scale-95">−</button>
             <input id="quickManualQty" type="number" min="1" step="1" value="1" inputmode="numeric" onfocus="this.select()" onclick="this.select()" class="w-10 text-center text-sm font-extrabold outline-none bg-transparent" onkeydown="if(event.key==='Enter'){event.preventDefault();saveQuickManualPlant('buy')}" />
-            <button type="button" aria-label="Increase quantity" onclick="adjustQuickManualQty(1)" class="w-7 h-7 rounded-md bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-extrabold text-sm active:scale-95">＋</button>
+            <button type="button" aria-label="Increase quantity" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="adjustQuickManualQty(1)" class="w-7 h-7 rounded-md bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-extrabold text-sm active:scale-95">＋</button>
           </div>
         </div>
 
@@ -3668,13 +3668,8 @@
       }
 
       function adjustManualModalToViewport() {
-        const modal = document.getElementById('manualAddModal');
-        if (!modal || modal.classList.contains('hidden')) return;
-        if (window.visualViewport) {
-          const vv = window.visualViewport;
-          modal.style.top = `${vv.offsetTop}px`;
-          modal.style.height = `${vv.height}px`;
-        }
+        // Modal is anchored to the top of the viewport (fixed inset-0 pt-6 sm:pt-14)
+        // so it stays rock-solid and never jumps or drops when the virtual keyboard opens or closes
       }
 
       if (window.visualViewport) {
@@ -3892,6 +3887,10 @@
         const input = document.getElementById('quickManualQty');
         const current = Math.max(1, Math.floor(Number(input.value) || 1));
         input.value = String(Math.max(1, current + delta));
+        const nameInput = document.getElementById('quickManualName');
+        if (document.activeElement !== input && document.activeElement !== nameInput) {
+          if (nameInput) nameInput.focus({ preventScroll: true });
+        }
       };
 
       window.saveQuickManualPlant = function(targetMode = 'buy') {
