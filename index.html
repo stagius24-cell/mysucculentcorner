@@ -346,21 +346,22 @@
       </div>
     </main>
 
-    <!-- FLOATING ACTION BUTTON (BOTTOM-RIGHT CIRCULAR FAB: + ADD PLANT / UNDO CHECK-OFF) -->
+    <!-- FLOATING ACTION BUTTON (BOTTOM-RIGHT CIRCULAR FAB: 62x62px, 50% OPACITY, 0.5PT BLUR) -->
     <aside id="floatingBarAside" class="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 sm:right-6 z-30 no-print">
       <button 
         id="fabMainBtn" 
         onclick="handleFloatingActionButton(event)" 
         aria-label="Add plant manually" 
         title="Add plant manually" 
-        class="w-14 h-14 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-xl shadow-emerald-950/20 active:scale-90 transition-all duration-300 flex items-center justify-center border border-white/20 ring-4 ring-emerald-600/20 cursor-pointer"
+        class="w-[62px] h-[62px] min-w-[62px] min-h-[62px] rounded-full text-white shadow-xl shadow-emerald-950/25 active:scale-95 transition-all duration-200 flex items-center justify-center border border-white/25 ring-4 ring-emerald-600/20 cursor-pointer"
+        style="background-color: rgba(6, 78, 59, 0.5); backdrop-filter: blur(0.5pt); -webkit-backdrop-filter: blur(0.5pt);"
       >
         <span id="fabIconPlus" class="text-3xl font-black leading-none select-none">＋</span>
         <div id="fabUndoContent" class="hidden flex flex-col items-center justify-center leading-none select-none">
-          <svg class="w-5 h-5 text-slate-950 font-bold" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <svg class="w-6 h-6 text-white font-bold" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 015 5v2m-15-7l4-4m-4 4l4 4"/>
           </svg>
-          <span id="floatUndoCountdown" class="text-[10px] font-black tracking-tight text-slate-950 mt-0.5">9s</span>
+          <span id="floatUndoCountdown" class="text-[11px] font-black tracking-tight text-white mt-0.5">9s</span>
         </div>
       </button>
     </aside>
@@ -2048,7 +2049,6 @@
         if (plusIcon) plusIcon.classList.add('hidden');
         if (undoContent) undoContent.classList.remove('hidden');
 
-        btn.className = "w-14 h-14 rounded-full bg-amber-400 hover:bg-amber-500 text-slate-950 shadow-xl shadow-amber-950/25 active:scale-90 transition-all duration-300 flex items-center justify-center border-2 border-amber-300 ring-4 ring-amber-400/30 cursor-pointer animate-pulse";
         btn.setAttribute('title', 'Undo check off (9s)');
         btn.setAttribute('aria-label', 'Undo check off');
 
@@ -2093,7 +2093,6 @@
         const plusIcon = document.getElementById('fabIconPlus');
         const undoContent = document.getElementById('fabUndoContent');
         if (btn) {
-          btn.className = "w-14 h-14 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-xl shadow-emerald-950/20 active:scale-90 transition-all duration-300 flex items-center justify-center border border-white/20 ring-4 ring-emerald-600/20 cursor-pointer";
           btn.setAttribute('title', 'Add plant manually');
           btn.setAttribute('aria-label', 'Add plant manually');
         }
