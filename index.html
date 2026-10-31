@@ -2647,20 +2647,24 @@
               <div class="swipe-layer-right">
                 <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${currentMode === 'cart' ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7'}"/></svg> ${currentMode === 'cart' ? 'Uncheck' : 'Check'}</span>
               </div>
-              <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : 'bg-white'}">
+              <div class="swipe-row-content py-1 px-2 flex items-center gap-2 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : 'bg-white'}">
                 <button
                   onclick="triggerHaptic('light', this); toggleManualCounted('${item.id}')"
                   title="${isCounted ? 'Count verified (tap to unmark)' : 'Tap to confirm count'}"
                   aria-label="Mark manual plant counted"
-                  class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'} flex items-center justify-center text-xs font-extrabold active:scale-95 transition-all shrink-0 cursor-pointer"
+                  class="w-[28.5px] h-[28.5px] min-w-[28.5px] min-h-[28.5px] rounded-lg border ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'} flex items-center justify-center text-xs font-extrabold active:scale-95 transition-all shrink-0 cursor-pointer"
                 >✓</button>
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
+                  <span class="text-xs font-black px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
                   ${detailSpan}
-                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                    <span title="Target quantity">🎯 ${sold}</span>
-                    <span class="text-slate-300" aria-hidden="true">/</span>
-                    <span class="${shortfall > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-extrabold'}" title="Needed">🛒 ${shortfall}</span>
+                  <div class="flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold whitespace-nowrap shrink-0 ml-auto pr-0.5 leading-none">
+                    <span class="inline-flex items-center gap-0.5 text-slate-900 font-black text-xs sm:text-[13px]" title="Target quantity">
+                      <span class="text-[11px] leading-none">🎯</span><span>${sold}</span>
+                    </span>
+                    <span class="text-slate-300 font-bold" aria-hidden="true">/</span>
+                    <span class="inline-flex items-center gap-0.5 ${shortfall > 0 ? 'text-amber-700' : 'text-emerald-700'} font-black text-xs sm:text-[13px]" title="Needed shortfall">
+                      <span class="text-[11px] leading-none">🛒</span><span>${shortfall}</span>
+                    </span>
                   </div>
                 </div>
                 <div class="flex items-center shrink-0">
@@ -2668,7 +2672,7 @@
                     onclick="triggerHaptic('light', this); openQtyModal('${item.id}', true)"
                     title="📦 In Stock (tap to adjust)"
                     aria-label="Adjust stock quantity"
-                    class="h-[30px] min-w-[34px] px-2 rounded-lg border border-slate-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-slate-900 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                    class="h-[28.5px] min-w-[32px] px-1.5 rounded-lg border border-slate-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-slate-900 font-black text-xs sm:text-[13px] flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
                   >${stock}</button>
                 </div>
               </div>
@@ -2683,15 +2687,19 @@
               <div class="swipe-layer-right">
                 <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${currentMode === 'cart' ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7'}"/></svg> ${currentMode === 'cart' ? 'Uncheck' : 'Check'}</span>
               </div>
-              <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : 'bg-white'}">
-                <button onclick="toggleManualPurchased('${item.id}', this)" title="Add to cart" aria-label="Add to cart" class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border border-emerald-700 ${isPurchased ? 'bg-emerald-700 text-white shadow-xs' : 'bg-white text-transparent hover:bg-emerald-50'} flex items-center justify-center text-xs font-extrabold transition-all shrink-0 cursor-pointer active:scale-95">${isPurchased ? '✓' : ''}</button>
+              <div class="swipe-row-content py-1 px-2 flex items-center gap-2 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : 'bg-white'}">
+                <button onclick="toggleManualPurchased('${item.id}', this)" title="Add to cart" aria-label="Add to cart" class="w-[28.5px] h-[28.5px] min-w-[28.5px] min-h-[28.5px] rounded-lg border border-emerald-700 ${isPurchased ? 'bg-emerald-700 text-white shadow-xs' : 'bg-white text-transparent hover:bg-emerald-50'} flex items-center justify-center text-xs font-extrabold transition-all shrink-0 cursor-pointer active:scale-95">${isPurchased ? '✓' : ''}</button>
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
+                  <span class="text-xs font-black px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
                   ${detailSpan}
-                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'text-slate-500' : 'text-slate-600'} leading-none">
-                    <span title="Target quantity">🎯 ${sold}</span>
-                    <span class="text-slate-300" aria-hidden="true">/</span>
-                    <span title="In Stock">📦 ${stock}</span>
+                  <div class="flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold whitespace-nowrap shrink-0 ml-auto pr-0.5 leading-none">
+                    <span class="inline-flex items-center gap-0.5 text-slate-900 font-black text-xs sm:text-[13px]" title="Target quantity">
+                      <span class="text-[11px] leading-none">🎯</span><span>${sold}</span>
+                    </span>
+                    <span class="text-slate-300 font-bold" aria-hidden="true">/</span>
+                    <span class="inline-flex items-center gap-0.5 text-slate-800 font-black text-xs sm:text-[13px]" title="In Stock">
+                      <span class="text-[11px] leading-none">📦</span><span>${stock}</span>
+                    </span>
                   </div>
                 </div>
                 <div class="flex items-center shrink-0">
@@ -2699,7 +2707,7 @@
                     onclick="triggerHaptic('light', this); openQtyModal('${item.id}', true)"
                     title="🛒 Qty to Buy (tap to adjust)"
                     aria-label="Adjust buy quantity"
-                    class="h-[30px] min-w-[34px] px-2 rounded-lg border ${isPurchased ? 'border-emerald-200 bg-emerald-50/60 text-emerald-800' : 'border-slate-300 bg-white hover:bg-amber-50 active:bg-amber-100 text-slate-900'} font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                    class="h-[28.5px] min-w-[32px] px-1.5 rounded-lg border ${isPurchased ? 'border-emerald-200 bg-emerald-50/60 text-emerald-800' : 'border-slate-300 bg-white hover:bg-amber-50 active:bg-amber-100 text-slate-900'} font-black text-xs sm:text-[13px] flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
                   >${buyQty}</button>
                 </div>
               </div>
@@ -2714,15 +2722,19 @@
               <div class="swipe-layer-right">
                 <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${currentMode === 'cart' ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7'}"/></svg> ${currentMode === 'cart' ? 'Uncheck' : 'Check'}</span>
               </div>
-              <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors bg-emerald-50/60">
-                <button onclick="toggleManualPurchased('${item.id}', this)" title="Remove from cart" aria-label="Remove from cart" class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 shadow-xs transition-all cursor-pointer shrink-0 flex items-center justify-center text-xs font-extrabold active:scale-95">✓</button>
+              <div class="swipe-row-content py-1 px-2 flex items-center gap-2 transition-colors bg-emerald-50/60">
+                <button onclick="toggleManualPurchased('${item.id}', this)" title="Remove from cart" aria-label="Remove from cart" class="w-[28.5px] h-[28.5px] min-w-[28.5px] min-h-[28.5px] rounded-lg bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 shadow-xs transition-all cursor-pointer shrink-0 flex items-center justify-center text-xs font-extrabold active:scale-95">✓</button>
                 <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60 shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
+                  <span class="text-xs font-black px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60 shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
                   ${detailSpan}
-                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                    <span class="text-emerald-800 font-extrabold" title="Estimated line cost">$${lineSubtotal}</span>
-                    <span class="text-slate-300" aria-hidden="true">/</span>
-                    <span title="Target quantity">🎯 ${sold}</span>
+                  <div class="flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold whitespace-nowrap shrink-0 ml-auto pr-0.5 leading-none">
+                    <span class="inline-flex items-center gap-0.5 text-emerald-800 font-black text-xs sm:text-[13px]" title="Estimated line cost">
+                      <span>$${lineSubtotal}</span>
+                    </span>
+                    <span class="text-slate-300 font-bold" aria-hidden="true">/</span>
+                    <span class="inline-flex items-center gap-0.5 text-slate-900 font-black text-xs sm:text-[13px]" title="Target quantity">
+                      <span class="text-[11px] leading-none">🎯</span><span>${sold}</span>
+                    </span>
                   </div>
                 </div>
                 <div class="flex items-center shrink-0">
@@ -2730,7 +2742,7 @@
                     onclick="triggerHaptic('light', this); openQtyModal('${item.id}', true)"
                     title="🛒 Qty in Cart (tap to adjust)"
                     aria-label="Adjust cart quantity"
-                    class="h-[30px] min-w-[34px] px-2 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-emerald-950 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                    class="h-[28.5px] min-w-[32px] px-1.5 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-emerald-950 font-black text-xs sm:text-[13px] flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
                   >${buyQty}</button>
                 </div>
               </div>
@@ -2740,8 +2752,8 @@
         
         const isManualDoneInBuy = currentMode === 'buy' && isPurchased;
         return `
-          <article class="border ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90 bg-white shadow-sm'} rounded-xl overflow-hidden mb-2 transition-all">
-            <header class="px-2.5 py-1.5 ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
+          <article class="border ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90 bg-white shadow-sm'} rounded-xl overflow-hidden mb-1.5 transition-all">
+            <header class="px-2.5 py-1 ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">Manual</span>
                 ${
@@ -2823,23 +2835,27 @@
                 <div class="swipe-layer-right">
                   <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${currentMode === 'cart' ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7'}"/></svg> ${currentMode === 'cart' ? 'Uncheck' : 'Check'}</span>
                 </div>
-                <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : 'bg-white')}">
+                <div class="swipe-row-content py-1 px-2 flex items-center gap-2 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : 'bg-white')}">
                   <button
                     onclick="triggerHaptic('light', this); toggleCountedStatus('${v.id}')"
                     title="${isCounted ? 'Count verified (tap to unmark)' : 'Tap to confirm 0 stock / counted'}"
                     aria-label="Mark variation counted"
-                    class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'} flex items-center justify-center text-xs font-extrabold active:scale-95 transition-all shrink-0 cursor-pointer"
+                    class="w-[28.5px] h-[28.5px] min-w-[28.5px] min-h-[28.5px] rounded-lg border ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'} flex items-center justify-center text-xs font-extrabold active:scale-95 transition-all shrink-0 cursor-pointer"
                   >✓</button>
                   <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                    <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
+                    <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-xs font-black px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
                       ${escapeHtml(badgeText)}
                     </span>
                     ${shopifyVarIcon}
                     ${detailSpan}
-                    <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                      <span title="Target quantity">🎯 ${v.sold}</span>
-                      <span class="text-slate-300" aria-hidden="true">/</span>
-                      <span class="${shortfall > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-extrabold'}" title="Needed">🛒 ${shortfall}</span>
+                    <div class="flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold whitespace-nowrap shrink-0 ml-auto pr-0.5 leading-none">
+                      <span class="inline-flex items-center gap-0.5 text-slate-900 font-black text-xs sm:text-[13px]" title="Target quantity">
+                        <span class="text-[11px] leading-none">🎯</span><span>${v.sold}</span>
+                      </span>
+                      <span class="text-slate-300 font-bold" aria-hidden="true">/</span>
+                      <span class="inline-flex items-center gap-0.5 ${shortfall > 0 ? 'text-amber-700' : 'text-emerald-700'} font-black text-xs sm:text-[13px]" title="Needed shortfall">
+                        <span class="text-[11px] leading-none">🛒</span><span>${shortfall}</span>
+                      </span>
                     </div>
                   </div>
                   <div class="flex items-center shrink-0">
@@ -2847,7 +2863,7 @@
                       onclick="triggerHaptic('light', this); openQtyModal('${v.id}', false)"
                       title="📦 In Stock (tap to adjust)"
                       aria-label="Adjust stock quantity"
-                      class="h-[30px] min-w-[34px] px-2 rounded-lg border border-slate-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-slate-900 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                      class="h-[28.5px] min-w-[32px] px-1.5 rounded-lg border border-slate-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-slate-900 font-black text-xs sm:text-[13px] flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
                     >${stock}</button>
                   </div>
                 </div>
@@ -2862,22 +2878,26 @@
                 <div class="swipe-layer-right">
                   <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${currentMode === 'cart' ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7'}"/></svg> ${currentMode === 'cart' ? 'Uncheck' : 'Check'}</span>
                 </div>
-                <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : 'bg-white')}">
+                <div class="swipe-row-content py-1 px-2 flex items-center gap-2 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : 'bg-white')}">
                   <button 
                     onclick="togglePurchased('${v.id}', this)"
                     title="${isPurchased ? 'In cart (tap to uncheck)' : 'Add to cart'}"
                     aria-label="Add to cart"
-                    class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border border-emerald-700 ${isPurchased ? 'bg-emerald-700 text-white shadow-xs' : 'bg-white text-transparent hover:bg-emerald-50'} flex items-center justify-center text-xs font-extrabold transition-all shrink-0 cursor-pointer active:scale-95">${isPurchased ? '✓' : ''}</button>
+                    class="w-[28.5px] h-[28.5px] min-w-[28.5px] min-h-[28.5px] rounded-lg border border-emerald-700 ${isPurchased ? 'bg-emerald-700 text-white shadow-xs' : 'bg-white text-transparent hover:bg-emerald-50'} flex items-center justify-center text-xs font-extrabold transition-all shrink-0 cursor-pointer active:scale-95">${isPurchased ? '✓' : ''}</button>
                   <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                    <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
+                    <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-xs font-black px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
                       ${escapeHtml(badgeText)}
                     </span>
                     ${shopifyVarIcon}
                     ${detailSpan}
-                    <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'text-slate-500' : 'text-slate-600'} leading-none">
-                      <span title="Original target quantity">🎯 ${v.sold}</span>
-                      <span class="text-slate-300" aria-hidden="true">/</span>
-                      <span title="In Stock">📦 ${stock}</span>
+                    <div class="flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold whitespace-nowrap shrink-0 ml-auto pr-0.5 leading-none">
+                      <span class="inline-flex items-center gap-0.5 text-slate-900 font-black text-xs sm:text-[13px]" title="Original target quantity">
+                        <span class="text-[11px] leading-none">🎯</span><span>${v.sold}</span>
+                      </span>
+                      <span class="text-slate-300 font-bold" aria-hidden="true">/</span>
+                      <span class="inline-flex items-center gap-0.5 text-slate-800 font-black text-xs sm:text-[13px]" title="In Stock">
+                        <span class="text-[11px] leading-none">📦</span><span>${stock}</span>
+                      </span>
                     </div>
                   </div>
                   <div class="flex items-center shrink-0">
@@ -2885,7 +2905,7 @@
                       onclick="triggerHaptic('light', this); openQtyModal('${v.id}', false)"
                       title="🛒 Qty to Buy (tap to adjust)"
                       aria-label="Adjust buy quantity"
-                      class="h-[30px] min-w-[34px] px-2 rounded-lg border ${isPurchased ? 'border-emerald-200 bg-emerald-50/60 text-emerald-800' : 'border-slate-300 bg-white hover:bg-amber-50 active:bg-amber-100 text-slate-900'} font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                      class="h-[28.5px] min-w-[32px] px-1.5 rounded-lg border ${isPurchased ? 'border-emerald-200 bg-emerald-50/60 text-emerald-800' : 'border-slate-300 bg-white hover:bg-amber-50 active:bg-amber-100 text-slate-900'} font-black text-xs sm:text-[13px] flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
                     >${buyQty}</button>
                   </div>
                 </div>
@@ -2900,22 +2920,26 @@
                 <div class="swipe-layer-right">
                   <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${currentMode === 'cart' ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7'}"/></svg> ${currentMode === 'cart' ? 'Uncheck' : 'Check'}</span>
                 </div>
-                <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors ${isRecentRow ? 'bg-amber-100/80' : 'bg-emerald-50/60'}">
+                <div class="swipe-row-content py-1 px-2 flex items-center gap-2 transition-colors ${isRecentRow ? 'bg-amber-100/80' : 'bg-emerald-50/60'}">
                   <button 
                     onclick="togglePurchased('${v.id}', this)"
                     title="Remove from cart"
                     aria-label="Remove from cart"
-                    class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 shadow-xs transition-all cursor-pointer shrink-0 flex items-center justify-center text-xs font-extrabold active:scale-95">✓</button>
+                    class="w-[28.5px] h-[28.5px] min-w-[28.5px] min-h-[28.5px] rounded-lg bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 shadow-xs transition-all cursor-pointer shrink-0 flex items-center justify-center text-xs font-extrabold active:scale-95">✓</button>
                   <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                    <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60'} shrink-0 leading-tight">
+                    <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-xs font-black px-1.5 py-0.5 min-w-[28px] text-center rounded ${isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60'} shrink-0 leading-tight">
                       ${escapeHtml(badgeText)}
                     </span>
                     ${shopifyVarIcon}
                     ${detailSpan}
-                    <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                      <span class="text-emerald-800 font-extrabold" title="Estimated line cost">$${lineSubtotal}</span>
-                      <span class="text-slate-300" aria-hidden="true">/</span>
-                      <span title="Original target quantity">🎯 ${v.sold}</span>
+                    <div class="flex items-center gap-1.5 text-xs sm:text-[13px] font-extrabold whitespace-nowrap shrink-0 ml-auto pr-0.5 leading-none">
+                      <span class="inline-flex items-center gap-0.5 text-emerald-800 font-black text-xs sm:text-[13px]" title="Estimated line cost">
+                        <span>$${lineSubtotal}</span>
+                      </span>
+                      <span class="text-slate-300 font-bold" aria-hidden="true">/</span>
+                      <span class="inline-flex items-center gap-0.5 text-slate-900 font-black text-xs sm:text-[13px]" title="Original target quantity">
+                        <span class="text-[11px] leading-none">🎯</span><span>${v.sold}</span>
+                      </span>
                     </div>
                   </div>
                   <div class="flex items-center shrink-0">
@@ -2923,7 +2947,7 @@
                       onclick="triggerHaptic('light', this); openQtyModal('${v.id}', false)"
                       title="🛒 Qty in Cart (tap to adjust)"
                       aria-label="Adjust cart quantity"
-                      class="h-[30px] min-w-[34px] px-2 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-emerald-950 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                      class="h-[28.5px] min-w-[32px] px-1.5 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-emerald-950 font-black text-xs sm:text-[13px] flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
                     >${buyQty}</button>
                   </div>
                 </div>
@@ -2959,8 +2983,8 @@
         const recentHeaderBadge = '';
 
         return `
-          <article class="border ${cardArticleClass} rounded-xl overflow-hidden shadow-sm mb-2 transition-all">
-            <header class="px-2.5 py-1.5 ${cardHeaderClass} flex items-center justify-between gap-2">
+          <article class="border ${cardArticleClass} rounded-xl overflow-hidden shadow-sm mb-1.5 transition-all">
+            <header class="px-2.5 py-1 ${cardHeaderClass} flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
                 ${recentHeaderBadge}
                 ${
