@@ -1735,9 +1735,9 @@
 
           if (Math.abs(finalX) >= SWIPE_THRESHOLD) {
             if (currentMode === 'cart') {
-              triggerHaptic('uncheck', rowContent);
+              triggerHaptic('uncheck');
             } else {
-              triggerHaptic('check', rowContent);
+              triggerHaptic('check');
             }
             // Wait for snapback to finish so DOM replacement does not flicker mid-animation
             setTimeout(() => {
