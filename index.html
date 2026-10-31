@@ -2549,8 +2549,8 @@
 
         // Push recently imported items (< 3 hours) to the very top!
         unifiedCards.sort((a, b) => {
-          const aRecent = !!(a.hasRecentItems || a.isRecent);
-          const bRecent = !!(b.hasRecentItems || b.isRecent);
+          const aRecent = (Array.isArray(a.variations) && a.variations.some(v => isVariationRecent(v))) || isVariationRecent(a);
+          const bRecent = (Array.isArray(b.variations) && b.variations.some(v => isVariationRecent(v))) || isVariationRecent(b);
           if (aRecent !== bRecent) return aRecent ? -1 : 1;
 
           if (sortFilter === 'sold-desc') {
@@ -2771,14 +2771,14 @@
 
         // Prioritize recently imported variations (< 3h) to the top, then sort by pot size (2" -> 4" -> 6" -> Special -> 2G)
         item.visibleVariations.sort((v1, v2) => {
-          const r1 = v1.isRecent ? 1 : 0;
-          const r2 = v2.isRecent ? 1 : 0;
+          const r1 = isVariationRecent(v1) ? 1 : 0;
+          const r2 = isVariationRecent(v2) ? 1 : 0;
           if (r1 !== r2) return r2 - r1;
           return getVariationSortWeight(v1) - getVariationSortWeight(v2);
         });
 
         item.visibleVariations.forEach(v => {
-          const isRecentRow = !!v.isRecent;
+          const isRecentRow = isVariationRecent(v);
           const recentRowBadge = '';
           const stock = stockState[v.id] || 0;
           const isCounted = !!countedState[v.id];
@@ -3367,7 +3367,18 @@
         });
       }
 
-      // IMPORT SNAPSHOT HELPERS (Tracks newly imported variations within 3 hours)
+      // IMPORT SNAPSHOT & RECENCY HELPERS (Tracks newly imported variations within 3 hours)
+      function isVariationRecent(v) {
+        if (!v) return false;
+        if (v.recentUntilMs !== undefined && v.recentUntilMs !== null && Number(v.recentUntilMs) > 0) {
+          return Date.now() < Number(v.recentUntilMs);
+        }
+        if (v.isRecent && syncMeta && syncMeta.lastImportedMs) {
+          return Math.abs(Date.now() - syncMeta.lastImportedMs) <= (3 * 60 * 60 * 1000);
+        }
+        return !!v.isRecent;
+      }
+
       function loadImportSnapshot() {
         try {
           const raw = localStorage.getItem('plant_imported_snapshot_v1');
@@ -3518,24 +3529,38 @@
           }
           if (isShopify) grouped[cleanName].hasShopify = true;
           const sourceKey = isShopify ? 'shopify' : 'etsy';
-          // Check order_date if provided in CSV (within 3 hours of reportTimeMs)
+          // Check order_date if provided in CSV (within 3 hours of now or reportTimeMs)
           const rawOrderDate = r['order_date'] || r['created_at'] || r['Order Date'] || '';
           let isOrderWithin3Hours = false;
+          let parsedOrderDateMs = 0;
           if (rawOrderDate) {
             const parsedOrderDate = new Date(rawOrderDate);
-            if (!isNaN(parsedOrderDate.getTime()) && Math.abs(reportTimeMs - parsedOrderDate.getTime()) <= THREE_HOURS_MS) {
-              isOrderWithin3Hours = true;
+            if (!isNaN(parsedOrderDate.getTime())) {
+              parsedOrderDateMs = parsedOrderDate.getTime();
+              if (Math.abs(now - parsedOrderDateMs) <= THREE_HOURS_MS || Math.abs(reportTimeMs - parsedOrderDateMs) <= THREE_HOURS_MS) {
+                isOrderWithin3Hours = true;
+              }
             }
           }
 
           // Separate variations by source (Etsy vs Shopify) and by recency (<3h) so new orders are separated as their own highlighted row
           const baseVariationKey = `${cleanName.toLowerCase()}|${String(effectiveVarOpt).trim().toLowerCase()}|${potSize}|${sourceKey}`;
           const prevEntry = prevSnapshot ? prevSnapshot[baseVariationKey] : null;
-          let prevSold = prevEntry ? (prevEntry.sold || 0) : null;
+          let prevSold = prevEntry ? (Number(prevEntry.sold) || 0) : null;
+          let prevRecentSold = prevEntry && prevEntry.recentSold ? Number(prevEntry.recentSold) : 0;
+          let prevRecentUntilMs = prevEntry && prevEntry.recentUntilMs ? Number(prevEntry.recentUntilMs) : 0;
+          const isPrevRecentActive = prevRecentUntilMs > now;
+
+          let recordedRecentSold = 0;
+          let recordedRecentUntilMs = 0;
 
           // Initial seed fallback if no snapshot in localStorage yet
           if (prevSold === null) {
-            if (cleanName.includes("Morgan's Beauty") && potSize.includes('2"')) {
+            if (isOrderWithin3Hours) {
+              prevSold = 0; // entire order was placed within last 3 hours
+            } else if (prevSnapshot !== null) {
+              prevSold = 0; // newly added plant during incremental sync
+            } else if (cleanName.includes("Morgan's Beauty") && potSize.includes('2"')) {
               prevSold = 1; // 1 was existing earlier, 1 is newly added in past 3h
             } else if (cleanName.includes("Shark Tooth") && potSize.includes('2"')) {
               prevSold = 3; // all 3 were already existing orders
@@ -3546,14 +3571,17 @@
             } else if (cleanName.includes('String of Hearts') && potSize.includes('4"')) {
               prevSold = 0; // newly added
             } else {
-              prevSold = qty; // default existing
+              prevSold = qty; // default existing baseline
             }
           }
 
-          // If quantity increased compared to previous count, separate the new units as their own highlighted row
+          // Case 1: Quantity increased compared to previous count
           if (qty > prevSold && prevSold > 0) {
             const baseSold = prevSold;
             const extraSold = qty - prevSold;
+            const recentExpiry = now + THREE_HOURS_MS;
+            recordedRecentSold = extraSold;
+            recordedRecentUntilMs = recentExpiry;
 
             const baseVarKey = `${baseVariationKey}|base`;
             if (!variationCounts[baseVarKey]) {
@@ -3564,15 +3592,20 @@
                 sold: baseSold,
                 hasShopify: isShopify,
                 source: isShopify ? 'Shopify' : 'Etsy',
-                isRecent: false
+                isRecent: false,
+                recentUntilMs: 0
               };
               variationCounts[baseVarKey] = baseVar;
               grouped[cleanName].variations.push(baseVar);
+            } else {
+              variationCounts[baseVarKey].sold = baseSold;
             }
 
             const recentVarKey = `${baseVariationKey}|recent`;
             if (variationCounts[recentVarKey]) {
               variationCounts[recentVarKey].sold += extraSold;
+              variationCounts[recentVarKey].isRecent = true;
+              variationCounts[recentVarKey].recentUntilMs = recentExpiry;
             } else {
               const recentVar = {
                 id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}_recent`,
@@ -3581,21 +3614,78 @@
                 sold: extraSold,
                 hasShopify: isShopify,
                 source: isShopify ? 'Shopify' : 'Etsy',
-                isRecent: true
+                isRecent: true,
+                recentUntilMs: recentExpiry
+              };
+              variationCounts[recentVarKey] = recentVar;
+              grouped[cleanName].variations.push(recentVar);
+            }
+            grouped[cleanName].hasRecentItems = true;
+          } else if (isPrevRecentActive && prevRecentSold > 0 && prevRecentSold < qty) {
+            // Case 2: Still within 3 hours from a previous quantity increase split
+            const baseSold = qty - prevRecentSold;
+            const extraSold = prevRecentSold;
+            recordedRecentSold = prevRecentSold;
+            recordedRecentUntilMs = prevRecentUntilMs;
+
+            const baseVarKey = `${baseVariationKey}|base`;
+            if (!variationCounts[baseVarKey]) {
+              const baseVar = {
+                id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}`,
+                name: effectiveVarOpt,
+                size: potSize,
+                sold: baseSold,
+                hasShopify: isShopify,
+                source: isShopify ? 'Shopify' : 'Etsy',
+                isRecent: false,
+                recentUntilMs: 0
+              };
+              variationCounts[baseVarKey] = baseVar;
+              grouped[cleanName].variations.push(baseVar);
+            } else {
+              variationCounts[baseVarKey].sold = baseSold;
+            }
+
+            const recentVarKey = `${baseVariationKey}|recent`;
+            if (variationCounts[recentVarKey]) {
+              variationCounts[recentVarKey].sold += extraSold;
+              variationCounts[recentVarKey].isRecent = true;
+              variationCounts[recentVarKey].recentUntilMs = prevRecentUntilMs;
+            } else {
+              const recentVar = {
+                id: `v_csv_${stableSlug(cleanName)}_${stableSlug(effectiveVarOpt)}_${stableSlug(potSize)}_${sourceKey}_recent`,
+                name: effectiveVarOpt,
+                size: potSize,
+                sold: extraSold,
+                hasShopify: isShopify,
+                source: isShopify ? 'Shopify' : 'Etsy',
+                isRecent: true,
+                recentUntilMs: prevRecentUntilMs
               };
               variationCounts[recentVarKey] = recentVar;
               grouped[cleanName].variations.push(recentVar);
             }
             grouped[cleanName].hasRecentItems = true;
           } else {
-            const isRecent = (prevSold === 0 && qty > 0) || (prevEntry && !prevEntry.sold && (Math.abs(reportTimeMs - prevEntry.importedAt) <= THREE_HOURS_MS));
-            const variationKey = `${baseVariationKey}${isRecent ? '|recent' : ''}`;
+            // Case 3: Single variation row (either completely recent, or standard baseline)
+            const isRecent = (prevSold === 0 && qty > 0) || isOrderWithin3Hours || (isPrevRecentActive && prevRecentSold >= qty);
+            let recentExpiry = 0;
+            if (isRecent) {
+              recentExpiry = isPrevRecentActive ? prevRecentUntilMs : (isOrderWithin3Hours && parsedOrderDateMs ? Math.max(now + THREE_HOURS_MS, parsedOrderDateMs + THREE_HOURS_MS) : (now + THREE_HOURS_MS));
+              recordedRecentSold = qty;
+              recordedRecentUntilMs = recentExpiry;
+            } else {
+              recordedRecentSold = 0;
+              recordedRecentUntilMs = 0;
+            }
 
+            const variationKey = `${baseVariationKey}${isRecent ? '|recent' : ''}`;
             if (variationCounts[variationKey]) {
               variationCounts[variationKey].sold += qty;
               if (isShopify) variationCounts[variationKey].hasShopify = true;
               if (isRecent) {
                 variationCounts[variationKey].isRecent = true;
+                variationCounts[variationKey].recentUntilMs = recentExpiry;
                 grouped[cleanName].hasRecentItems = true;
               }
             } else {
@@ -3606,7 +3696,8 @@
                 sold: qty,
                 hasShopify: isShopify,
                 source: isShopify ? 'Shopify' : 'Etsy',
-                isRecent: isRecent
+                isRecent: isRecent,
+                recentUntilMs: recentExpiry
               };
               if (isRecent) grouped[cleanName].hasRecentItems = true;
               variationCounts[variationKey] = newVar;
@@ -3617,6 +3708,8 @@
           // Record in new snapshot keyed by baseVariationKey so future updates detect quantity increases accurately
           newSnapshot[baseVariationKey] = {
             sold: (newSnapshot[baseVariationKey] ? newSnapshot[baseVariationKey].sold : 0) + qty,
+            recentSold: recordedRecentSold,
+            recentUntilMs: recordedRecentUntilMs,
             importedAt: reportTimeMs
           };
         });
@@ -3624,8 +3717,8 @@
         const newCatalog = Object.values(grouped).filter(item => Array.isArray(item.variations) && item.variations.length > 0);
         newCatalog.forEach(item => {
           item.variations.sort((v1, v2) => {
-            const r1 = v1.isRecent ? 1 : 0;
-            const r2 = v2.isRecent ? 1 : 0;
+            const r1 = isVariationRecent(v1) ? 1 : 0;
+            const r2 = isVariationRecent(v2) ? 1 : 0;
             if (r1 !== r2) return r2 - r1;
             return getVariationSortWeight(v1) - getVariationSortWeight(v2);
           });
