@@ -428,22 +428,14 @@
         <button onclick="prepareFinalInvoice()" class="w-full py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl flex items-center justify-between gap-2.5 active:scale-[0.99] transition-all shadow-xs">
           <span class="flex items-center gap-2.5 font-extrabold">
             <span>🧾</span>
-            <span>Prepare Final Buying Invoice</span>
+            <span>Prepare Invoice</span>
           </span>
           <span class="text-[10px] font-extrabold bg-emerald-900/60 text-emerald-100 px-2 py-0.5 rounded-full">Invoice</span>
         </button>
 
-        <button onclick="shareShoppingList()" class="w-full py-2.5 px-3 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 rounded-xl flex items-center justify-between gap-2.5 active:scale-[0.99] transition-all shadow-xs">
-          <span class="flex items-center gap-2.5 font-bold">
-            <span>📋</span>
-            <span>Export shopping list</span>
-          </span>
-          <span class="text-[10px] font-extrabold bg-emerald-200/90 text-emerald-900 px-2 py-0.5 rounded-full">Export</span>
-        </button>
-
         <button onclick="clearAllStock()" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-rose-50 text-rose-700 border border-slate-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
           <span>🔄</span>
-          <span>Reset All Stock & Count Progress to 0</span>
+          <span>Reset All Stock & Count</span>
         </button>
 
         <button onclick="clearCart()" class="w-full py-2.5 px-3 bg-slate-50 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border border-slate-200 rounded-xl flex items-center gap-2.5 active:scale-[0.99] transition-all">
@@ -4430,7 +4422,7 @@
         toggleMenuDrawer(false);
         showDialog({
           icon: '🔄',
-          title: 'Reset All Stock?',
+          title: 'Reset All Stock & Count?',
           message: 'Reset all on-hand inventory counts and shelf count progress back to 0?',
           confirmText: 'Reset to 0',
           showCancel: true,
