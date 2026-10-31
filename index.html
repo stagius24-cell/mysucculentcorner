@@ -212,10 +212,17 @@
       <div id="headerRowBrand" class="overflow-hidden transition-all duration-700 ease-in-out max-h-24 opacity-100">
         <div class="max-w-xl mx-auto px-2.5 py-1.5 flex items-center justify-between gap-2">
           <div class="flex items-center gap-2.5 min-w-0">
-            <!-- MASCOT LOGO -->
-            <div class="shrink-0">
+            <!-- MASCOT LOGO (CLICK TO HARD REFRESH & CLEAR CACHE) -->
+            <button
+              type="button"
+              id="shopLogoBtn"
+              onclick="forceHardRefresh()"
+              title="Click to clear cache & hard refresh"
+              aria-label="Click to clear cache and hard refresh"
+              class="shrink-0 p-0 m-0 bg-transparent border-0 rounded-xl cursor-pointer active:scale-90 transition-transform focus:outline-none"
+            >
               <img id="shopLogoImg" src="logo.png" alt="MySucculentCorner logo" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover shadow-sm border border-emerald-200/80 bg-[#edd5d2]" />
-            </div>
+            </button>
             <div class="min-w-0 flex flex-col justify-center leading-tight">
               <span class="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 truncate tracking-tight leading-snug">MySucculentCorner</span>
               <button onclick="toggleMenuDrawer(true)" class="text-left flex items-center gap-1 group focus:outline-none" title="Tap to view data source and sync options">
@@ -1208,6 +1215,44 @@
         setupDropZone();
         autoImportGithubCsv();
       }
+
+      window.forceHardRefresh = async function() {
+        if (typeof triggerHaptic === 'function') triggerHaptic('medium');
+        const logo = document.getElementById('shopLogoImg');
+        if (logo) {
+          logo.classList.add('animate-spin');
+        }
+
+        try {
+          const clearPromise = (async () => {
+            // 1. Clear CacheStorage (Service Worker / PWA caches)
+            if ('caches' in window) {
+              const cacheKeys = await caches.keys();
+              await Promise.all(cacheKeys.map(k => caches.delete(k)));
+            }
+            // 2. Unregister any active service workers
+            if ('serviceWorker' in navigator) {
+              const registrations = await navigator.serviceWorker.getRegistrations();
+              await Promise.all(registrations.map(r => r.unregister()));
+            }
+            // 3. Clear temporary sessionStorage
+            try { sessionStorage.clear(); } catch (e) {}
+          })();
+
+          // Wait max 400ms for cache clearing to prevent hang
+          await Promise.race([
+            clearPromise,
+            new Promise(res => setTimeout(res, 400))
+          ]);
+        } catch (err) {
+          console.warn('Hard refresh error:', err);
+        }
+
+        // 4. Force hard reload bypassing browser HTTP cache using cache-busting timestamp
+        const url = new URL(window.location.href);
+        url.searchParams.set('_reload', Date.now().toString());
+        window.location.replace(url.toString());
+      };
 
       function initLogo() {
         const logoImg = document.getElementById('shopLogoImg');
