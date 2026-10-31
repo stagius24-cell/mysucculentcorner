@@ -293,7 +293,7 @@
         <div id="expandedSortTab" class="max-w-xl mx-auto px-2.5 overflow-hidden transition-all duration-700 ease-in-out max-h-0 opacity-0 pointer-events-none">
           <div class="py-2 border-t border-slate-200/60 mt-0.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[11px]">
             
-            <!-- COMPACT "Sort ⇅" CYCLE BUTTON -->
+            <!-- COMPACT SORT CYCLE BUTTON -->
             <button 
               id="sortCycleBtn" 
               onclick="triggerHaptic('light', this); cycleSortFilter()" 
@@ -301,7 +301,8 @@
               title="Click to cycle sort (Sold → Zone → Need → A-Z)"
               aria-label="Cycle sort"
             >
-              <span id="sortCycleBtnText">Sort ⇅: 🔥 Sold</span>
+              <span id="sortCycleBtnText">🔥 Sold</span>
+              <span class="text-[10px] font-black opacity-80">⇅</span>
             </button>
 
             <!-- VERTICAL DIVIDER -->
@@ -1926,7 +1927,7 @@
         const btnText = document.getElementById('sortCycleBtnText');
         if (!btnText) return;
         const opt = SORT_OPTIONS.find(s => s.id === sortFilter) || SORT_OPTIONS[0];
-        btnText.textContent = `Sort ⇅: ${opt.label}`;
+        btnText.textContent = opt.label;
       }
 
       window.toggleSortDrawer = function(expand) {
