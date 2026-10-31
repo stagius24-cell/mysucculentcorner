@@ -572,15 +572,8 @@
     <div id="invoiceModalBackdrop" onclick="if(event.target===this) closeInvoiceModal()" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
       <div id="invoiceModalCard" class="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
-        <!-- MODAL HEADER -->
-        <div class="p-3.5 sm:p-4 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between gap-3 shrink-0">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <span class="text-2xl shrink-0">🧾</span>
-            <div class="min-w-0">
-              <h2 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug truncate">Final Buying Invoice</h2>
-              <p class="text-[11px] font-bold text-slate-500 truncate">Grouped by size & specialty pricing</p>
-            </div>
-          </div>
+        <!-- MODAL TOP BAR (Close Button) -->
+        <div class="px-3.5 py-2.5 border-b border-slate-100 bg-slate-50/80 flex items-center justify-end shrink-0">
           <button onclick="closeInvoiceModal()" aria-label="Close invoice" class="w-8 h-8 rounded-full bg-white hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm border border-slate-200 shadow-xs active:scale-95 transition-all shrink-0">✕</button>
         </div>
 
@@ -639,27 +632,21 @@
             </table>
           </div>
 
-          <!-- NOTES / SET CONVERSIONS -->
-          <div id="invoiceNotesContainer" class="hidden text-[11px] text-slate-600 bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 space-y-1">
-            <!-- Dynamic notes -->
-          </div>
+
         </div>
 
         <!-- MODAL FOOTER ACTIONS -->
-        <div class="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 shrink-0">
-          <div class="text-[11px] text-slate-500 font-bold">
-            <span id="invoiceSummaryFooter">0 pots total</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <button onclick="shareInvoiceText()" class="py-2 px-3 bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-xs" title="Share invoice text">
+        <div class="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2 shrink-0">
+          <div class="flex items-center gap-1.5 w-full sm:w-auto justify-end">
+            <button onclick="shareInvoiceText()" class="flex-1 sm:flex-initial py-2.5 px-3.5 bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all shadow-xs" title="Share invoice text">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
               <span>Share</span>
             </button>
-            <button onclick="copyInvoiceText()" class="py-2 px-3 bg-white hover:bg-slate-100 active:scale-95 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs" title="Copy formatted text to clipboard">
+            <button onclick="copyInvoiceText()" class="flex-1 sm:flex-initial py-2.5 px-3.5 bg-white hover:bg-slate-100 active:scale-95 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs" title="Copy formatted text to clipboard">
               <span>📋</span>
               <span>Copy</span>
             </button>
-            <button onclick="closeInvoiceModal()" class="py-2 px-3.5 bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-800 rounded-xl text-xs font-bold transition-all">
+            <button onclick="closeInvoiceModal()" class="py-2.5 px-4 bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-800 rounded-xl text-xs font-bold transition-all">
               Done
             </button>
           </div>
@@ -3993,16 +3980,15 @@
         const v = (varName || '').toLowerCase();
         const s = (size || '').toLowerCase();
 
-        // 1. Set of 3 Euphorbia Milli -> count as 3 separated 2" pot
+        // 1. Set of 3 Euphorbia Milii (kept as its own line item at $3.00, no conversion to 2" pots)
         if ((p.includes('milii') || p.includes('milli') || p.includes('crown of thorns')) &&
             (p.includes('set') || v.includes('set') || s.includes('set'))) {
           return {
-            key: 'pot_2',
-            label: '2" Pot',
-            unitPrice: 1.00,
-            potQty: qty * 3,
-            sortOrder: 1,
-            note: `${qty}× Set of 3 Euphorbia Milli counted as ${qty * 3}× 2" pots`
+            key: 'milii_set',
+            label: 'Set of 3 Euphorbia Milii',
+            unitPrice: 3.00,
+            potQty: qty,
+            sortOrder: 7.5
           };
         }
 
@@ -4013,8 +3999,7 @@
             label: 'Variegated Scilla Socialis',
             unitPrice: 8.00,
             potQty: qty,
-            sortOrder: 8,
-            note: null
+            sortOrder: 8
           };
         }
 
@@ -4025,8 +4010,7 @@
             label: 'Variegated Euphorbia Milii',
             unitPrice: 5.00,
             potQty: qty,
-            sortOrder: 7,
-            note: null
+            sortOrder: 7
           };
         }
 
@@ -4038,8 +4022,7 @@
               label: 'Variegated String of Hearts 2"',
               unitPrice: 1.50,
               potQty: qty,
-              sortOrder: 5,
-              note: null
+              sortOrder: 5
             };
           } else {
             return {
@@ -4047,8 +4030,7 @@
               label: 'Variegated String of Hearts 4"',
               unitPrice: 3.50,
               potQty: qty,
-              sortOrder: 6,
-              note: null
+              sortOrder: 6
             };
           }
         }
@@ -4060,8 +4042,7 @@
             label: '2G Pot (2-Gallon)',
             unitPrice: 20.00,
             potQty: qty,
-            sortOrder: 4,
-            note: null
+            sortOrder: 4
           };
         }
 
@@ -4071,8 +4052,7 @@
             label: '6" Pot',
             unitPrice: 6.00,
             potQty: qty,
-            sortOrder: 3,
-            note: null
+            sortOrder: 3
           };
         }
 
@@ -4082,8 +4062,7 @@
             label: '4" Pot',
             unitPrice: 2.50,
             potQty: qty,
-            sortOrder: 2,
-            note: null
+            sortOrder: 2
           };
         }
 
@@ -4093,8 +4072,7 @@
             label: '2" Pot',
             unitPrice: 1.00,
             potQty: qty,
-            sortOrder: 1,
-            note: null
+            sortOrder: 1
           };
         }
 
@@ -4105,8 +4083,7 @@
           label: `${plantName || 'Plant'} (${size || 'Special'})`,
           unitPrice: unitPrice,
           potQty: qty,
-          sortOrder: 9,
-          note: null
+          sortOrder: 9
         };
       };
 
@@ -4207,14 +4184,10 @@
               label: res.label,
               unitPrice: res.unitPrice,
               potQty: 0,
-              sortOrder: res.sortOrder,
-              notes: []
+              sortOrder: res.sortOrder
             };
           }
           lineGroups[res.key].potQty += res.potQty;
-          if (res.note && !lineGroups[res.key].notes.includes(res.note)) {
-            lineGroups[res.key].notes.push(res.note);
-          }
         };
 
         catalog.forEach(item => {
@@ -4250,8 +4223,6 @@
         const tableWrapper = document.getElementById('invoiceTableWrapper');
         const totalPotsEl = document.getElementById('invoiceTotalPots');
         const grandTotalEl = document.getElementById('invoiceGrandTotalCost');
-        const footerSummary = document.getElementById('invoiceSummaryFooter');
-        const notesContainer = document.getElementById('invoiceNotesContainer');
 
         if (sortedLines.length === 0) {
           if (tbody) tbody.innerHTML = '';
@@ -4259,12 +4230,7 @@
           if (tableWrapper) tableWrapper.classList.add('hidden');
           if (totalPotsEl) totalPotsEl.textContent = '0';
           if (grandTotalEl) grandTotalEl.textContent = '$0.00';
-          if (footerSummary) footerSummary.textContent = '0 pots total';
-          if (notesContainer) {
-            notesContainer.innerHTML = '';
-            notesContainer.classList.add('hidden');
-          }
-          lastGeneratedInvoiceText = `🧾 FINAL BUYING INVOICE\nSource: ${source === 'cart' ? 'Cart Items' : 'All Needed'}\n(Empty - No items)\n`;
+          lastGeneratedInvoiceText = `🧾 BUYING INVOICE\nSource: ${source === 'cart' ? 'Cart Items' : 'All Needed'}\n(Empty - No items)\n`;
           return;
         }
 
@@ -4276,7 +4242,7 @@
         let textLines = [];
         let rowsHtml = '';
 
-        textLines.push("🧾 FINAL BUYING INVOICE");
+        textLines.push("🧾 BUYING INVOICE");
         textLines.push(`My Succulent Corner • ${dateStamp ? dateStamp.textContent : ''}`);
         textLines.push(`Source: ${source === 'cart' ? 'In Cart (Purchased)' : 'All Needed (Buy List)'}`);
         textLines.push("----------------------------------------------");
@@ -4298,7 +4264,6 @@
             <tr class="${rowBg} hover:bg-emerald-50/40 transition-colors">
               <td class="py-2.5 px-3">
                 <div class="font-extrabold text-slate-900">${line.label}</div>
-                ${line.notes.length ? `<div class="text-[10px] text-emerald-800 font-bold mt-0.5">↳ ${line.notes.join('; ')}</div>` : ''}
               </td>
               <td class="py-2.5 px-2 text-center font-extrabold text-slate-800">${line.potQty}</td>
               <td class="py-2.5 px-2 text-right text-slate-600 font-semibold">$${line.unitPrice.toFixed(2)}</td>
@@ -4312,11 +4277,6 @@
             (`$${line.unitPrice.toFixed(2)}`).padStart(8) +
             (`$${subtotal.toFixed(2)}`).padStart(10)
           );
-          if (line.notes.length) {
-            line.notes.forEach(n => {
-              textLines.push(`   ↳ ${n}`);
-            });
-          }
         });
 
         textLines.push("----------------------------------------------");
@@ -4333,27 +4293,6 @@
         if (tbody) tbody.innerHTML = rowsHtml;
         if (totalPotsEl) totalPotsEl.textContent = totalPots;
         if (grandTotalEl) grandTotalEl.textContent = `$${grandTotal.toFixed(2)}`;
-        if (footerSummary) footerSummary.textContent = `${totalPots} pots • $${grandTotal.toFixed(2)} total`;
-
-        // Render notes legend if any
-        const allNotes = sortedLines.flatMap(l => l.notes);
-        if (notesContainer) {
-          if (allNotes.length > 0) {
-            notesContainer.innerHTML = `
-              <div class="font-extrabold text-slate-700 flex items-center gap-1">
-                <span>ℹ️</span>
-                <span>Special Item Conversions:</span>
-              </div>
-              <ul class="list-disc list-inside space-y-0.5 text-slate-600 font-medium pl-1">
-                ${allNotes.map(n => `<li>${n}</li>`).join('')}
-              </ul>
-            `;
-            notesContainer.classList.remove('hidden');
-          } else {
-            notesContainer.innerHTML = '';
-            notesContainer.classList.add('hidden');
-          }
-        }
       };
 
       window.copyInvoiceText = function() {
