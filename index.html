@@ -1073,7 +1073,9 @@
         const p = (plantName || "").toLowerCase();
         const v = (varName || "").toLowerCase();
         const s = (size || "").toLowerCase();
-        if (p.includes("euphorbia") || p.includes("euphoria") || p.includes("crown of thorns")) return 18.00;
+        if (p.includes("scilla") || p.includes("socialis") || p.includes("socialist") || p.includes("ledebouria")) return 8.00;
+        if ((p.includes("milii") || p.includes("milli")) && (p.includes("variegat") || p.includes("eurphobia") || !p.includes("set"))) return 5.00;
+        if (p.includes("euphorbia") || p.includes("euphoria") || p.includes("eurphobia") || p.includes("crown of thorns")) return 18.00;
         if (p.includes("string of hearts") || p.includes("vsoh")) {
           return (s.includes("2") || v.includes("2")) ? 1.50 : 3.50;
         }
