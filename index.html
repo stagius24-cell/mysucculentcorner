@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="plant_config.js?v=20261030_1702"></script>
+    <script src="plant_config.js?v=20261030_1712"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -248,7 +248,7 @@
               </button>
             </div>
 
-            <!-- FILTER BY POT SIZE: ALL, 2", 4", 6"/2G, SPEC (VARIATION SIZE ONLY) -->
+            <!-- FILTER BY POT SIZE: ALL, 2", 4", 6", 2G, SET -->
             <div class="flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
               <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Size:</span>
               <button onclick="setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-3 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
@@ -261,10 +261,13 @@
                 4"
               </button>
               <button onclick="setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
-                6"/2G
+                6"
               </button>
-              <button onclick="setPotFilter('special')" data-size-filter="special" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
-                Spec
+              <button onclick="setPotFilter('2g')" data-size-filter="2g" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+                2G
+              </button>
+              <button onclick="setPotFilter('set')" data-size-filter="set" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+                Set
               </button>
             </div>
 
@@ -1327,10 +1330,21 @@
       function matchesSizeFilter(sizeStr, nameStr = '') {
         if (potFilter === 'all') return true;
         const s = `${sizeStr || ''} ${nameStr || ''}`.toLowerCase();
-        if (potFilter === '2') return s.includes('2"') || s.includes('2 inch');
-        if (potFilter === '4') return s.includes('4"') || s.includes('4 inch');
-        if (potFilter === '6') return s.includes('6"') || s.includes('6 inch') || s.includes('gallon') || s.includes('2g') || s.includes('2 gal');
-        if (potFilter === 'special') return !s.includes('2"') && !s.includes('4"') && !s.includes('6"') && !s.includes('gallon') && !s.includes('2g') && !s.includes('2 gal');
+        if (potFilter === '2') {
+          return (s.includes('2"') || s.includes('2 inch') || s.includes('2 pot')) && !s.includes('2g') && !s.includes('2 gallon') && !s.includes('2 gal');
+        }
+        if (potFilter === '4') {
+          return s.includes('4"') || s.includes('4 inch') || s.includes('4 pot');
+        }
+        if (potFilter === '6') {
+          return (s.includes('6"') || s.includes('6 inch') || s.includes('6 pot')) && !s.includes('gallon') && !s.includes('2g') && !s.includes('2 gal');
+        }
+        if (potFilter === '2g') {
+          return s.includes('gallon') || s.includes('2g') || s.includes('2 gal');
+        }
+        if (potFilter === 'set') {
+          return s.includes('set') || s.includes('bundle') || s.includes('colors') || (!s.includes('2"') && !s.includes('4"') && !s.includes('6"') && !s.includes('gallon') && !s.includes('2g') && !s.includes('2 gal'));
+        }
         return true;
       }
 
@@ -1614,7 +1628,7 @@
         };
         const activeSort = sortNames[sortFilter] || 'Sort';
         if (potFilter && potFilter !== 'all') {
-          const sizeNames = { '2': '2"', '4': '4"', '6': '6"', 'special': 'Spec' };
+          const sizeNames = { '2': '2"', '4': '4"', '6': '6"', '2g': '2G', 'set': 'Set' };
           label.textContent = `${activeSort} (${sizeNames[potFilter] || potFilter})`;
         } else {
           label.textContent = activeSort;
