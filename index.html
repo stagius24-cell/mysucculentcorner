@@ -135,11 +135,13 @@
       }
 
       /* Swipe action layers & smooth pan physics */
-      .swipe-card-wrapper {
+      .swipe-row-wrapper, .swipe-card-wrapper {
         position: relative;
         overflow: hidden;
-        border-radius: 0.75rem;
         touch-action: pan-y;
+      }
+      .swipe-card-wrapper {
+        border-radius: 0.75rem;
       }
       .swipe-layer-left {
         position: absolute;
@@ -152,7 +154,6 @@
         color: #ffffff;
         font-weight: 800;
         font-size: 0.875rem;
-        border-radius: 0.75rem;
         z-index: 0;
         opacity: 0;
       }
@@ -167,17 +168,22 @@
         color: #ffffff;
         font-weight: 800;
         font-size: 0.875rem;
-        border-radius: 0.75rem;
         z-index: 0;
         opacity: 0;
       }
-      .swipe-card-content {
-        position: relative;
-        background: #ffffff;
+      .swipe-card-wrapper .swipe-layer-left,
+      .swipe-card-wrapper .swipe-layer-right {
         border-radius: 0.75rem;
+      }
+      .swipe-row-content, .swipe-card-content {
+        position: relative;
         z-index: 1;
         touch-action: pan-y;
         will-change: transform;
+      }
+      .swipe-card-content {
+        background: #ffffff;
+        border-radius: 0.75rem;
       }
 
       #qtyModalBackdrop {
@@ -1563,35 +1569,33 @@
       };
 
       // ==========================================
-      // CARD HORIZONTAL SWIPE GESTURE ENGINE
+      // VARIATION ROW HORIZONTAL SWIPE GESTURE ENGINE
       // ==========================================
-      function initCardSwipeGestures(cardWrapper) {
-        const cardContent = cardWrapper.querySelector('.swipe-card-content');
-        const leftLayer = cardWrapper.querySelector('.swipe-layer-left');
-        const rightLayer = cardWrapper.querySelector('.swipe-layer-right');
-        if (!cardContent) return;
+      function initRowSwipeGestures(rowWrapper) {
+        const rowContent = rowWrapper.querySelector('.swipe-row-content') || rowWrapper.querySelector('.swipe-card-content');
+        const leftLayer = rowWrapper.querySelector('.swipe-layer-left');
+        const rightLayer = rowWrapper.querySelector('.swipe-layer-right');
+        if (!rowContent) return;
 
         let startX = 0;
         let startY = 0;
-        let currentX = 0;
         let isSwiping = false;
         let isVerticalScroll = false;
         let hasHapticTriggeredAtThreshold = false;
         const SWIPE_THRESHOLD = 75;
 
-        cardContent.addEventListener('touchstart', (e) => {
+        rowContent.addEventListener('touchstart', (e) => {
           if (e.touches.length !== 1) return;
           const touch = e.touches[0];
           startX = touch.clientX;
           startY = touch.clientY;
-          currentX = startX;
           isSwiping = false;
           isVerticalScroll = false;
           hasHapticTriggeredAtThreshold = false;
-          cardContent.style.transition = 'none';
+          rowContent.style.transition = 'none';
         }, { passive: true });
 
-        cardContent.addEventListener('touchmove', (e) => {
+        rowContent.addEventListener('touchmove', (e) => {
           if (isVerticalScroll || e.touches.length !== 1) return;
           const touch = e.touches[0];
           const deltaX = touch.clientX - startX;
@@ -1611,7 +1615,7 @@
           if (isSwiping) {
             // Apply resistance curve: deltaX * 0.65
             const appliedX = deltaX * 0.65;
-            cardContent.style.transform = `translateX(${appliedX}px)`;
+            rowContent.style.transform = `translateX(${appliedX}px)`;
 
             if (deltaX > 0) {
               if (leftLayer) leftLayer.style.opacity = Math.min(1, Math.abs(appliedX) / 45);
@@ -1632,19 +1636,19 @@
           }
         }, { passive: true });
 
-        cardContent.addEventListener('touchend', (e) => {
+        rowContent.addEventListener('touchend', (e) => {
           if (!isSwiping) {
             return;
           }
 
           const touch = e.changedTouches[0];
           const deltaX = (touch.clientX - startX) * 0.65;
-          const cardType = cardWrapper.getAttribute('data-card-type');
-          const cardId = cardWrapper.getAttribute('data-card-id');
+          const varId = rowWrapper.getAttribute('data-var-id');
+          const isManual = rowWrapper.getAttribute('data-is-manual') === 'true';
 
           // Snap back crisply with cubic-bezier
-          cardContent.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)';
-          cardContent.style.transform = 'translateX(0px)';
+          rowContent.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)';
+          rowContent.style.transform = 'translateX(0px)';
 
           setTimeout(() => {
             if (leftLayer) leftLayer.style.opacity = 0;
@@ -1653,85 +1657,43 @@
 
           if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
             if (currentMode === 'cart') {
-              triggerHaptic('uncheck', cardContent);
+              triggerHaptic('uncheck', rowContent);
             } else {
-              triggerHaptic('check', cardContent);
+              triggerHaptic('check', rowContent);
             }
-            executeSwipeCheck(cardType, cardId);
+            executeSwipeCheck(varId, isManual, rowContent);
           }
         }, { passive: true });
 
-        cardContent.addEventListener('touchcancel', () => {
-          cardContent.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)';
-          cardContent.style.transform = 'translateX(0px)';
+        rowContent.addEventListener('touchcancel', () => {
+          rowContent.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)';
+          rowContent.style.transform = 'translateX(0px)';
           if (leftLayer) leftLayer.style.opacity = 0;
           if (rightLayer) rightLayer.style.opacity = 0;
         }, { passive: true });
       }
 
-      function executeSwipeCheck(cardType, cardId) {
-        if (cardType === 'manual') {
-          const item = manualExportItems.find(x => x.id === cardId);
-          if (!item) return;
+      function executeSwipeCheck(varId, isManual, rowContent) {
+        if (!varId) return;
+        if (isManual) {
           if (currentMode === 'count') {
-            toggleManualCounted(cardId);
+            toggleManualCounted(varId);
           } else {
-            toggleManualPurchased(cardId);
+            toggleManualPurchased(varId, rowContent);
           }
         } else {
-          const item = catalog.find(x => x.id === cardId);
-          if (!item) return;
           if (currentMode === 'count') {
-            // Check all uncounted variations for this plant
-            const uncounted = item.variations.filter(v => !countedState[v.id]);
-            if (uncounted.length > 0) {
-              uncounted.forEach(v => { countedState[v.id] = true; });
-              saveStorage();
-              renderAll();
-            } else {
-              // Uncheck if already all checked
-              item.variations.forEach(v => { countedState[v.id] = false; });
-              triggerHaptic('uncheck');
-              saveStorage();
-              renderAll();
-            }
-          } else if (currentMode === 'cart') {
-            // In Cart tab, restore/uncheck
-            item.variations.forEach(v => { purchasedState[v.id] = false; });
-            triggerHaptic('uncheck');
-            saveStorage();
-            revertBottomBar();
-            renderAll();
+            toggleCountedStatus(varId);
           } else {
-            // Buy mode: check all unpurchased variations
-            const unpurchased = item.variations.filter(v => !purchasedState[v.id]);
-            if (unpurchased.length > 0) {
-              let totalCost = 0;
-              unpurchased.forEach(v => {
-                purchasedState[v.id] = true;
-                const stock = stockState[v.id] || 0;
-                const buyQty = getEffectiveBuyQty(v.id, v.sold, stock);
-                totalCost += buyQty * getUnitPrice(item.name, v.name, v.size);
-              });
-              saveStorage();
-              renderAll();
-              showBottomUndo(unpurchased[0].id, totalCost);
-            } else {
-              // Uncheck if already checked
-              item.variations.forEach(v => { purchasedState[v.id] = false; });
-              triggerHaptic('uncheck');
-              saveStorage();
-              revertBottomBar();
-              renderAll();
-            }
+            togglePurchased(varId, rowContent);
           }
         }
       }
 
       // Attach swipe listeners after renderAll
       function attachSwipeListenersToList() {
-        document.querySelectorAll('.swipe-card-wrapper').forEach(wrapper => {
-          initCardSwipeGestures(wrapper);
+        document.querySelectorAll('.swipe-row-wrapper').forEach(wrapper => {
+          initRowSwipeGestures(wrapper);
         });
       }
 
@@ -2168,9 +2130,7 @@
 
       window.togglePurchased = function(varId, el) {
         const currentlyPurchased = !!purchasedState[varId];
-        if (!currentlyPurchased && el) {
-          triggerHaptic('check', el);
-          el.classList.add('checking-active');
+        if (!currentlyPurchased) {
           let itemCost = 0.0;
           for (const item of catalog) {
             const v = item.variations.find(x => x.id === varId);
@@ -2182,12 +2142,19 @@
               break;
             }
           }
-          setTimeout(() => {
+          const applyPurchase = () => {
             purchasedState[varId] = true;
             saveStorage();
             renderAll();
             showBottomUndo(varId, itemCost);
-          }, 170);
+          };
+          if (el) {
+            triggerHaptic('check', el);
+            el.classList.add('checking-active');
+            setTimeout(applyPurchase, 170);
+          } else {
+            applyPurchase();
+          }
         } else {
           purchasedState[varId] = false;
           saveStorage();
@@ -2200,18 +2167,23 @@
         const item = manualExportItems.find(x => x.id === id);
         if (!item) return;
         const currentlyPurchased = !!item.purchased;
-        if (!currentlyPurchased && el) {
-          triggerHaptic('check', el);
-          el.classList.add('checking-active');
+        if (!currentlyPurchased) {
           const buyQty = getManualEffectiveBuyQty(item);
           const price = getUnitPrice(item.name, item.size, item.size);
           const itemCost = buyQty * price;
-          setTimeout(() => {
+          const applyManualPurchase = () => {
             item.purchased = true;
             saveStorage();
             renderAll();
             showBottomUndo(id, itemCost);
-          }, 170);
+          };
+          if (el) {
+            triggerHaptic('check', el);
+            el.classList.add('checking-active');
+            setTimeout(applyManualPurchase, 170);
+          } else {
+            applyManualPurchase();
+          }
         } else {
           item.purchased = false;
           saveStorage();
@@ -2429,79 +2401,103 @@
         const detailSpan = detailText ? `
           <span class="text-[11px] font-bold ${ isManualRowChecked ? 'text-emerald-600/70' : 'text-slate-800' } truncate min-w-0 flex-1">${escapeHtml(detailText)}</span>` : '';
 
-        let rowHtml = '';
+        let rowInnerHtml = '';
 
         if (currentMode === 'count') {
-          rowHtml = `
-            <div class="py-1.5 px-2 flex items-center gap-2 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : ''}">
-              <button
-                onclick="triggerHaptic('light', this); toggleManualCounted('${item.id}')"
-                title="${isCounted ? 'Count verified (tap to unmark)' : 'Tap to confirm count'}"
-                aria-label="Mark manual plant counted"
-                class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'} flex items-center justify-center text-xs font-extrabold active:scale-95 transition-all shrink-0 cursor-pointer"
-              >✓</button>
-              <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border-emerald-200'} shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
-                ${detailSpan}
-                <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                  <span title="Target quantity">🎯 ${sold}</span>
-                  <span class="text-slate-300" aria-hidden="true">/</span>
-                  <span class="${shortfall > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-extrabold'}" title="Needed">🛒 ${shortfall}</span>
-                </div>
+          rowInnerHtml = `
+            <div class="swipe-row-wrapper" data-var-id="${item.id}" data-is-manual="true">
+              <div class="swipe-layer-left">
+                <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
               </div>
-              <div class="flex items-center shrink-0">
+              <div class="swipe-layer-right">
+                <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
+              </div>
+              <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : 'bg-white'}">
                 <button
-                  onclick="triggerHaptic('light', this); openQtyModal('${item.id}', true)"
-                  title="📦 In Stock (tap to adjust)"
-                  aria-label="Adjust stock quantity"
-                  class="h-[30px] min-w-[34px] px-2 rounded-lg border border-slate-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-slate-900 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
-                >${stock}</button>
+                  onclick="triggerHaptic('light', this); toggleManualCounted('${item.id}')"
+                  title="${isCounted ? 'Count verified (tap to unmark)' : 'Tap to confirm count'}"
+                  aria-label="Mark manual plant counted"
+                  class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'} flex items-center justify-center text-xs font-extrabold active:scale-95 transition-all shrink-0 cursor-pointer"
+                >✓</button>
+                <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
+                  ${detailSpan}
+                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
+                    <span title="Target quantity">🎯 ${sold}</span>
+                    <span class="text-slate-300" aria-hidden="true">/</span>
+                    <span class="${shortfall > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-extrabold'}" title="Needed">🛒 ${shortfall}</span>
+                  </div>
+                </div>
+                <div class="flex items-center shrink-0">
+                  <button
+                    onclick="triggerHaptic('light', this); openQtyModal('${item.id}', true)"
+                    title="📦 In Stock (tap to adjust)"
+                    aria-label="Adjust stock quantity"
+                    class="h-[30px] min-w-[34px] px-2 rounded-lg border border-slate-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-slate-900 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                  >${stock}</button>
+                </div>
               </div>
             </div>
           `;
         } else if (currentMode === 'buy') {
-          rowHtml = `
-            <div class="py-1.5 px-2 flex items-center gap-2 border-t border-slate-100 first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : ''}">
-              <button onclick="toggleManualPurchased('${item.id}', this)" title="Add to cart" aria-label="Add to cart" class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border border-emerald-700 ${isPurchased ? 'bg-emerald-700 text-white shadow-xs' : 'bg-white text-transparent hover:bg-emerald-50'} flex items-center justify-center text-xs font-extrabold transition-all shrink-0 cursor-pointer active:scale-95">${isPurchased ? '✓' : ''}</button>
-              <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border-emerald-200'} shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
-                ${detailSpan}
-                <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                  <span title="Target quantity">🎯 ${sold}</span>
-                  <span class="text-slate-300" aria-hidden="true">/</span>
-                  <span title="In Stock">📦 ${stock}</span>
-                </div>
+          rowInnerHtml = `
+            <div class="swipe-row-wrapper" data-var-id="${item.id}" data-is-manual="true">
+              <div class="swipe-layer-left">
+                <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
               </div>
-              <div class="flex items-center shrink-0">
-                <button
-                  onclick="triggerHaptic('light', this); openQtyModal('${item.id}', true)"
-                  title="🛒 Qty to Buy (tap to adjust)"
-                  aria-label="Adjust buy quantity"
-                  class="h-[30px] min-w-[34px] px-2 rounded-lg border ${isPurchased ? 'border-emerald-200 bg-emerald-50/60 text-emerald-800' : 'border-slate-300 bg-white hover:bg-amber-50 active:bg-amber-100 text-slate-900'} font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
-                >${buyQty}</button>
+              <div class="swipe-layer-right">
+                <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
+              </div>
+              <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : 'bg-white'}">
+                <button onclick="toggleManualPurchased('${item.id}', this)" title="Add to cart" aria-label="Add to cart" class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border border-emerald-700 ${isPurchased ? 'bg-emerald-700 text-white shadow-xs' : 'bg-white text-transparent hover:bg-emerald-50'} flex items-center justify-center text-xs font-extrabold transition-all shrink-0 cursor-pointer active:scale-95">${isPurchased ? '✓' : ''}</button>
+                <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'} shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
+                  ${detailSpan}
+                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'text-slate-500' : 'text-slate-600'} leading-none">
+                    <span title="Target quantity">🎯 ${sold}</span>
+                    <span class="text-slate-300" aria-hidden="true">/</span>
+                    <span title="In Stock">📦 ${stock}</span>
+                  </div>
+                </div>
+                <div class="flex items-center shrink-0">
+                  <button
+                    onclick="triggerHaptic('light', this); openQtyModal('${item.id}', true)"
+                    title="🛒 Qty to Buy (tap to adjust)"
+                    aria-label="Adjust buy quantity"
+                    class="h-[30px] min-w-[34px] px-2 rounded-lg border ${isPurchased ? 'border-emerald-200 bg-emerald-50/60 text-emerald-800' : 'border-slate-300 bg-white hover:bg-amber-50 active:bg-amber-100 text-slate-900'} font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                  >${buyQty}</button>
+                </div>
               </div>
             </div>
           `;
         } else {
-          rowHtml = `
-            <div class="py-1.5 px-2 flex items-center gap-2 border-t border-emerald-100 first:border-0 bg-emerald-50/60">
-              <button onclick="toggleManualPurchased('${item.id}', this)" title="Remove from cart" aria-label="Remove from cart" class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 shadow-xs transition-all cursor-pointer shrink-0 flex items-center justify-center text-xs font-extrabold active:scale-95">✓</button>
-              <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60 shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
-                ${detailSpan}
-                <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                  <span class="text-emerald-800 font-extrabold" title="Estimated line cost">$${lineSubtotal}</span>
-                  <span class="text-slate-300" aria-hidden="true">/</span>
-                  <span title="Target quantity">🎯 ${sold}</span>
-                </div>
+          rowInnerHtml = `
+            <div class="swipe-row-wrapper" data-var-id="${item.id}" data-is-manual="true">
+              <div class="swipe-layer-left">
+                <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
               </div>
-              <div class="flex items-center shrink-0">
-                <button
-                  onclick="triggerHaptic('light', this); openQtyModal('${item.id}', true)"
-                  title="🛒 Qty in Cart (tap to adjust)"
-                  aria-label="Adjust cart quantity"
-                  class="h-[30px] min-w-[34px] px-2 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-emerald-950 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
-                >${buyQty}</button>
+              <div class="swipe-layer-right">
+                <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
+              </div>
+              <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors bg-emerald-50/60">
+                <button onclick="toggleManualPurchased('${item.id}', this)" title="Remove from cart" aria-label="Remove from cart" class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 shadow-xs transition-all cursor-pointer shrink-0 flex items-center justify-center text-xs font-extrabold active:scale-95">✓</button>
+                <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                  <span class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60 shrink-0 leading-tight">${escapeHtml(badgeText)}</span>
+                  ${detailSpan}
+                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
+                    <span class="text-emerald-800 font-extrabold" title="Estimated line cost">$${lineSubtotal}</span>
+                    <span class="text-slate-300" aria-hidden="true">/</span>
+                    <span title="Target quantity">🎯 ${sold}</span>
+                  </div>
+                </div>
+                <div class="flex items-center shrink-0">
+                  <button
+                    onclick="triggerHaptic('light', this); openQtyModal('${item.id}', true)"
+                    title="🛒 Qty in Cart (tap to adjust)"
+                    aria-label="Adjust cart quantity"
+                    class="h-[30px] min-w-[34px] px-2 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-emerald-950 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                  >${buyQty}</button>
+                </div>
               </div>
             </div>
           `;
@@ -2509,14 +2505,7 @@
         
         const isManualDoneInBuy = currentMode === 'buy' && isPurchased;
         return `
-          <div class="swipe-card-wrapper shadow-sm mb-2" data-card-type="manual" data-card-id="${item.id}">
-            <div class="swipe-layer-left">
-              <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
-            </div>
-            <div class="swipe-layer-right">
-              <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
-            </div>
-            <article class="swipe-card-content border ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90'} overflow-hidden transition-all">
+          <article class="border ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'border-emerald-300/80 bg-emerald-50/40 backdrop-blur-[1px] opacity-75' : 'border-slate-300/90 bg-white shadow-sm'} rounded-xl overflow-hidden mb-2 transition-all">
             <header class="px-2.5 py-1.5 ${(currentMode === 'count' && isCounted) || isManualDoneInBuy ? 'bg-emerald-100/60' : 'bg-slate-50'} border-b border-slate-200/80 flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">Manual</span>
@@ -2533,10 +2522,9 @@
               </div>
             </header>
             <div>
-              ${rowHtml}
+              ${rowInnerHtml}
             </div>
           </article>
-          </div>
         `;
       }
 
@@ -2593,92 +2581,116 @@
 
           if (currentMode === 'count') {
             variationsHtml += `
-              <div class="py-1.5 px-2 flex items-center gap-2 border-t border-slate-100 first:border-0 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : '')}">
-                <button
-                  onclick="triggerHaptic('light', this); toggleCountedStatus('${v.id}')"
-                  title="${isCounted ? 'Count verified (tap to unmark)' : 'Tap to confirm 0 stock / counted'}"
-                  aria-label="Mark variation counted"
-                  class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'} flex items-center justify-center text-xs font-extrabold active:scale-95 transition-all shrink-0 cursor-pointer"
-                >✓</button>
-                <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
-                    ${escapeHtml(badgeText)}
-                  </span>
-                  ${shopifyVarIcon}
-                  ${detailSpan}
-                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                    <span title="Target quantity">🎯 ${v.sold}</span>
-                    <span class="text-slate-300" aria-hidden="true">/</span>
-                    <span class="${shortfall > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-extrabold'}" title="Needed">🛒 ${shortfall}</span>
-                  </div>
+              <div class="swipe-row-wrapper border-t border-slate-100 first:border-0" data-var-id="${v.id}" data-is-manual="false">
+                <div class="swipe-layer-left">
+                  <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
                 </div>
-                <div class="flex items-center shrink-0">
+                <div class="swipe-layer-right">
+                  <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
+                </div>
+                <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors ${isCounted ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : 'bg-white')}">
                   <button
-                    onclick="triggerHaptic('light', this); openQtyModal('${v.id}', false)"
-                    title="📦 In Stock (tap to adjust)"
-                    aria-label="Adjust stock quantity"
-                    class="h-[30px] min-w-[34px] px-2 rounded-lg border border-slate-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-slate-900 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
-                  >${stock}</button>
+                    onclick="triggerHaptic('light', this); toggleCountedStatus('${v.id}')"
+                    title="${isCounted ? 'Count verified (tap to unmark)' : 'Tap to confirm 0 stock / counted'}"
+                    aria-label="Mark variation counted"
+                    class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border ${isCounted ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs' : 'bg-white border-slate-300 text-slate-300 hover:border-emerald-600 hover:text-emerald-600'} flex items-center justify-center text-xs font-extrabold active:scale-95 transition-all shrink-0 cursor-pointer"
+                  >✓</button>
+                  <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                    <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isCounted ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
+                      ${escapeHtml(badgeText)}
+                    </span>
+                    ${shopifyVarIcon}
+                    ${detailSpan}
+                    <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
+                      <span title="Target quantity">🎯 ${v.sold}</span>
+                      <span class="text-slate-300" aria-hidden="true">/</span>
+                      <span class="${shortfall > 0 ? 'text-amber-700 font-extrabold' : 'text-emerald-700 font-extrabold'}" title="Needed">🛒 ${shortfall}</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center shrink-0">
+                    <button
+                      onclick="triggerHaptic('light', this); openQtyModal('${v.id}', false)"
+                      title="📦 In Stock (tap to adjust)"
+                      aria-label="Adjust stock quantity"
+                      class="h-[30px] min-w-[34px] px-2 rounded-lg border border-slate-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-slate-900 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                    >${stock}</button>
+                  </div>
                 </div>
               </div>
             `;
           } else if (currentMode === 'buy') {
             variationsHtml += `
-              <div class="py-1.5 px-2 flex items-center gap-2 border-t border-slate-100 first:border-0 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : '')}">
-                <button 
-                  onclick="togglePurchased('${v.id}', this)"
-                  title="${isPurchased ? 'In cart (tap to uncheck)' : 'Add to cart'}"
-                  aria-label="Add to cart"
-                  class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border border-emerald-700 ${isPurchased ? 'bg-emerald-700 text-white shadow-xs' : 'bg-white text-transparent hover:bg-emerald-50'} flex items-center justify-center text-xs font-extrabold transition-all shrink-0 cursor-pointer active:scale-95">${isPurchased ? '✓' : ''}</button>
-                <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
-                    ${escapeHtml(badgeText)}
-                  </span>
-                  ${shopifyVarIcon}
-                  ${detailSpan}
-                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'text-slate-500' : 'text-slate-600'} leading-none">
-                    <span title="Original target quantity">🎯 ${v.sold}</span>
-                    <span class="text-slate-300" aria-hidden="true">/</span>
-                    <span title="In Stock">📦 ${stock}</span>
-                  </div>
+              <div class="swipe-row-wrapper border-t border-slate-100 first:border-0" data-var-id="${v.id}" data-is-manual="false">
+                <div class="swipe-layer-left">
+                  <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
                 </div>
-                <div class="flex items-center shrink-0">
-                  <button
-                    onclick="triggerHaptic('light', this); openQtyModal('${v.id}', false)"
-                    title="🛒 Qty to Buy (tap to adjust)"
-                    aria-label="Adjust buy quantity"
-                    class="h-[30px] min-w-[34px] px-2 rounded-lg border ${isPurchased ? 'border-emerald-200 bg-emerald-50/60 text-emerald-800' : 'border-slate-300 bg-white hover:bg-amber-50 active:bg-amber-100 text-slate-900'} font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
-                  >${buyQty}</button>
+                <div class="swipe-layer-right">
+                  <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
+                </div>
+                <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors ${isPurchased ? 'bg-emerald-50/80 border-emerald-200' : (isRecentRow ? 'bg-amber-100/80' : 'bg-white')}">
+                  <button 
+                    onclick="togglePurchased('${v.id}', this)"
+                    title="${isPurchased ? 'In cart (tap to uncheck)' : 'Add to cart'}"
+                    aria-label="Add to cart"
+                    class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg border border-emerald-700 ${isPurchased ? 'bg-emerald-700 text-white shadow-xs' : 'bg-white text-transparent hover:bg-emerald-50'} flex items-center justify-center text-xs font-extrabold transition-all shrink-0 cursor-pointer active:scale-95">${isPurchased ? '✓' : ''}</button>
+                  <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                    <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isPurchased ? 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60' : (isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')} shrink-0 leading-tight">
+                      ${escapeHtml(badgeText)}
+                    </span>
+                    ${shopifyVarIcon}
+                    ${detailSpan}
+                    <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 ${isPurchased ? 'text-slate-500' : 'text-slate-600'} leading-none">
+                      <span title="Original target quantity">🎯 ${v.sold}</span>
+                      <span class="text-slate-300" aria-hidden="true">/</span>
+                      <span title="In Stock">📦 ${stock}</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center shrink-0">
+                    <button
+                      onclick="triggerHaptic('light', this); openQtyModal('${v.id}', false)"
+                      title="🛒 Qty to Buy (tap to adjust)"
+                      aria-label="Adjust buy quantity"
+                      class="h-[30px] min-w-[34px] px-2 rounded-lg border ${isPurchased ? 'border-emerald-200 bg-emerald-50/60 text-emerald-800' : 'border-slate-300 bg-white hover:bg-amber-50 active:bg-amber-100 text-slate-900'} font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                    >${buyQty}</button>
+                  </div>
                 </div>
               </div>
             `;
           } else {
             variationsHtml += `
-              <div class="py-1.5 px-2 flex items-center gap-2 border-t border-emerald-100 first:border-0 ${isRecentRow ? 'bg-amber-100/80' : 'bg-emerald-50/60'}">
-                <button 
-                  onclick="togglePurchased('${v.id}', this)"
-                  title="Remove from cart"
-                  aria-label="Remove from cart"
-                  class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 shadow-xs transition-all cursor-pointer shrink-0 flex items-center justify-center text-xs font-extrabold active:scale-95">✓</button>
-                <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                  <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60'} shrink-0 leading-tight">
-                    ${escapeHtml(badgeText)}
-                  </span>
-                  ${shopifyVarIcon}
-                  ${detailSpan}
-                  <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
-                    <span class="text-emerald-800 font-extrabold" title="Estimated line cost">$${lineSubtotal}</span>
-                    <span class="text-slate-300" aria-hidden="true">/</span>
-                    <span title="Original target quantity">🎯 ${v.sold}</span>
-                  </div>
+              <div class="swipe-row-wrapper border-t border-emerald-100 first:border-0" data-var-id="${v.id}" data-is-manual="false">
+                <div class="swipe-layer-left">
+                  <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
                 </div>
-                <div class="flex items-center shrink-0">
-                  <button
-                    onclick="triggerHaptic('light', this); openQtyModal('${v.id}', false)"
-                    title="🛒 Qty in Cart (tap to adjust)"
-                    aria-label="Adjust cart quantity"
-                    class="h-[30px] min-w-[34px] px-2 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-emerald-950 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
-                  >${buyQty}</button>
+                <div class="swipe-layer-right">
+                  <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
+                </div>
+                <div class="swipe-row-content py-1.5 px-2 flex items-center gap-2 transition-colors ${isRecentRow ? 'bg-amber-100/80' : 'bg-emerald-50/60'}">
+                  <button 
+                    onclick="togglePurchased('${v.id}', this)"
+                    title="Remove from cart"
+                    aria-label="Remove from cart"
+                    class="w-[30px] h-[30px] min-w-[30px] min-h-[30px] rounded-lg bg-emerald-700 border border-emerald-700 text-white hover:bg-rose-600 hover:border-rose-600 shadow-xs transition-all cursor-pointer shrink-0 flex items-center justify-center text-xs font-extrabold active:scale-95">✓</button>
+                  <div class="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                    <span title="${v.hasShopify ? 'From Shopify store' : 'From Etsy'}" class="text-[11px] font-extrabold px-1.5 py-0.5 min-w-[28px] text-center rounded ${isRecentRow ? 'bg-amber-100 text-amber-950 border border-amber-400' : 'bg-emerald-50/60 text-emerald-600/70 border-emerald-200/60'} shrink-0 leading-tight">
+                      ${escapeHtml(badgeText)}
+                    </span>
+                    ${shopifyVarIcon}
+                    ${detailSpan}
+                    <div class="flex items-center gap-1 text-[11px] font-bold whitespace-nowrap shrink-0 ml-auto pr-0.5 text-slate-600 leading-none">
+                      <span class="text-emerald-800 font-extrabold" title="Estimated line cost">$${lineSubtotal}</span>
+                      <span class="text-slate-300" aria-hidden="true">/</span>
+                      <span title="Original target quantity">🎯 ${v.sold}</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center shrink-0">
+                    <button
+                      onclick="triggerHaptic('light', this); openQtyModal('${v.id}', false)"
+                      title="🛒 Qty in Cart (tap to adjust)"
+                      aria-label="Adjust cart quantity"
+                      class="h-[30px] min-w-[34px] px-2 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 active:bg-emerald-100 text-emerald-950 font-extrabold text-xs flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                    >${buyQty}</button>
+                  </div>
                 </div>
               </div>
             `;
@@ -2712,14 +2724,7 @@
         const recentHeaderBadge = '';
 
         return `
-          <div class="swipe-card-wrapper shadow-sm mb-2" data-card-type="item" data-card-id="${item.id}">
-            <div class="swipe-layer-left">
-              <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
-            </div>
-            <div class="swipe-layer-right">
-              <span class="flex items-center gap-1.5"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> ${currentMode === 'cart' ? '✕ Uncheck' : '✓ Check'}</span>
-            </div>
-            <article class="swipe-card-content border ${cardArticleClass} overflow-hidden transition-all">
+          <article class="border ${cardArticleClass} rounded-xl overflow-hidden shadow-sm mb-2 transition-all">
             <header class="px-2.5 py-1.5 ${cardHeaderClass} flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
                 ${recentHeaderBadge}
@@ -2735,7 +2740,6 @@
               ${variationsHtml}
             </div>
           </article>
-          </div>
         `;
       }
 
