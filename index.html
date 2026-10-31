@@ -330,7 +330,7 @@
       </div>
     </main>
 
-    <!-- FLOATING ACTION BUTTON (BOTTOM-RIGHT CIRCULAR FAB: 62x62px, 80% OPACITY, 2PTS BLUR) -->
+    <!-- FLOATING ACTION BUTTON (BOTTOM-RIGHT CIRCULAR FAB: 62x62px, 70% OPACITY, 1PT BLUR) -->
     <aside id="floatingBarAside" class="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 sm:right-6 z-30 no-print">
       <button 
         id="fabMainBtn" 
@@ -338,7 +338,7 @@
         aria-label="Add plant manually" 
         title="Add plant manually" 
         class="w-[62px] h-[62px] min-w-[62px] min-h-[62px] rounded-full text-white shadow-xl shadow-emerald-950/25 active:scale-95 transition-all duration-200 flex items-center justify-center border border-white/25 ring-4 ring-emerald-600/20 cursor-pointer"
-        style="background-color: rgba(6, 78, 59, 0.8); backdrop-filter: blur(2pt); -webkit-backdrop-filter: blur(2pt);"
+        style="background-color: rgba(6, 78, 59, 0.7); backdrop-filter: blur(1pt); -webkit-backdrop-filter: blur(1pt);"
       >
         <span id="fabIconPlus" class="text-3xl font-black leading-none select-none">＋</span>
         <div id="fabUndoContent" class="hidden flex flex-col items-center justify-center leading-none select-none">
@@ -2033,9 +2033,9 @@
         if (plusIcon) plusIcon.classList.add('hidden');
         if (undoContent) undoContent.classList.remove('hidden');
 
-        btn.style.backgroundColor = 'rgba(217, 119, 6, 0.8)';
-        btn.style.backdropFilter = 'blur(2pt)';
-        btn.style.webkitBackdropFilter = 'blur(2pt)';
+        btn.style.backgroundColor = 'rgba(217, 119, 6, 0.7)';
+        btn.style.backdropFilter = 'blur(1pt)';
+        btn.style.webkitBackdropFilter = 'blur(1pt)';
         btn.setAttribute('title', 'Undo check off (9s)');
         btn.setAttribute('aria-label', 'Undo check off');
 
@@ -2080,9 +2080,9 @@
         const plusIcon = document.getElementById('fabIconPlus');
         const undoContent = document.getElementById('fabUndoContent');
         if (btn) {
-          btn.style.backgroundColor = 'rgba(6, 78, 59, 0.8)';
-          btn.style.backdropFilter = 'blur(2pt)';
-          btn.style.webkitBackdropFilter = 'blur(2pt)';
+          btn.style.backgroundColor = 'rgba(6, 78, 59, 0.7)';
+          btn.style.backdropFilter = 'blur(1pt)';
+          btn.style.webkitBackdropFilter = 'blur(1pt)';
           btn.setAttribute('title', 'Add plant manually');
           btn.setAttribute('aria-label', 'Add plant manually');
         }
