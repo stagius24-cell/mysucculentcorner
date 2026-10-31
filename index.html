@@ -279,49 +279,40 @@
           </button>
         </div>
 
-        <!-- ROW 4: EXPANDED TAB UNDERNEATH SEARCH BAR (SLOW 700MS ANIMATION) -->
+        <!-- ROW 4: EXPANDED SINGLE-ROW UNDERNEATH SEARCH BAR (COMPACT SORT CYCLE + SIZE PILLS) -->
         <div id="expandedSortTab" class="max-w-xl mx-auto px-2.5 overflow-hidden transition-all duration-700 ease-in-out max-h-0 opacity-0 pointer-events-none">
-          <div class="py-2 space-y-1.5 border-t border-slate-200/60 mt-0.5">
+          <div class="py-2 border-t border-slate-200/60 mt-0.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[11px]">
             
-            <!-- SORT BY: SIZE, SOLD, ZONE, NEED, A-Z -->
-            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
-              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Sort:</span>
-              <button onclick="handleSortSelect('sold-desc')" data-sort-val="sold-desc" class="sort-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
-                🔥 Sold
-              </button>
-              <button onclick="handleSortSelect('zone')" data-sort-val="zone" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
-                🌱 Zone
-              </button>
-              <button onclick="handleSortSelect('need-first')" data-sort-val="need-first" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
-                🎯 Need
-              </button>
-              <button onclick="handleSortSelect('name-asc')" data-sort-val="name-asc" class="sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer">
-                🔤 A-Z
-              </button>
-            </div>
+            <!-- COMPACT "Sort ⇅" CYCLE BUTTON -->
+            <button 
+              id="sortCycleBtn" 
+              onclick="triggerHaptic('light', this); cycleSortFilter()" 
+              class="h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer" 
+              title="Click to cycle sort (Sold → Zone → Need → A-Z)"
+              aria-label="Cycle sort"
+            >
+              <span id="sortCycleBtnText">Sort ⇅: 🔥 Sold</span>
+            </button>
 
-            <!-- FILTER BY POT SIZE: ALL, 2", 4", 6", 2G, SET -->
-            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar text-[11px]">
-              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Size:</span>
-              <button onclick="triggerHaptic('light', this); setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-3 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
-                All
-              </button>
-              <button onclick="triggerHaptic('light', this); setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
-                2"
-              </button>
-              <button onclick="triggerHaptic('light', this); setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
-                4"
-              </button>
-              <button onclick="triggerHaptic('light', this); setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
-                6"
-              </button>
-              <button onclick="triggerHaptic('light', this); setPotFilter('2g')" data-size-filter="2g" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
-                2G
-              </button>
-              <button onclick="triggerHaptic('light', this); setPotFilter('set')" data-size-filter="set" class="size-chip h-7 px-3 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
-                Set
-              </button>
-            </div>
+            <!-- VERTICAL DIVIDER -->
+            <div class="h-4 w-[1px] bg-slate-300 mx-0.5 shrink-0" aria-hidden="true"></div>
+
+            <!-- SIZE PILLS: ALL, 2", 4", 6", 2-GAL -->
+            <button onclick="triggerHaptic('light', this); setPotFilter('all')" data-size-filter="all" class="size-chip h-7 px-3 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+              All
+            </button>
+            <button onclick="triggerHaptic('light', this); setPotFilter('2')" data-size-filter="2" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+              2"
+            </button>
+            <button onclick="triggerHaptic('light', this); setPotFilter('4')" data-size-filter="4" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+              4"
+            </button>
+            <button onclick="triggerHaptic('light', this); setPotFilter('6')" data-size-filter="6" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+              6"
+            </button>
+            <button onclick="triggerHaptic('light', this); setPotFilter('2g')" data-size-filter="2g" class="size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer">
+              2-Gal
+            </button>
 
           </div>
         </div>
@@ -1081,6 +1072,8 @@
       function initApp() {
         initLogo();
         loadStorage();
+        updateSortCycleBtn();
+        updateSortMainBtnLabel();
         if (!catalog || catalog.length === 0) {
           catalog = JSON.parse(JSON.stringify(DEFAULT_CATALOG));
         }
@@ -1843,6 +1836,27 @@
 
       let isSortDrawerOpen = false;
 
+      const SORT_OPTIONS = [
+        { id: 'sold-desc', label: '🔥 Sold', name: 'Sold' },
+        { id: 'zone', label: '🌱 Zone', name: 'Zone' },
+        { id: 'need-first', label: '🎯 Need', name: 'Need' },
+        { id: 'name-asc', label: '🔤 A-Z', name: 'A-Z' }
+      ];
+
+      window.cycleSortFilter = function() {
+        const currentIndex = SORT_OPTIONS.findIndex(s => s.id === sortFilter);
+        const nextIndex = (currentIndex + 1) % SORT_OPTIONS.length;
+        const nextSort = SORT_OPTIONS[nextIndex];
+        handleSortSelect(nextSort.id);
+      };
+
+      function updateSortCycleBtn() {
+        const btnText = document.getElementById('sortCycleBtnText');
+        if (!btnText) return;
+        const opt = SORT_OPTIONS.find(s => s.id === sortFilter) || SORT_OPTIONS[0];
+        btnText.textContent = `Sort ⇅: ${opt.label}`;
+      }
+
       window.toggleSortDrawer = function(expand) {
         triggerHaptic("light");
         if (expand === undefined) {
@@ -1858,9 +1872,9 @@
         if (tab) {
           if (isSortDrawerOpen) {
             tab.classList.remove('max-h-0', 'opacity-0', 'pointer-events-none');
-            tab.classList.add('max-h-32', 'opacity-100', 'pointer-events-auto');
+            tab.classList.add('max-h-16', 'opacity-100', 'pointer-events-auto');
           } else {
-            tab.classList.remove('max-h-32', 'opacity-100', 'pointer-events-auto');
+            tab.classList.remove('max-h-16', 'opacity-100', 'pointer-events-auto');
             tab.classList.add('max-h-0', 'opacity-0', 'pointer-events-none');
           }
         }
@@ -1880,14 +1894,7 @@
 
       window.handleSortSelect = function(val) {
         sortFilter = val;
-        // Update sort-chip buttons
-        document.querySelectorAll('.sort-chip').forEach(el => {
-          const v = el.getAttribute('data-sort-val');
-          const isMatch = (v === val);
-          el.className = isMatch
-            ? "sort-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer"
-            : "sort-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer";
-        });
+        updateSortCycleBtn();
         updateSortMainBtnLabel();
         renderAll();
       };
@@ -1898,8 +1905,8 @@
           const f = el.getAttribute('data-size-filter');
           const isMatch = (f === size);
           el.className = isMatch
-            ? "size-chip h-7 px-2.5 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer"
-            : "size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center gap-1 cursor-pointer";
+            ? "size-chip h-7 px-3 rounded-full font-extrabold transition-all shrink-0 bg-emerald-700 text-white shadow-sm active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer"
+            : "size-chip h-7 px-2.5 rounded-full font-bold transition-all shrink-0 bg-slate-100 text-slate-700 border border-slate-300 active:scale-95 whitespace-nowrap flex items-center justify-center cursor-pointer";
         });
         updateSortMainBtnLabel();
         renderAll();
@@ -1916,7 +1923,7 @@
         };
         const activeSort = sortNames[sortFilter] || 'Sort';
         if (potFilter && potFilter !== 'all') {
-          const sizeNames = { '2': '2"', '4': '4"', '6': '6"', '2g': '2G', 'set': 'Set' };
+          const sizeNames = { '2': '2"', '4': '4"', '6': '6"', '2g': '2-Gal', 'set': 'Set' };
           label.textContent = `${activeSort} (${sizeNames[potFilter] || potFilter})`;
         } else {
           label.textContent = activeSort;
